@@ -1,0 +1,37 @@
+language: python
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+os:
+  - linux
+  - osx  # Adds macOS for cross-platform testing
+
+env:
+  global:
+    - MAX_LINE_LENGTH=120  # Linting line length
+
+cache:
+  pip: true  # Caches pip packages to speed up builds
+
+install:
+  - pip install flake8 pytest  # Install necessary tools and testing framework
+  - pip install -r requirements.txt || true  # Install project dependencies if `requirements.txt` exists
+
+before_script:
+  - flake8 npdatetime --max-line-length=$MAX_LINE_LENGTH  # Linting with dynamic line length configuration
+
+script:
+  - pytest -v  # Run tests with verbose output
+
+jobs:
+  include:
+    - stage: "Linting Only"
+      python: "3.8"
+      script:
+        - flake8 npdatetime --max-line-length=$MAX_LINE_LENGTH
+
+stages:
+  - "Test"
+  - "Linting Only"
