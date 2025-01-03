@@ -1,7 +1,7 @@
 """An inspired library from Python's `datetime` library which will operate on top of
 Bikram Sambat (B.S) date. Currently supported B.S date range is 1975 - 2100. Most of the code &
 documentation are derived from Python3.5 's datetime.py module & later modified to support
-nepali_datetime.
+npdatetime.
 
 Supports >= Python3.5
 """
@@ -23,13 +23,13 @@ MAXYEAR = MAXDATE['year']
 NEPAL_TIME_UTC_OFFSET = 20700
 
 _MONTHNAMES = (None, "Bai", "Jes", "Asa", "Shr", "Bha", "Asw", "Kar", "Man", "Pou", "Mag", "Fal", "Cha")
-_FULLMONTHNAMES = (None, "Baishakh", "Jestha", "Asar", "Shrawan", "Bhadau", "Aswin", "Kartik", "Mangsir", "Poush",
-                   "Magh", "Falgun", "Chaitra")
-_MONTHNAMES_NP = (None, "वैशाख", "जेष्ठ", "असार", "श्रावण", "भदौ", "आश्विन", "कार्तिक", "मंसिर", "पौष",
-                  "माघ", "फाल्गुण", "चैत्र")
+_FULLMONTHNAMES = (None, "Baishakh", "Jestha", "Asar", "Shrawan", "Bhadau", "Aswin", "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra")
+_MONTHNAMES_NP = (None, "वैशाख", "जेष्ठ", "असार", "श्रावण", "भदौ", "आश्विन", "कार्तिक", "मंसिर", "पौष", "माघ", "फाल्गुण", "चैत्र")
+
 _DAYNAMES = (None, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 _FULLDAYNAMES = (None, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 _FULLDAYNAMES_NP = (None, "सोमबार", "मंगलबार", "बुधवार", "बिहिबार", "शुक्रबार", "शनिबार", "आइतबार")
+
 _DIGIT_NP = "०१२३४५६७८९"
 _EPOCH = _actual_datetime.datetime(1970, 1, 1, tzinfo=_actual_datetime.timezone.utc)
 
@@ -179,11 +179,11 @@ def _check_utc_offset(name, offset):
                         "or _actual_datetime.timedelta, not '%s'" % (name, type(offset)))
     if offset % _actual_datetime.timedelta(minutes=1) or offset.microseconds:
         raise ValueError("tzinfo.%s() must return a whole number "
-                         "of minutes, got %s" % (name, offset))
+                            "of minutes, got %s" % (name, offset))
     if not -_actual_datetime.timedelta(1) < offset < _actual_datetime.timedelta(1):
         raise ValueError("%s()=%s, must be must be strictly between "
-                         "-timedelta(hours=24) and timedelta(hours=24)" %
-                         (name, offset))
+                            "-timedelta(hours=24) and timedelta(hours=24)" %
+                            (name, offset))
 
 
 def _check_int_field(value):
@@ -304,14 +304,14 @@ class UTC0545(_actual_datetime.tzinfo):
         """datetime in UTC -> datetime in local time."""
 
         if not isinstance(dt, datetime) and not isinstance(dt, _actual_datetime.datetime):
-            raise TypeError("fromutc() requires a nepali_datetime.datetime or datetime.datetime argument")
+            raise TypeError("fromutc() requires a npdatetime.datetime or datetime.datetime argument")
         if dt.tzinfo is not self:
             raise ValueError("dt.tzinfo is not self")
 
         dtoff = dt.utcoffset()
         if dtoff is None:
             raise ValueError("fromutc() requires a non-None utcoffset() "
-                             "result")
+                                "result")
 
         dtdst = dt.dst()
         if dtdst is None:
@@ -322,7 +322,7 @@ class UTC0545(_actual_datetime.tzinfo):
             dtdst = dt.dst()
             if dtdst is None:
                 raise ValueError("fromutc(): dt.dst gave inconsistent "
-                                 "results; cannot convert")
+                                    "results; cannot convert")
         return dt + dtdst
 
 
@@ -361,7 +361,7 @@ class date:
 
     @classmethod
     def from_datetime_date(cls, from_date):
-        """Convert datetime.date to nepali_datetime.date (A.D date to B.S).
+        """Convert datetime.date to npdatetime.date (A.D date to B.S).
 
         Parameters
         ----------
@@ -370,15 +370,15 @@ class date:
 
         Returns
         -------
-        nepali_datetime.date
-            The converted nepali_datetime.date object.
+        npdatetime.date
+            The converted npdatetime.date object.
         """
         if not isinstance(from_date, _actual_datetime.date):
             raise TypeError("Unsupported type {}.".format(type(from_date)))
         return cls(MINYEAR, 1, 1) + (from_date - _actual_datetime.date(**REFERENCE_DATE_AD))
 
     def to_datetime_date(self):
-        """Convert nepali_datetime.date to datetime.date (B.S date to A.D).
+        """Convert npdatetime.date to datetime.date (B.S date to A.D).
 
         Returns
         -------
@@ -398,7 +398,7 @@ class date:
         start_weekday = self.__class__(self.year, self.month, 1).weekday()
         cal = [[('{:^%s}' % ((justify + 1) * 7)).format(self.strftime('%B %Y'))],
                [format_str.format('Sun'), *(format_str.format(j) for j in _DAYNAMES[1:-1])],
-               [format_str.format(' ') for _ in range(start_weekday)]]
+                [format_str.format(' ') for _ in range(start_weekday)]]
         cal[-1].extend([format_str.format(j) for j in range(1, 8 - start_weekday)])
         cal_cursor = 8 - start_weekday
         cal_range = [(1, 7 - start_weekday)]
@@ -521,7 +521,7 @@ class date:
         return NotImplemented
 
     def __add__(self, other):
-        """Add two nepali_datetime.date objects.
+        """Add two npdatetime.date objects.
         Parameters
         ----------
         other: datetime.timedelta
@@ -529,8 +529,8 @@ class date:
 
         Returns
         -------
-        nepali_datetime.date
-            The new nepali_datetime.date object after addition operation.
+        npdatetime.date
+            The new npdatetime.date object after addition operation.
         """
         if isinstance(other, _actual_datetime.timedelta):
             o = self.toordinal() + other.days
@@ -542,7 +542,7 @@ class date:
     __radd__ = __add__
 
     def __sub__(self, other):
-        """Subtract two nepali_datetime.date objects.
+        """Subtract two npdatetime.date objects.
 
         Parameters
         ----------
@@ -551,8 +551,8 @@ class date:
 
         Returns
         -------
-        nepali_datetime.date
-            The new nepali_datetime.date object after subtraction operation.
+        npdatetime.date
+            The new npdatetime.date object after subtraction operation.
         """
         if isinstance(other, _actual_datetime.timedelta):
             return self + _actual_datetime.timedelta(-other.days)
@@ -720,7 +720,7 @@ class datetime(date):
 
     @classmethod
     def from_datetime_datetime(cls, from_datetime):
-        """Convert datetime.date to nepali_datetime.datetime (A.D datetime to B.S).
+        """Convert datetime.date to npdatetime.datetime (A.D datetime to B.S).
 
         Parameters
         ----------
@@ -729,14 +729,14 @@ class datetime(date):
 
         Returns
         -------
-        nepali_datetime.datetime
-            The converted nepali_datetime.datetime object.
+        npdatetime.datetime
+            The converted npdatetime.datetime object.
         """
         from_datetime = from_datetime.astimezone(UTC0545())
         return cls.combine(cls.from_datetime_date(from_datetime.date()), from_datetime.time())
 
     def to_datetime_datetime(self):
-        """Convert nepali_datetime.datetime to datetime.datetime (B.S datetime to A.D).
+        """Convert npdatetime.datetime to datetime.datetime (B.S datetime to A.D).
 
         Returns
         -------
@@ -895,14 +895,14 @@ class datetime(date):
     def __repr__(self):
         """Convert to formal string, for repr()."""
         L = [self._year, self._month, self._day,  # These are never zero
-             self._hour, self._minute, self._second, self._microsecond]
+                self._hour, self._minute, self._second, self._microsecond]
         if L[-1] == 0:
             del L[-1]
         if L[-1] == 0:
             del L[-1]
         s = "%s.%s(%s)" % (self.__class__.__module__,
-                           self.__class__.__qualname__,
-                           ", ".join(map(str, L)))
+                            self.__class__.__qualname__,
+                            ", ".join(map(str, L)))
         if self._tzinfo is not None:
             assert s[-1:] == ")"
             s = s[:-1] + ", tzinfo=%r" % self._tzinfo + ")"
@@ -1009,11 +1009,11 @@ class datetime(date):
 
         if base_compare:
             return _cmp((self._year, self._month, self._day,
-                         self._hour, self._minute, self._second,
-                         self._microsecond),
+                            self._hour, self._minute, self._second,
+                            self._microsecond),
                         (other._year, other._month, other._day,
-                         other._hour, other._minute, other._second,
-                         other._microsecond))
+                            other._hour, other._minute, other._second,
+                            other._microsecond))
         if myoff is None or otoff is None:
             if allow_mixed:
                 return 2  # arbitrary non-zero value
