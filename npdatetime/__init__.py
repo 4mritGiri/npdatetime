@@ -15,6 +15,8 @@ import time as _time
 import math as _math
 import datetime as _actual_datetime
 
+from npdatetime.utils import get_fiscal_year_by_date
+
 from .config import CALENDAR_PATH, MINDATE, MAXDATE, REFERENCE_DATE_AD
 
 MINYEAR = MINDATE['year']
@@ -376,7 +378,13 @@ class date:
         if not isinstance(from_date, _actual_datetime.date):
             raise TypeError("Unsupported type {}.".format(type(from_date)))
         return cls(MINYEAR, 1, 1) + (from_date - _actual_datetime.date(**REFERENCE_DATE_AD))
-
+    
+    @classmethod
+    def current_fiscal_year(cls):
+        """Return the current fiscal year"""
+        current_date = cls.today()
+        return get_fiscal_year_by_date(current_date)
+    
     def to_datetime_date(self):
         """Convert npdatetime.date to datetime.date (B.S date to A.D).
 

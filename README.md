@@ -129,6 +129,77 @@ Sun  Mon  Tue  Wed  Thu  Fri  Sat
 
 ---
 
+## **Fiscal Year Calculations**
+
+The **npdatetime** library provides methods to easily calculate the current fiscal year and convert dates to their corresponding fiscal year. Fiscal years in Nepal start from **Shrawan (month 4)** and end at **Ashadh (month 12)**.
+
+### **Getting the Current Fiscal Year**
+You can get the current fiscal year using the `current_fiscal_year()` method. It returns the fiscal year as a tuple in the format `(start_year, end_year)`.
+
+```python
+import npdatetime
+
+# Get current fiscal year
+npdatetime.datetime.current_fiscal_year()
+# Output: (2081, 2082)
+```
+
+Alternatively, you can use it directly from the `datetime` class:
+
+```python
+from npdatetime import datetime
+
+# Get current fiscal year
+datetime.current_fiscal_year()
+# Output: (2081, 2082)
+```
+
+### **Getting Fiscal Year for a Specific Date**
+You can also calculate the fiscal year for any specific Nepali date using the `get_fiscal_year_by_date()` function. This takes a `datetime` object as input and returns the fiscal year for that date.
+
+```python
+from npdatetime import get_fiscal_year_by_date
+from npdatetime import datetime
+
+# Example date
+date_obj = datetime(2079, 12, 1)
+
+# Get fiscal year for a specific date
+get_fiscal_year_by_date(date_obj)
+# Output: (2079, 2080)
+
+# You can also directly pass a Nepali datetime object to the function
+get_fiscal_year_by_date(datetime(2080, 4, 1))
+# Output: (2080, 2081)
+```
+
+### **Examples**
+
+Here are a few examples of how you can use the `get_fiscal_year_by_date()` method to calculate the fiscal year for various dates:
+
+```python
+# For 2079-12-01
+get_fiscal_year_by_date(datetime(2079, 12, 1))
+# Output: (2079, 2080)
+
+# For 2080-03-01
+get_fiscal_year_by_date(datetime(2080, 3, 1))
+# Output: (2079, 2080)
+
+# For 2080-04-01
+get_fiscal_year_by_date(datetime(2080, 4, 1))
+# Output: (2080, 2081)
+
+# For 2080-06-01
+get_fiscal_year_by_date(datetime(2080, 6, 1))
+# Output: (2080, 2081)
+```
+
+### **Note**
+- The fiscal year is based on the Nepali date system, which is different from the Gregorian calendar. In Nepal, the fiscal year runs from **Shrawan (month 4)** to **Ashadh (month 12)**.
+
+---
+
 ## **Documentation**  
 
 Comprehensive usage examples and detailed documentation can be found on the [official website](https://4mritGiri.github.io/npdatetime/).  
