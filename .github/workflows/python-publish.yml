@@ -51,4 +51,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
-          token: ${{ secrets.PYPI_API_TOKEN }}  # Use the secret token for authentication
+          token: ${{ secrets.PYPI_API_TOKEN }}
