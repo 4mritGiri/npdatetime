@@ -20,3 +20,5 @@ docs/source/_*
 /*.egg-info/
 
 dist/
+
+RELEASE_NOTES.md
