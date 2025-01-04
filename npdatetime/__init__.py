@@ -5,9 +5,9 @@ npdatetime.
 
 Supports >= Python3.5
 """
-__version__ = "0.1.0"
+# __version__ = "0.1.1"
 
-__author__ = "AMRIT GIRI <amritgiri02595@gmail.com>"
+__author__ = "Amrit Giri <amritgiri02595@gmail.com>"
 
 import sys
 import csv

@@ -1,13 +1,36 @@
+[tool.setuptools]
+packages = ["npdatetime"]
+
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools", "wheel", "twine", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "npdatetime"
-version = "0.1.0"
-description = "Datetime utilities for numpy arrays"
-authors = [{name = "Amrit Giri", email = "amritgiri02595@gmail.com"}]
-requires-python = ">=3.8"
-dependencies = [
-    "numpy>=1.20.0",
+dynamic = ["version"]
+authors = [
+  { name="Amrit Giri", email="amritgiri02595@gmail.com" },
 ]
+description = "A Python package that provides advanced functionality for handling Nepali dates and times, including support for the Bikram Sambat calendar system and Nepal Time (NPT). Ideal for developers working with Nepali date-related applications, offering seamless conversion, manipulation, and formatting of dates and times in the Nepali calendar."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+keywords = [
+    "Nepali Date", "Date Conversion", "Datetime", "Bikram Sambat", "Bikram Samvat", 
+    "nepali", "B.S.", "BS", "bs", "b.s", "date", "NpDateTime", "datetime", "time", 
+    "timezone", "nepal", "bikram", "sambat", "samvat", "nepali-date", "nepali-datetime", 
+    "nepal-time", "npt", "nepal-timezone", "npdatetime", "npdt"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/4mritGiri/npdatetime#readme"
+Issues = "https://github.com/4mritGiri/npdatetime/issues"
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"

@@ -1,1 +1,2 @@
 include npdatetime/data/*
+recursive-include npdatetime/data *

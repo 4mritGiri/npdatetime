@@ -6,7 +6,7 @@ from time import struct_time
 from typing import Optional, Tuple, overload, ClassVar, Type, TypeVar
 
 
-__version__: str
+# __version__: str
 __author__: str
 
 _S = TypeVar("_S")
