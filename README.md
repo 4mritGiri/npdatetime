@@ -1,5 +1,11 @@
 # **Nepali Datetime (Bikram Sambat Date & Nepal Time)**  
 
+[![PyPI version](https://badge.fury.io/py/npdatetime.svg)](https://badge.fury.io/py/npdatetime)
+<!-- [![CI status](https://github.com/opensource-npdatetime/py-npdatetime/actions/workflows/python-package.yml/badge.svg?branch=??)](https://github.com/opensource-nepnpdatetimeal/py-npdatetime/actions)
+[![Downloads](https://img.shields.io/pypi/dm/npdatetime.svg?maxAge=180)](https://pypi.org/project/npdatetime/)
+[![codecov](https://codecov.io/gh/opensource-npdatetime/py-npdatetime/branch/main/graph/badge.svg?token=PTUHYWCJ4I)](https://codecov.io/gh/opensource-npdatetime/py-npdatetime) -->
+
+
 A Python library inspired by Python's core `datetime` module, designed specifically for operations based on the **Bikram Sambat (B.S.)** calendar and **Nepal Time (NPT)** timezone (`UTC+05:45`).  
 
 This library bridges the gap between traditional Nepali dates and modern software development, allowing developers to handle Nepali dates with ease while maintaining compatibility with Python's `datetime`.  

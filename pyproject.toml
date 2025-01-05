@@ -32,5 +32,5 @@ Homepage = "https://github.com/4mritGiri/npdatetime#readme"
 Issues = "https://github.com/4mritGiri/npdatetime/issues"
 
 [tool.setuptools_scm]
-version_scheme = "release-branch-semver"
+version_scheme = "post-release"
 local_scheme = "no-local-version"
