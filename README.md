@@ -135,74 +135,211 @@ Sun  Mon  Tue  Wed  Thu  Fri  Sat
 
 ---
 
-## **Fiscal Year Calculations**
+# Nepali Fiscal Year Module Documentation
 
-The **npdatetime** library provides methods to easily calculate the current fiscal year and convert dates to their corresponding fiscal year. Fiscal years in Nepal start from **Shrawan (month 4)** and end at **Ashadh (month 12)**.
+This module provides functionality to calculate and manage fiscal year information based on the Nepali calendar. It allows you to customize fiscal year durations, handle leap years, and generate reports about fiscal years, quarters, and fiscal weeks.
 
-### **Getting the Current Fiscal Year**
-You can get the current fiscal year using the `current_fiscal_year()` method. It returns the fiscal year as a tuple in the format `(start_year, end_year)`.
+## Functions
 
+### `fiscal_year(date_obj=None, start_month=4, end_month=3)`
+
+Returns the fiscal year for the provided Nepali date. If no date is provided, the current date is used. You can also customize the start and end month of the fiscal year.
+
+**Parameters:**
+- `date_obj` (optional): A Nepali date object. If not provided, today's date will be used.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+- `end_month` (optional): The end month of the fiscal year (default is Ashad, month 12).
+
+**Returns:**
+- A tuple containing the start and end year of the fiscal year.
+
+**Example:**
 ```python
-import npdatetime
-
-# Get current fiscal year
-npdatetime.datetime.current_fiscal_year()
-# Output: (2081, 2082)
+fiscal_year(date_obj=date(2080, 5, 15), start_month=9, end_month=6)
+# Returns: (2080, 2081)
 ```
 
-Alternatively, you can use it directly from the `datetime` class:
+---
 
+### `get_fiscal_year(date_obj, start_month=4, end_month=3, format=None)`
+
+Returns the fiscal year based on the Nepali date object, with support for various formats.
+
+**Parameters:**
+- `date_obj`: A Nepali date object.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+- `end_month` (optional): The end month of the fiscal year (default is Ashad, month 12).
+- `format` (optional): The format for the fiscal year representation. Supported formats:
+  - `None` (default): Returns a tuple of `(start_year, end_year)`.
+  - `"start_yy/end_yy"`: Returns a string in the format `80/81`.
+  - `"start_yyyy-end_yyyy"`: Returns a string in the format `2080-2081`.
+  - `"FY start_yyyy/end_yy"`: Returns a string in the format `FY 2080/81`.
+
+**Returns:**
+- The fiscal year in the specified format or a tuple of `(start_year, end_year)`.
+
+**Example:**
 ```python
-from npdatetime import datetime
-
-# Get current fiscal year
-datetime.current_fiscal_year()
-# Output: (2081, 2082)
+get_fiscal_year(date_obj=date(2080, 5, 15), format="{start_year}-{end_year}")
+# Returns: '2080-2081'
 ```
 
-### **Getting Fiscal Year for a Specific Date**
-You can also calculate the fiscal year for any specific Nepali date using the `get_fiscal_year_by_date()` function. This takes a `datetime` object as input and returns the fiscal year for that date.
+---
+
+### `start_of_fiscal_year(year, start_month=4)`
+
+Returns the start date of the fiscal year in Nepali date format.
+
+**Parameters:**
+- `year`: The fiscal year for which the start date is required.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+
+**Returns:**
+- A Nepali date object representing the start of the fiscal year.
+
+**Example:**
+```python
+start_of_fiscal_year(2080, start_month=9)
+# Returns: date(2080, 9, 1)
+```
+
+---
+
+### `end_of_fiscal_year(year, end_month=3)`
+
+Returns the end date of the fiscal year in Nepali date format.
+
+**Parameters:**
+- `year`: The fiscal year for which the end date is required.
+- `end_month` (optional): The end month of the fiscal year (default is Ashad, month 12).
+
+**Returns:**
+- A Nepali date object representing the end of the fiscal year.
+
+**Example:**
+```python
+end_of_fiscal_year(2080, end_month=6)
+# Returns: date(2081, 6, 30)
+```
+
+---
+
+### `get_fiscal_quarter(date_obj, start_month=4)`
+
+Returns the fiscal quarter for the given Nepali date.
+
+**Parameters:**
+- `date_obj`: A Nepali date object.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+
+**Returns:**
+- An integer representing the fiscal quarter:
+  - 1: Shrawan - Bhadra (months 1–3)
+  - 2: Aswin - Magh (months 4–6)
+  - 3: Falgun - Jestha (months 7–9)
+  - 4: Ashad (months 10–12)
+
+**Example:**
+```python
+get_fiscal_quarter(date_obj=date(2080, 5, 15))
+# Returns: 2 (Aswin - Magh)
+```
+
+---
+
+### `fiscal_year_range(start_date, end_date, start_month=4, end_month=3)`
+
+Returns a list of fiscal years for a given date range.
+
+**Parameters:**
+- `start_date`: A Nepali date object representing the start of the range.
+- `end_date`: A Nepali date object representing the end of the range.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+- `end_month` (optional): The end month of the fiscal year (default is Ashad, month 12).
+
+**Returns:**
+- A list of fiscal years for the date range.
+
+**Example:**
+```python
+fiscal_year_range(start_date=date(2080, 4, 1), end_date=date(2081, 3, 31))
+# Returns: [(2080, 2081)]
+```
+
+---
+
+### `fiscal_year_report(date_obj, start_month=4, end_month=3)`
+
+Returns a structured JSON report for the fiscal year associated with the given Nepali date. The report includes:
+- Fiscal year
+- Start and end date
+- Fiscal quarter
+- Fiscal quarters and their respective date ranges
+
+**Parameters:**
+- `date_obj`: A Nepali date object.
+- `start_month` (optional): The start month of the fiscal year (default is Shrawan, month 4).
+- `end_month` (optional): The end month of the fiscal year (default is Ashad, month 12).
+
+**Returns:**
+- A JSON string containing the fiscal year report.
+
+**Example:**
+```python
+fiscal_year_report(date_obj=date(2080, 5, 15), start_month=9, end_month=6)
+# Returns a JSON report with fiscal year, quarters, and their date ranges
+```
+
+---
+
+## Private Helper Functions
+
+### `_determine_fiscal_year(date_obj, start_month, end_month)`
+
+Determines the fiscal year for a given Nepali date based on the start and end month.
+
+**Parameters:**
+- `date_obj`: A Nepali date object.
+- `start_month`: The start month of the fiscal year.
+- `end_month`: The end month of the fiscal year.
+
+**Returns:**
+- A tuple of `(start_year, end_year)` representing the fiscal year.
+
+### `_format_fiscal_year(start_year, end_year, format)`
+
+Formats the fiscal year into the specified string format.
+
+**Parameters:**
+- `start_year`: The start year of the fiscal year.
+- `end_year`: The end year of the fiscal year.
+- `format`: A string format for fiscal year representation.
+
+**Returns:**
+- A string formatted according to the provided `format`.
+
+---
+
+### Example Usage
 
 ```python
-from npdatetime import get_fiscal_year_by_date
-from npdatetime import datetime
-
-# Example date
-date_obj = datetime(2079, 12, 1)
+# Get fiscal year for today's date
+print(fiscal_year())
 
 # Get fiscal year for a specific date
-get_fiscal_year_by_date(date_obj)
-# Output: (2079, 2080)
+print(get_fiscal_year(date(2080, 5, 15)))
 
-# You can also directly pass a Nepali datetime object to the function
-get_fiscal_year_by_date(datetime(2080, 4, 1))
-# Output: (2080, 2081)
+# Get fiscal quarter for a specific date
+print(get_fiscal_quarter(date(2080, 5, 15)))
+
+# Get fiscal year range for a date range
+start_date = date(2080, 4, 1)
+end_date = date(2081, 3, 31)
+print(fiscal_year_range(start_date, end_date))
+
+# Get fiscal year report for a specific date
+print(fiscal_year_report(date(2080, 5, 15)))
 ```
-
-### **Examples**
-
-Here are a few examples of how you can use the `get_fiscal_year_by_date()` method to calculate the fiscal year for various dates:
-
-```python
-# For 2079-12-01
-get_fiscal_year_by_date(datetime(2079, 12, 1))
-# Output: (2079, 2080)
-
-# For 2080-03-01
-get_fiscal_year_by_date(datetime(2080, 3, 1))
-# Output: (2079, 2080)
-
-# For 2080-04-01
-get_fiscal_year_by_date(datetime(2080, 4, 1))
-# Output: (2080, 2081)
-
-# For 2080-06-01
-get_fiscal_year_by_date(datetime(2080, 6, 1))
-# Output: (2080, 2081)
-```
-
-### **Note**
-- The fiscal year is based on the Nepali date system, which is different from the Gregorian calendar. In Nepal, the fiscal year runs from **Shrawan (month 4)** to **Ashadh (month 12)**.
 
 ---
 
