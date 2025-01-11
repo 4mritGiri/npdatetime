@@ -122,7 +122,6 @@ class date:
          cal[-1].extend([format_str.format(' ')] * (7 - len(cal[-1])))
 
       if sys.platform.startswith('linux'):
-         # Mark Saturdays in red
          _mark_saturdays()
 
          # Mark the current day in green

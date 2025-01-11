@@ -115,14 +115,14 @@ def fiscal_year_report(date_obj, start_month=4, end_month=3):
    
    report = {
       "fiscal_year": f"{start_year}-{end_year}",
-      "start_date": str(fiscal_start_date),
-      "end_date": str(fiscal_end_date),
+      "start_date": fiscal_start_date.isoformat(),
+      "end_date": fiscal_end_date.isoformat(),
       "quarter": fiscal_quarter,
       "quarters": {
-         1: [fiscal_start_date, fiscal_start_date + timedelta(days=90)],
-         2: [fiscal_start_date + timedelta(days=91), fiscal_start_date + timedelta(days=180)],
-         3: [fiscal_start_date + timedelta(days=181), fiscal_start_date + timedelta(days=270)],
-         4: [fiscal_start_date + timedelta(days=271), fiscal_end_date],
+         1: [fiscal_start_date.isoformat(), (fiscal_start_date + timedelta(days=90)).isoformat()],
+         2: [(fiscal_start_date + timedelta(days=91)).isoformat(), (fiscal_start_date + timedelta(days=180)).isoformat()],
+         3: [(fiscal_start_date + timedelta(days=181)).isoformat(), (fiscal_start_date + timedelta(days=270)).isoformat()],
+         4: [(fiscal_start_date + timedelta(days=271)).isoformat(), fiscal_end_date.isoformat()],
       }
    }
    return json.dumps(report, indent=4)
@@ -150,6 +150,8 @@ def _format_fiscal_year(start_year, end_year, format="{start_year}-{end_year}"):
    placeholders = {
       "start_year": start_year,
       "end_year": end_year,
+      "start_yyyy": start_year,
+      "end_yyyy": end_year,
       "start_yy": str(start_year)[-2:],   # Last two digits of start year
       "end_yy": str(end_year)[-2:],       # Last two digits of end year
       "start_yyy": str(start_year)[-3:],  # Last three digits of start year
