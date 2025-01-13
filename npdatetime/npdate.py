@@ -3,7 +3,7 @@ import time as _time
 import datetime as _actual_datetime
 from .config import MINDATE, MAXDATE, REFERENCE_DATE_AD, NEPAL_TIME_UTC_OFFSET
 
-from .core import _check_date_fields, _actual_datetime, _ord2ymd, MINYEAR, _MAXORDINAL, _days_in_month, _DAYNAMES, _MONTHNAMES, _wrap_strftime, _build_struct_time, _ymd2ord
+from .core import _FULLMONTHNAMES, _check_date_fields, _actual_datetime, _ord2ymd, MINYEAR, _MAXORDINAL, _days_in_month, _DAYNAMES, _MONTHNAMES, _wrap_strftime, _build_struct_time, _ymd2ord
 from .utils import _cmp
 
 class date:
@@ -76,10 +76,10 @@ class date:
       """
       return _actual_datetime.date(**REFERENCE_DATE_AD) + _actual_datetime.timedelta(days=self.toordinal() - 1)
 
-   def calendar(self, justify=4):
+   def calendar(self, month_count=None, justify=4):
       format_str = '{:>%s}' % justify
-      
-      def _mark_today(indx):
+
+      def _mark_today(indx, cal, cal_range):
          try:
                # Strip the color codes for comparison
                def remove_color(val):
@@ -93,45 +93,72 @@ class date:
          except StopIteration:
                raise ValueError(f"Day {self.day} not found in calendar row {indx}")
 
-      def _mark_saturdays():
+      def _mark_saturdays(cal):
          for week in cal[2:]:  # Start from the third row (days start from the third row)
                if len(week) >= 7:  # Ensure full week exists
                   week[6] = '\033[31m{:>{}}\033[39m'.format(week[6].strip(), justify)  # Red for Saturday (7th day)
 
-      total_days_month = _days_in_month(self.year, self.month)
-      start_weekday = self.__class__(self.year, self.month, 1).weekday()
-      cal = [[('\033[34m{:^{}}\033[39m'.format(self.strftime('%B %Y'), (justify + 1) * 7))],
-         [format_str.format('Sun'), *(format_str.format(j) for j in _DAYNAMES[1:-2]), '\033[31m{:>{}}\033[39m'.format('Sat', justify)],
-         [format_str.format(' ') for _ in range(start_weekday)]]
-      cal[-1].extend([format_str.format(j) for j in range(1, 8 - start_weekday)])
-      cal_cursor = 8 - start_weekday
-      cal_range = [(1, 7 - start_weekday)]
+      # Helper method to generate a single month's calendar
+      def _generate_month_calendar(year, month, justify=4):
+         total_days_month = _days_in_month(year, month)
+         start_weekday = self.__class__(year, month, 1).weekday()
+         
+         # Instead of using self.strftime('%B %Y'), use the year and month directly
+         month_name = _FULLMONTHNAMES[month]  # Assuming _MONTHNAMES is a list of month names
+         cal = [[('\033[34m{:^{}}\033[39m'.format(f'{month_name} {year}', (justify + 1) * 7))],
+               [format_str.format('Sun'), *(format_str.format(j) for j in _DAYNAMES[1:-2]), '\033[31m{:>{}}\033[39m'.format('Sat', justify)],
+               [format_str.format(' ') for _ in range(start_weekday)]]
 
-      total_mid_weeks = (total_days_month - cal_cursor) // 7
-      for i in range(total_mid_weeks):
-         cal_range.append((cal_cursor, cal_cursor + 6))
-         cal.append([format_str.format(j) for j in range(cal_cursor, cal_cursor + 7)])
-         cal_cursor += 7
+         cal[-1].extend([format_str.format(j) for j in range(1, 8 - start_weekday)])
+         cal_cursor = 8 - start_weekday
+         cal_range = [(1, 7 - start_weekday)]
 
-      if cal_cursor <= total_days_month:
-         cal.append([format_str.format(j) for j in range(cal_cursor, total_days_month + 1)])
-         cal_range.append((cal_cursor, total_days_month))
+         total_mid_weeks = (total_days_month - cal_cursor) // 7
+         for i in range(total_mid_weeks):
+            cal_range.append((cal_cursor, cal_cursor + 6))
+            cal.append([format_str.format(j) for j in range(cal_cursor, cal_cursor + 7)])
+            cal_cursor += 7
 
-      # Adjust the last row to fill empty spaces for alignment
-      if len(cal[-1]) < 7:
-         cal[-1].extend([format_str.format(' ')] * (7 - len(cal[-1])))
+         if cal_cursor <= total_days_month:
+            cal.append([format_str.format(j) for j in range(cal_cursor, total_days_month + 1)])
+            cal_range.append((cal_cursor, total_days_month))
 
-      if sys.platform.startswith('linux'):
-         _mark_saturdays()
+         # Adjust the last row to fill empty spaces for alignment
+         if len(cal[-1]) < 7:
+            cal[-1].extend([format_str.format(' ')] * (7 - len(cal[-1])))
 
-         # Mark the current day in green
-         for i, cr in enumerate(cal_range):
-               if cr[0] <= self.day <= cr[1]:
-                  _mark_today(-len(cal_range) + i)
-                  break
+         if sys.platform.startswith('linux'):
+            # Mark the Saturdays in red
+            _mark_saturdays(cal)
 
-      cal = '\n' + '\n'.join(' '.join(j) for j in cal) + '\n\n'
-      sys.stdout.write(cal)
+            # Mark today's date in green
+            for i, cr in enumerate(cal_range):
+                  if cr[0] <= self.day <= cr[1]:
+                     _mark_today(-len(cal_range) + i, cal, cal_range)
+                     break
+
+         return '\n' + '\n'.join(' '.join(j) for j in cal) + '\n\n'
+
+      if month_count > 1 and month_count < 13:
+         cal_str = ""
+         start_month = self.month
+         start_year = self.year
+         for i in range(month_count):
+            current_month = start_month + i
+            
+            if current_month > 12:
+                  current_month -= 12  # Reset month to 1 (January) after December
+                  current_year = start_year + 1  # Increment the year when exceeding December
+            else:
+                  current_year = start_year  # Stay in the same year
+
+            cal_str += _generate_month_calendar(current_year, current_month)
+
+         sys.stdout.write(cal_str)
+
+      else:
+         sys.stdout.write(_generate_month_calendar(self.year, self.month))
+
 
    def ctime(self):
       """Return ctime() style string."""
@@ -281,6 +308,20 @@ class date:
 
    def __reduce__(self):
       return NotImplemented
+   
+   @classmethod
+   def last_day_of_month(cls, year, month):
+      """Returns the last day of the given month in the given year."""
+      if month == 12:
+         next_month = 1
+         next_year = year + 1
+      else:
+         next_month = month + 1
+         next_year = year
+      
+      # The last day of the current month is the first day of the next month minus one day
+      next_month_first_day = date(next_year, next_month, 1)
+      return (next_month_first_day - _actual_datetime.timedelta(days=1)).day
 
 _date_class = date  # so functions w/ args named "date" can get at the class
 
