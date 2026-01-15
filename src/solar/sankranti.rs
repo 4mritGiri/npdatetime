@@ -3,9 +3,9 @@
 //! Finds when the Sun enters different zodiac signs using Newton-Raphson method
 //! and high-precision VSOP87 solar position.
 
-use crate::core::{JulianDay, constants::*, newton_raphson::NewtonRaphsonSolver};
+use crate::core::{JulianDay, newton_raphson::NewtonRaphsonSolver};
 use crate::solar::vsop87::Vsop87Calculator;
-use crate::{NepaliDate, BS_EPOCH_YEAR};
+use crate::NepaliDate;
 
 /// Information about a Sankranti event
 #[derive(Debug, Clone, Copy)]
