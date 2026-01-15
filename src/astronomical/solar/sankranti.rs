@@ -3,8 +3,8 @@
 //! Finds when the Sun enters different zodiac signs using Newton-Raphson method
 //! and high-precision VSOP87 solar position.
 
-use crate::core::{JulianDay, newton_raphson::NewtonRaphsonSolver};
-use crate::solar::vsop87::Vsop87Calculator;
+use crate::astronomical::core::{JulianDay, newton_raphson::NewtonRaphsonSolver, time::get_ayanamsha};
+use super::vsop87::Vsop87Calculator;
 use crate::NepaliDate;
 
 /// Information about a Sankranti event
@@ -58,7 +58,7 @@ impl SankrantiFinder {
         let f = |jd: f64| {
             let julian_day = JulianDay(jd);
             let sayana_long = Vsop87Calculator::sun_apparent_longitude(julian_day);
-            let ayanamsha = crate::get_ayanamsha(julian_day);
+            let ayanamsha = get_ayanamsha(julian_day);
             let nirayana_long = (sayana_long - ayanamsha).rem_euclid(360.0);
             
             // println!("JD: {}, Sayana: {}, Ay: {}, Nirayana: {}", jd, sayana_long, ayanamsha, nirayana_long);

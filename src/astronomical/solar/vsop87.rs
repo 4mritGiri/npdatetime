@@ -6,7 +6,7 @@
 //! This implementation uses the most significant terms from VSOP87D
 //! (heliocentric spherical coordinates) providing ~0.01° accuracy.
 
-use crate::core::{JulianDay, constants::*};
+use crate::astronomical::core::{JulianDay, constants::*};
 
 /// VSOP87 term: amplitude, phase, rate
 #[derive(Debug, Clone, Copy)]

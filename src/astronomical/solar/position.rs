@@ -1,7 +1,7 @@
 //! Sun position calculations
 //! Uses simplified VSOP87 or full precision depending on features
 
-use crate::core::{JulianDay, constants::*};
+use crate::astronomical::core::{JulianDay, constants::*};
 
 pub struct SolarCalculator;
 

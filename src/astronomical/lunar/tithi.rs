@@ -3,9 +3,9 @@
 //! Tithi is determined by the elongation of the Moon from the Sun.
 //! Each Tithi corresponds to 12° of increasing elongation.
 
-use crate::core::{JulianDay, newton_raphson::NewtonRaphsonSolver};
-use crate::solar::vsop87::Vsop87Calculator;
-use crate::lunar::elp2000::Elp2000Calculator;
+use crate::astronomical::core::{JulianDay, newton_raphson::NewtonRaphsonSolver};
+use crate::astronomical::solar::vsop87::Vsop87Calculator;
+use super::elp2000::Elp2000Calculator;
 
 /// Tithi names in order
 pub const TITHI_NAMES: [&str; 30] = [

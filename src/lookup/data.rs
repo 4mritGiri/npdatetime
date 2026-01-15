@@ -1,0 +1,1 @@
+// Embedded calendar data

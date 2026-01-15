@@ -1,7 +1,7 @@
 //! Time conversion utilities
 //! Handles conversions between different time scales
 
-use crate::core::constants::*;
+use super::constants::*;
 
 /// Julian Day Number
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
@@ -84,6 +84,14 @@ pub fn utc_to_npt(jd: JulianDay) -> JulianDay {
 /// Convert Nepal Time to UTC
 pub fn npt_to_utc(jd: JulianDay) -> JulianDay {
     jd.add_days(-NEPAL_TZ_OFFSET / 24.0)
+}
+
+
+/// Ayanamsha (Chitra Paksha/Lahiri) approximation for Nirayana calculations
+pub fn get_ayanamsha(jd: JulianDay) -> f64 {
+    let t = jd.centuries_since_j2000();
+    // Lahiri Ayanamsha: 23.852778° at J2000 + secular change
+    23.852778 + 1.396971 * t + 0.000308 * t * t
 }
 
 #[cfg(test)]

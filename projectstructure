@@ -1,56 +1,237 @@
-npdatetime-astronomical/
-├── Cargo.toml
+# NPDateTime Unified Project Structure
+
+Combining lookup tables (fast, accurate) with astronomical calculations (future-proof, educational).
+
+## 📁 Complete Directory Structure
+
+```
+npdatetime-rust/
+├── Cargo.toml                    # Fixed configuration
+├── build.rs                      # Compile-time CSV → Rust conversion
 ├── README.md
 ├── LICENSE
+├── .gitignore
+│
+├── data/
+│   ├── calendar_bs.csv           # Source of truth (2000-2090 BS)
+│   ├── calendar_bs.json          # Generated for reference
+│   └── validation/
+│       ├── known_events.json     # Known Sankranti dates for validation
+│       └── test_cases.csv        # Test cases for both methods
 │
 ├── src/
-│   ├── lib.rs                      # Main library entry
-│   ├── core/
-│   │   ├── mod.rs                  # Core module
-│   │   ├── constants.rs            # Astronomical constants
-│   │   └── time.rs                 # Time conversions (JD, etc)
+│   ├── lib.rs                    # Main library entry
 │   │
-│   ├── solar/
-│   │   ├── mod.rs                  # Solar calculations module
-│   │   ├── position.rs             # Sun position calculations
-│   │   ├── sankranti.rs            # Solar transitions (zodiac entry)
-│   │   └── vsop87.rs               # VSOP87 implementation
+│   ├── lookup/                   # Fast lookup table approach
+│   │   ├── mod.rs                # Lookup module
+│   │   ├── data.rs               # Embedded calendar data
+│   │   ├── converter.rs          # BS ↔ AD conversion
+│   │   └── compressed.rs         # Optional: compressed storage
 │   │
-│   ├── lunar/
-│   │   ├── mod.rs                  # Lunar calculations module
-│   │   ├── position.rs             # Moon position calculations
-│   │   ├── tithi.rs                # Lunar day calculations
-│   │   └── phases.rs               # Moon phase calculations
+│   ├── astronomical/             # Astronomical calculation approach
+│   │   ├── mod.rs                # Astronomical module
+│   │   ├── core/
+│   │   │   ├── mod.rs
+│   │   │   ├── constants.rs      # Astronomical constants
+│   │   │   └── time.rs           # Julian Day, time conversions
+│   │   ├── solar/
+│   │   │   ├── mod.rs
+│   │   │   ├── position.rs       # Sun position (VSOP87)
+│   │   │   └── sankranti.rs      # Solar events
+│   │   ├── lunar/
+│   │   │   ├── mod.rs
+│   │   │   ├── position.rs       # Moon position (ELP-2000)
+│   │   │   └── tithi.rs          # Lunar days
+│   │   └── calendar.rs           # Month length calculator
 │   │
-│   ├── calendar/
-│   │   ├── mod.rs                  # Calendar logic
-│   │   ├── bs_date.rs              # BS date structure
-│   │   ├── month_calculator.rs     # Calculate month lengths
-│   │   ├── leap_month.rs           # Leap month logic
-│   │   └── synchronization.rs      # Solar-Lunar sync
+│   ├── core/                     # Shared core types
+│   │   ├── mod.rs
+│   │   ├── date.rs               # NepaliDate struct
+│   │   ├── datetime.rs           # NepaliDateTime struct
+│   │   ├── error.rs              # Error types
+│   │   └── format.rs             # Formatting & parsing
 │   │
 │   └── utils/
-│       ├── mod.rs                  # Utilities
-│       ├── interpolation.rs        # Newton-Raphson, etc
-│       └── validation.rs           # Data validation
+│       ├── mod.rs
+│       ├── validation.rs         # Validation utilities
+│       └── interpolation.rs      # Math utilities
 │
-├── tests/
-│   ├── integration_test.rs         # Integration tests
-│   ├── solar_tests.rs              # Solar calculation tests
-│   ├── lunar_tests.rs              # Lunar calculation tests
-│   └── calendar_tests.rs           # Calendar tests
-│
-├── benches/
-│   └── astronomical_bench.rs       # Performance benchmarks
+├── bindings/
+│   ├── python/                   # Python bindings (PyO3)
+│   │   ├── Cargo.toml
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   └── lib.rs
+│   │   └── tests/
+│   │       └── test_python.py
+│   │
+│   ├── javascript/               # JavaScript/WASM bindings
+│   │   ├── Cargo.toml
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   └── lib.rs
+│   │   └── examples/
+│   │       └── react-example/
+│   │
+│   │── java/                     # Java JNI bindings
+│   │   ├── Cargo.toml
+│   │   ├── src/
+│   │   │   └── lib.rs
+│   │   └── java/
+│   │       └── NepaliDate.java
+│   │
+│   │── php/               # PHP bindings
+│   │   ├── Cargo.toml
+│   │   ├── src/
+│   │   │   └── lib.rs
+│   │   └── examples/
+│   │       └── example.php
+│   │
 │
 ├── examples/
-│   ├── calculate_sankranti.rs      # Example: Find solar events
-│   ├── calculate_tithi.rs          # Example: Find lunar days
-│   ├── generate_calendar.rs        # Example: Generate BS calendar
-│   └── compare_with_lookup.rs      # Example: Compare with tables
+│   ├── basic_usage.rs            # Basic usage with lookup
+│   ├── conversion_demo.rs        # BS ↔ AD conversions
+│   ├── formatting.rs             # Date formatting
+│   ├── compare_methods.rs        # Compare lookup vs astronomical
+│   │
+│   └── astronomical/             # Astronomical examples
+│       ├── calculate_sankranti.rs
+│       ├── calculate_tithi.rs
+│       └── generate_calendar.rs
 │
-└── data/
-    ├── validation/
-    │   └── known_sankranti.json    # Known solar events for validation
-    └── ephemeris/
-        └── README.md                # Info about ephemeris data
+├── tests/
+│   ├── integration_tests.rs      # Integration tests
+│   ├── lookup_tests.rs           # Lookup table tests
+│   ├── astronomical_tests.rs     # Astronomical calculation tests
+│   └── validation_tests.rs       # Cross-validation tests
+│
+├── benches/
+│   ├── date_conversion.rs        # Benchmark conversions
+│   └── astronomical_bench.rs     # Benchmark calculations
+│
+└── docs/
+    ├── api.md                    # API documentation
+    ├── astronomical_theory.md    # Theory behind calculations
+    └── comparison.md             # Lookup vs Astronomical comparison
+```
+
+---
+
+## 🔧 Key Files
+
+### `build.rs` (Compile-time Data Embedding)
+
+```rust
+// build.rs
+use std::env;
+use std::fs::{File, create_dir_all};
+use std::io::Write;
+use std::path::Path;
+
+fn main() {
+    println!("cargo:rerun-if-changed=data/calendar_bs.csv");
+    
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join("calendar_data.rs");
+    
+    // Read CSV and generate Rust code
+    let mut reader = csv::Reader::from_path("data/calendar_bs.csv")
+        .expect("Failed to read calendar_bs.csv");
+    
+    let mut data = Vec::new();
+    
+    for result in reader.records() {
+        let record = result.expect("Failed to parse CSV record");
+        let year: i32 = record[0].parse().expect("Invalid year");
+        let month: u8 = record[1].parse().expect("Invalid month");
+        let days: u8 = record[2].parse().expect("Invalid days");
+        
+        data.push((year, month, days));
+    }
+    
+    // Generate Rust source code
+    let mut f = File::create(&dest_path).unwrap();
+    
+    writeln!(f, "// Auto-generated from calendar_bs.csv").unwrap();
+    writeln!(f, "// DO NOT EDIT MANUALLY").unwrap();
+    writeln!(f, "").unwrap();
+    writeln!(f, "pub const CALENDAR_DATA: &[(i32, u8, u8)] = &[").unwrap();
+    
+    for (year, month, days) in data {
+        writeln!(f, "    ({}, {}, {}),", year, month, days).unwrap();
+    }
+    
+    writeln!(f, "];").unwrap();
+    
+    println!("cargo:warning=Generated calendar data with {} entries", 
+             reader.position().line());
+}
+```
+
+---
+
+### `src/lib.rs` (Main Entry Point)
+
+```rust
+//! NPDateTime - High-performance Nepali (Bikram Sambat) datetime library
+//! 
+//! This library provides two approaches:
+//! 1. **Lookup Tables** (default): Fast, accurate, works offline
+//! 2. **Astronomical Calculations** (optional): Future-proof, educational
+//! 
+//! # Quick Start
+//! 
+//! ```rust
+//! use npdatetime::NepaliDate;
+//! 
+//! // Create a date
+//! let date = NepaliDate::new(2077, 5, 19)?;
+//! 
+//! // Convert to Gregorian
+//! let (year, month, day) = date.to_gregorian()?;
+//! 
+//! // Format
+//! println!("{}", date.format("%Y-%m-%d"));
+//! ```
+
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+// Core modules (always available)
+pub mod core;
+pub use core::{NepaliDate, NepaliDateTime, NpdatetimeError, Result};
+
+// Lookup table module (default)
+#[cfg(feature = "lookup-tables")]
+#[cfg_attr(docsrs, doc(cfg(feature = "lookup-tables")))]
+pub mod lookup;
+
+// Astronomical calculation module (optional)
+#[cfg(feature = "astronomical")]
+#[cfg_attr(docsrs, doc(cfg(feature = "astronomical")))]
+pub mod astronomical;
+
+// Utilities
+pub mod utils;
+
+/// Library version
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Prelude for common imports
+pub mod prelude {
+    pub use crate::core::{NepaliDate, NepaliDateTime};
+    pub use crate::core::NpdatetimeError;
+    
+    #[cfg(feature = "lookup-tables")]
+    pub use crate::lookup::BsCalendar;
+    
+    #[cfg(feature = "astronomical")]
+    pub use crate::astronomical::{SolarCalculator, LunarCalculator};
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version()

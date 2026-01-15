@@ -6,7 +6,7 @@
 //! This implementation uses the fundamental arguments and most significant 
 //! periodic terms to provide accuracy suitable for Tithi and eclipse calculations.
 
-use crate::core::{JulianDay, constants::*};
+use crate::astronomical::core::{JulianDay, constants::*};
 
 /// Multipliers for fundamental arguments (D, M, M', F)
 #[derive(Debug, Clone, Copy)]

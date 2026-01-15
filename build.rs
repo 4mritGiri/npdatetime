@@ -1,4 +1,4 @@
-// build.rs - Runs at compile time
+// build.rs - Runs at compile time CSV → Rust conversion
 use std::fs::File;
 use std::io::Write;
 
