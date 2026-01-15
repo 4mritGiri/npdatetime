@@ -269,3 +269,50 @@ pub fn unix_epoch_to_gregorian(days_since_epoch: u64) -> (i32, u8, u8) {
     let total_days = base_days + days_since_epoch as i64;
     days_to_gregorian(total_days)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_valid_date() {
+        let date = NepaliDate::new(2077, 5, 19).unwrap();
+        assert_eq!(date.year, 2077);
+        assert_eq!(date.month, 5);
+        assert_eq!(date.day, 19);
+    }
+
+    #[test]
+    fn test_invalid_month() {
+        assert!(NepaliDate::new(2077, 13, 1).is_err());
+        assert!(NepaliDate::new(2077, 0, 1).is_err());
+    }
+
+    #[test]
+    fn test_conversion_to_gregorian() {
+        let bs_date = NepaliDate::new(2000, 1, 1).unwrap();
+        let ad_date = bs_date.to_gregorian().unwrap();
+        assert_eq!(ad_date, (1943, 4, 14));
+    }
+
+    #[test]
+    fn test_conversion_from_gregorian() {
+        let bs_date = NepaliDate::from_gregorian(1943, 4, 14).unwrap();
+        assert_eq!(bs_date.year, 2000);
+        assert_eq!(bs_date.month, 1);
+        assert_eq!(bs_date.day, 1);
+    }
+
+    #[test]
+    fn test_format() {
+        let date = NepaliDate::new(2077, 5, 19).unwrap();
+        assert_eq!(date.format("%Y-%m-%d"), "2077-05-19");
+        assert_eq!(date.format("%d %B %Y"), "19 Bhadra 2077");
+    }
+
+    #[test]
+    fn test_display() {
+        let date = NepaliDate::new(2077, 5, 19).unwrap();
+        assert_eq!(format!("{}", date), "2077-05-19");
+    }
+}
