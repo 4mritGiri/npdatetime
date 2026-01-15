@@ -1,0 +1,56 @@
+npdatetime-astronomical/
+├── Cargo.toml
+├── README.md
+├── LICENSE
+│
+├── src/
+│   ├── lib.rs                      # Main library entry
+│   ├── core/
+│   │   ├── mod.rs                  # Core module
+│   │   ├── constants.rs            # Astronomical constants
+│   │   └── time.rs                 # Time conversions (JD, etc)
+│   │
+│   ├── solar/
+│   │   ├── mod.rs                  # Solar calculations module
+│   │   ├── position.rs             # Sun position calculations
+│   │   ├── sankranti.rs            # Solar transitions (zodiac entry)
+│   │   └── vsop87.rs               # VSOP87 implementation
+│   │
+│   ├── lunar/
+│   │   ├── mod.rs                  # Lunar calculations module
+│   │   ├── position.rs             # Moon position calculations
+│   │   ├── tithi.rs                # Lunar day calculations
+│   │   └── phases.rs               # Moon phase calculations
+│   │
+│   ├── calendar/
+│   │   ├── mod.rs                  # Calendar logic
+│   │   ├── bs_date.rs              # BS date structure
+│   │   ├── month_calculator.rs     # Calculate month lengths
+│   │   ├── leap_month.rs           # Leap month logic
+│   │   └── synchronization.rs      # Solar-Lunar sync
+│   │
+│   └── utils/
+│       ├── mod.rs                  # Utilities
+│       ├── interpolation.rs        # Newton-Raphson, etc
+│       └── validation.rs           # Data validation
+│
+├── tests/
+│   ├── integration_test.rs         # Integration tests
+│   ├── solar_tests.rs              # Solar calculation tests
+│   ├── lunar_tests.rs              # Lunar calculation tests
+│   └── calendar_tests.rs           # Calendar tests
+│
+├── benches/
+│   └── astronomical_bench.rs       # Performance benchmarks
+│
+├── examples/
+│   ├── calculate_sankranti.rs      # Example: Find solar events
+│   ├── calculate_tithi.rs          # Example: Find lunar days
+│   ├── generate_calendar.rs        # Example: Generate BS calendar
+│   └── compare_with_lookup.rs      # Example: Compare with tables
+│
+└── data/
+    ├── validation/
+    │   └── known_sankranti.json    # Known solar events for validation
+    └── ephemeris/
+        └── README.md                # Info about ephemeris data
