@@ -91,4 +91,12 @@ impl TithiCalculator {
             Err(e) => Err(format!("Newton-Raphson failed: {:?}", e)),
         }
     }
+
+    /// Find the next New Moon (Amavasya end) after the given Julian Day
+    pub fn find_next_new_moon(jd: JulianDay) -> Result<JulianDay, String> {
+        // A lunar month is approximately 29.53 days. 
+        // Search from jd + 20 days to ensure we don't find the current one again
+        // but stay within the range of the next one.
+        Self::find_tithi_end(0, JulianDay(jd.0 + 25.0))
+    }
 }

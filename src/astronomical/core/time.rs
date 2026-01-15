@@ -90,8 +90,8 @@ pub fn npt_to_utc(jd: JulianDay) -> JulianDay {
 /// Ayanamsha (Chitra Paksha/Lahiri) approximation for Nirayana calculations
 pub fn get_ayanamsha(jd: JulianDay) -> f64 {
     let t = jd.centuries_since_j2000();
-    // Lahiri Ayanamsha: 23.852778° at J2000 + secular change
-    23.852778 + 1.396971 * t + 0.000308 * t * t
+    // Lahiri Ayanamsha: 23° 51' 25.532" at J2000.0
+    23.857092 + 1.396971 * t + 0.000308 * t * t
 }
 
 #[cfg(test)]

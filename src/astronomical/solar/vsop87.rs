@@ -130,11 +130,7 @@ fn earth_radius_vector(jd: JulianDay) -> f64 {
     r0 + r1 * t
 }
 
-/// Normalize angle to [0, 2π) range
-fn normalize_radians(angle: f64) -> f64 {
-    let two_pi = 2.0 * std::f64::consts::PI;
-    angle.rem_euclid(two_pi)
-}
+
 
 /// Normalize angle to [0, 360) degrees
 fn normalize_degrees(angle: f64) -> f64 {
@@ -206,12 +202,9 @@ impl Vsop87Calculator {
     /// This is the most accurate representation of Sun's position
     pub fn sun_apparent_longitude(jd: JulianDay) -> f64 {
         let true_lon = Self::sun_true_longitude(jd);
-        let nutation = Self::nutation_longitude(jd);
+        let nutation_and_aberration = Self::nutation_longitude(jd);
         
-        // Aberration correction (simplified, about -20.5")
-        let aberration = -0.00569;
-        
-        normalize_degrees(true_lon + nutation + aberration)
+        normalize_degrees(true_lon + nutation_and_aberration)
     }
 }
 
