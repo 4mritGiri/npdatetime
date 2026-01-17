@@ -76,6 +76,13 @@ NPDateTime is designed for high-throughput applications.
 
 *(Benchmarks performed on local environment)*
 
+## 📚 Documentation
+
+- **[Contributing](CONTRIBUTING.md)**: How to get involved.
+- **[Roadmap](docs/ROADMAP.md)**: Future plans and progress.
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)**: Architecture and coding standards.
+- **[Astronomy Theory](docs/ASTRONOMY.md)**: The math behind the calculations.
+
 ## 📂 Project Structure
 
 - `src/core/`: Shared types (`NepaliDate`, `NpdatetimeError`).

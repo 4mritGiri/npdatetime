@@ -1,4 +1,4 @@
-# YES, It's Possible! But Here's Why Nobody Does It
+# Astronomical Theory & Implementation
 
 ## ✅ **The Theory: Astronomical Calculation IS Possible**
 

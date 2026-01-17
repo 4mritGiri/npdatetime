@@ -12,6 +12,8 @@ npdatetime-rust/
 ├── LICENSE
 ├── .gitignore
 │
+├── CONTRIBUTING.md               # Guide for contributors
+│
 ├── data/
 │   ├── calendar_bs.csv           # Source of truth (2000-2090 BS)
 │   ├── calendar_bs.json          # Generated for reference
@@ -80,7 +82,7 @@ npdatetime-rust/
 │   │   └── java/
 │   │       └── NepaliDate.java
 │   │
-│   │── php/               # PHP bindings
+│   │── php/                      # PHP bindings
 │   │   ├── Cargo.toml
 │   │   ├── src/
 │   │   │   └── lib.rs
@@ -110,9 +112,11 @@ npdatetime-rust/
 │   └── astronomical_bench.rs     # Benchmark calculations
 │
 └── docs/
-    ├── api.md                    # API documentation
-    ├── astronomical_theory.md    # Theory behind calculations
-    └── comparison.md             # Lookup vs Astronomical comparison
+    ├── ROADMAP.md                # Project status and future plans
+    ├── DEVELOPMENT_GUIDE.md      # Implementation guidelines
+    ├── IMPLEMENTATION_GUIDE.md   # Step-by-step implementation guide
+    ├── PROJECT_STRUCTURE.md      # This file
+    └── ASTRONOMY.md              # Theory behind calculations
 ```
 
 ---

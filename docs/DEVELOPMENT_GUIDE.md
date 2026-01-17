@@ -1,4 +1,4 @@
-# Complete Implementation Guidelines
+# Development Guidelines
 ## NPDateTime Astronomical Calculator for Bikram Sambat
 
 **Version:** 1.0  
@@ -789,3 +789,581 @@ fn load_csv_data(path: &str) -> Vec<(i32, u8, u8)> {
 #[test]
 fn validate_against_csv() {
     let csv_data = load_csv_data("../npdatetime/data/calendar_bs.csv");
+    
+    let mut matches = 0;
+    let mut mismatches = Vec::new();
+    
+    for (year, month, expected_days) in csv_data {
+        let calculated_days = calculate_month_days(year, month).unwrap();
+        
+        if calculated_days == expected_days {
+            matches += 1;
+        } else {
+            mismatches.push((year, month, expected_days, calculated_days));
+        }
+    }
+    
+    // Print results
+    println!("Validation Results:");
+    println!("Matches: {}", matches);
+    println!("Mismatches: {}", mismatches.len());
+    
+    if !mismatches.is_empty() {
+        println!("\nMismatches:");
+        for (y, m, exp, calc) in &mismatches {
+            println!("  {}/{}: Expected {}, Got {}", y, m, exp, calc);
+        }
+    }
+    
+    // Should match 100%
+    assert_eq!(mismatches.len(), 0, "Astronomical calculations don't match CSV");
+}
+
+#[test]
+fn validate_sankranti_times() {
+    // Known Mesh Sankranti times (Baisakh 1)
+    let known_sankranti = vec![
+        (2077, 1, (2020, 4, 13)), // 2077 Baisakh 1 = April 13-14, 2020
+        (2078, 1, (2021, 4, 14)),
+        (2079, 1, (2022, 4, 14)),
+        (2080, 1, (2023, 4, 14)),
+        (2081, 1, (2024, 4, 13)),
+    ];
+    
+    for (bs_year, bs_month, (ad_year, ad_month, ad_day)) in known_sankranti {
+        let jd = find_sankranti(bs_year, bs_month).unwrap();
+        let (y, m, d, _) = jd.to_gregorian();
+        
+        // Allow ±1 day difference (time zone effects)
+        assert!(
+            (y == ad_year && m == ad_month && (d as i32 - ad_day as i32).abs() <= 1),
+            "Sankranti mismatch for {}/{}: Expected {}/{}/{}, Got {}/{}/{}",
+            bs_year, bs_month, ad_year, ad_month, ad_day, y, m, d
+        );
+    }
+}
+```
+
+---
+
+## 4. Code Standards
+
+### 4.1 Documentation
+
+**RULE 5:** Every public function must have documentation
+
+```rust
+/// Calculate Sun's true longitude
+/// 
+/// # Arguments
+/// * `jd` - Julian Day in Terrestrial Time
+/// 
+/// # Returns
+/// Sun's geocentric true longitude in degrees (0-360)
+/// 
+/// # Accuracy
+/// ±0.01 degrees (simple mode)
+/// ±0.001 degrees (high-precision mode)
+/// 
+/// # Reference
+/// Jean Meeus, "Astronomical Algorithms", Chapter 25
+/// 
+/// # Example
+/// ```
+/// let jd = JulianDay::from_gregorian(2020, 4, 14, 0.0);
+/// let longitude = SolarCalculator::true_longitude(jd);
+/// assert!(longitude >= 0.0 && longitude < 360.0);
+/// ```
+pub fn true_longitude(jd: JulianDay) -> f64 {
+    // Implementation
+}
+```
+
+### 4.2 Error Handling
+
+**RULE 6:** Use Result<T, E> for fallible operations
+
+```rust
+// CORRECT: Return Result
+pub fn find_sankranti(year: i32, month: u8) -> Result<JulianDay, AstroError> {
+    if month < 1 || month > 12 {
+        return Err(AstroError::InvalidMonth(month));
+    }
+    // ...
+}
+
+// WRONG: Panic on error
+pub fn find_sankranti(year: i32, month: u8) -> JulianDay {
+    assert!(month >= 1 && month <= 12); // Don't do this!
+    // ...
+}
+```
+
+### 4.3 Testing
+
+**RULE 7:** Every module needs tests
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    // Unit tests
+    #[test]
+    fn test_basic_functionality() { }
+    
+    // Edge cases
+    #[test]
+    fn test_boundary_conditions() { }
+    
+    // Integration tests
+    #[test]
+    fn test_with_other_modules() { }
+    
+    // Validation tests
+    #[test]
+    fn test_against_known_values() { }
+}
+```
+
+### 4.4 Performance
+
+**RULE 8:** Avoid unnecessary allocations
+
+```rust
+// CORRECT: Stack allocation
+fn normalize_degrees(angle: f64) -> f64 {
+    angle.rem_euclid(360.0)
+}
+
+// WRONG: Heap allocation
+fn normalize_degrees(angle: f64) -> Box<f64> {
+    Box::new(angle.rem_euclid(360.0)) // Unnecessary!
+}
+```
+
+**RULE 9:** Cache expensive calculations
+
+```rust
+// CORRECT: Calculate once
+let sun_long = SolarCalculator::apparent_longitude(jd);
+let value1 = process(sun_long);
+let value2 = transform(sun_long);
+
+// WRONG: Calculate twice
+let value1 = process(SolarCalculator::apparent_longitude(jd));
+let value2 = transform(SolarCalculator::apparent_longitude(jd)); // Wasteful!
+```
+
+---
+
+## 5. Mathematical Foundations
+
+### 5.1 Coordinate Systems
+
+**IMPORTANT:** Understand these coordinate systems:
+
+1. **Ecliptic Coordinates** - Longitude measured along ecliptic (used for Sun, Moon)
+2. **Equatorial Coordinates** - Right Ascension and Declination (not used in BS calendar)
+3. **Zodiac Signs** - 30° divisions starting from Spring Equinox
+
+### 5.2 Time Scales
+
+**CRITICAL:** Distinguish between time scales:
+
+1. **UTC** - Coordinated Universal Time (user input/output)
+2. **TT (Terrestrial Time)** - Uniform time scale (calculations)
+3. **NPT** - Nepal Time (UTC + 5:45)
+
+```rust
+// CORRECT: Convert to TT for calculations
+let utc_jd = JulianDay::from_gregorian(2020, 4, 14, 0.0);
+let tt_jd = utc_to_tt(utc_jd); // Add ~70 seconds
+let sun_long = SolarCalculator::apparent_longitude(tt_jd);
+
+// WRONG: Use UTC directly
+let sun_long = SolarCalculator::apparent_longitude(utc_jd); // Inaccurate!
+```
+
+### 5.3 Precision Requirements
+
+**Accuracy Targets:**
+
+- Solar longitude: ±0.01° (±40 arcseconds)
+- Lunar longitude: ±0.1° (±6 arcminutes)
+- Sankranti time: ±10 seconds
+- Tithi time: ±1 minute
+- Month length: Exact integer days
+
+---
+
+## 6. Implementation Details
+
+### 6.1 Newton-Raphson Method
+
+**Algorithm for finding events:**
+
+```
+1. Make initial guess: x₀
+2. Calculate f(x₀) - current value
+3. Calculate f'(x₀) - derivative (rate of change)
+4. Update: x₁ = x₀ - f(x₀)/f'(x₀)
+5. Repeat until |f(x)| < tolerance
+```
+
+**For Sankranti:**
+- f(t) = SunLongitude(t) - TargetLongitude
+- f'(t) ≈ 0.985647°/day (Sun's daily motion)
+
+**For Tithi:**
+- f(t) = MoonLongitude(t) - SunLongitude(t) - TargetElongation
+- f'(t) ≈ 12.19°/day (Moon-Sun relative motion)
+
+### 6.2 Angle Normalization
+
+**CRITICAL:** Always normalize angles
+
+```rust
+/// Normalize angle to [0, 360) degrees
+fn normalize_degrees(angle: f64) -> f64 {
+    angle.rem_euclid(360.0)
+}
+
+/// Calculate angular difference with wrap-around
+/// Returns value in [-180, 180]
+fn angular_difference(target: f64, current: f64) -> f64 {
+    let diff = target - current;
+    if diff > 180.0 {
+        diff - 360.0
+    } else if diff < -180.0 {
+        diff + 360.0
+    } else {
+        diff
+    }
+}
+```
+
+### 6.3 Trigonometric Functions
+
+**RULE 10:** Always convert degrees to radians
+
+```rust
+// CORRECT
+let m_rad = mean_anomaly * DEG_TO_RAD;
+let correction = amplitude * m_rad.sin();
+
+// WRONG
+let correction = amplitude * mean_anomaly.sin(); // Using degrees!
+```
+
+---
+
+## 7. Testing Strategy
+
+### 7.1 Unit Tests
+
+Test each function independently:
+
+```rust
+#[test]
+fn test_mean_longitude() {
+    let jd = JulianDay(J2000_0);
+    let l0 = SolarCalculator::mean_longitude(jd);
+    assert!((l0 - 280.46).abs() < 0.01);
+}
+```
+
+### 7.2 Integration Tests
+
+Test module interactions:
+
+```rust
+#[test]
+fn test_sankranti_to_month_days() {
+    let days = calculate_month_days(2077, 1).unwrap();
+    assert!(days >= 29 && days <= 32);
+}
+```
+
+### 7.3 Validation Tests
+
+Compare against known data:
+
+```rust
+#[test]
+fn test_against_csv_data() {
+    // Load CSV and compare
+    // Must match 100%
+}
+```
+
+### 7.4 Regression Tests
+
+Prevent breaking changes:
+
+```rust
+#[test]
+fn test_regression_2077() {
+    // Known results for 2077
+    let expected = [31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
+    let calculated = generate_year_calendar(2077).unwrap();
+    assert_eq!(calculated, expected);
+}
+```
+
+---
+
+## 8. Performance Requirements
+
+### 8.1 Benchmarks
+
+Create benchmarks for critical functions:
+
+```rust
+// benches/astronomical_bench.rs
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+
+fn bench_sun_longitude(c: &mut Criterion) {
+    let jd = JulianDay::from_gregorian(2020, 4, 14, 0.0);
+    
+    c.bench_function("sun_longitude", |b| {
+        b.iter(|| SolarCalculator::apparent_longitude(black_box(jd)))
+    });
+}
+
+fn bench_find_sankranti(c: &mut Criterion) {
+    c.bench_function("find_sankranti", |b| {
+        b.iter(|| find_sankranti(black_box(2077), black_box(1)))
+    });
+}
+
+fn bench_month_calculation(c: &mut Criterion) {
+    c.bench_function("calculate_month_days", |b| {
+        b.iter(|| calculate_month_days(black_box(2077), black_box(1)))
+    });
+}
+
+criterion_group!(benches, bench_sun_longitude, bench_find_sankranti, bench_month_calculation);
+criterion_main!(benches);
+```
+
+**Performance Targets:**
+- Sun position: < 1 µs
+- Moon position: < 5 µs
+- Find Sankranti: < 10 ms
+- Calculate month: < 50 ms
+
+---
+
+## 9. Validation Process
+
+### 9.1 Data Sources for Validation
+
+1. **Your CSV file** - Primary validation source
+2. **Nepal government calendars** - Official BS dates
+3. **Online converters** - Cross-check (e.g., ashesh.com.np)
+4. **Astronomical almanacs** - Solar/lunar positions
+
+### 9.2 Validation Checklist
+
+Before considering implementation complete:
+
+- [ ] All 2077 BS months match CSV exactly
+- [ ] All 2000-2090 BS months match CSV (100%)
+- [ ] Sankranti times within ±10 seconds of known values
+- [ ] Year totals 354-385 days
+- [ ] No month < 29 or > 32 days
+- [ ] Lunar positions within ±2° of almanac
+- [ ] Solar positions within ±0.01° of VSOP87
+
+---
+
+## 10. Common Pitfalls
+
+### 10.1 Angle Wrap-Around
+
+**PITFALL:** Forgetting 360° wrap
+
+```rust
+// WRONG: Direct subtraction
+let diff = target_longitude - sun_longitude;
+if diff < 0.0 { diff += 360.0; } // Incomplete!
+
+// CORRECT: Use angular_difference()
+let diff = angular_difference(target_longitude, sun_longitude);
+```
+
+### 10.2 Time Scale Confusion
+
+**PITFALL:** Mixing UTC and TT
+
+```rust
+// WRONG: Using UTC for astronomical calculations
+let jd_utc = JulianDay::from_gregorian(2020, 4, 14, 0.0);
+let sun_long = SolarCalculator::apparent_longitude(jd_utc); // Wrong!
+
+// CORRECT: Convert to TT
+let jd_tt = utc_to_tt(jd_utc);
+let sun_long = SolarCalculator::apparent_longitude(jd_tt);
+```
+
+### 10.3 Degrees vs Radians
+
+**PITFALL:** Forgetting conversion
+
+```rust
+// WRONG: Using degrees in sin()
+let value = amplitude * angle.sin(); // If angle is in degrees!
+
+// CORRECT: Convert first
+let angle_rad = angle * DEG_TO_RAD;
+let value = amplitude * angle_rad.sin();
+```
+
+### 10.4 Iteration Limits
+
+**PITFALL:** Infinite loops
+
+```rust
+// WRONG: No limit
+while diff.abs() > tolerance {
+    // Update...
+} // Could loop forever!
+
+// CORRECT: Maximum iterations
+for iteration in 0..MAX_ITERATIONS {
+    if diff.abs() < tolerance { break; }
+    // Update...
+}
+```
+
+### 10.5 Precision Loss
+
+**PITFALL:** Using f32 instead of f64
+
+```rust
+// WRONG: Single precision
+fn sun_longitude(jd: f32) -> f32 { } // Not enough precision!
+
+// CORRECT: Double precision
+fn sun_longitude(jd: f64) -> f64 { } // Required for astronomy
+```
+
+---
+
+## 11. Debugging Guide
+
+### 11.1 Debug Output
+
+Add debug logging:
+
+```rust
+#[cfg(debug_assertions)]
+println!("Debug: JD={}, SunLong={:.6}°, Diff={:.6}°", 
+         jd.0, sun_long, diff);
+```
+
+### 11.2 Comparison Tool
+
+Create comparison tool:
+
+```rust
+fn compare_with_lookup(year: i32) {
+    println!("Year {}:", year);
+    println!("Month | Calculated | CSV | Match");
+    println!("------|------------|-----|------");
+    
+    for month in 1..=12 {
+        let calc = calculate_month_days(year, month).unwrap();
+        let csv = load_csv_value(year, month);
+        let match_char = if calc == csv { "✓" } else { "✗" };
+        
+        println!("{:5} | {:10} | {:3} | {}", 
+                 month, calc, csv, match_char);
+    }
+}
+```
+
+---
+
+## 12. Deployment Checklist
+
+Before releasing:
+
+- [ ] All tests passing
+- [ ] 100% CSV validation match
+- [ ] Documentation complete
+- [ ] Examples working
+- [ ] Benchmarks run
+- [ ] No unwrap() in library code
+- [ ] Error messages helpful
+- [ ] README updated
+- [ ] CHANGELOG updated
+- [ ] Version bumped
+
+---
+
+## 13. Future Enhancements
+
+After basic implementation works:
+
+1. **High-Precision Mode** - Full VSOP87/ELP-2000
+2. **Leap Month Detection** - Adhik Maas logic
+3. **Nakshatra Calculator** - 27 lunar mansions
+4. **Panchang Generator** - Complete almanac
+5. **Eclipse Predictor** - Solar/lunar eclipses
+6. **Festival Calculator** - Religious dates
+
+---
+
+## 14. References
+
+### 14.1 Essential Books
+
+1. **Jean Meeus** - "Astronomical Algorithms" (2nd edition, 1998)
+   - Chapter 7: Julian Day
+   - Chapter 25: Solar Coordinates
+   - Chapter 47: Lunar Coordinates
+   
+2. **Peter Duffett-Smith** - "Practical Astronomy with Your Calculator"
+
+3. **Montenbruck & Pfleger** - "Astronomy on the Personal Computer"
+
+### 14.2 Online Resources
+
+1. **VSOP87 Data**: ftp://ftp.imcce.fr/pub/ephem/planets/vsop87/
+2. **JPL Horizons**: https://ssd.jpl.nasa.gov/horizons/ (validation)
+3. **PyMeeus**: https://github.com/architest/pymeeus (reference implementation)
+
+### 14.3 Test Data Sources
+
+1. Your CSV file: `npdatetime/data/calendar_bs.csv`
+2. Nepal calendar websites
+3. Astronomical almanacs
+
+---
+
+## 15. Support and Questions
+
+When you encounter issues:
+
+1. **Check this guide first** - Most answers are here
+2. **Test incrementally** - Don't write everything at once
+3. **Validate frequently** - Run tests after each function
+4. **Compare with references** - Use Meeus book formulas
+5. **Ask for help** - With specific error messages and context
+
+---
+
+## Final Notes
+
+**Remember:**
+- This is a **research/validation tool**, not a production calculator
+- **Lookup tables are faster** and proven accurate
+- **Astronomical calculations are complex** - take your time
+- **Validate everything** - astronomy is unforgiving of errors
+- **Have fun learning** - this is fascinating science!
+
+**Success Criteria:** When your calculations match the CSV 100%, you've succeeded!
+
+Good luck with your implementation! 🚀🌙☀️
