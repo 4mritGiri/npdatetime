@@ -1,282 +1,651 @@
-/* Base Theme Variables */
+/* ===============================================
+   Nepali Date Picker - Modern Production Ready
+   =============================================== */
+
 :root {
-  --dp-primary: #2196f3;
-  --dp-primary-hover: #1976d2;
-  --dp-bg: rgba(255, 255, 255, 0.85);
-  --dp-text: #2c3e50;
-  --dp-text-muted: #7f8c8d;
-  --dp-border: rgba(0, 0, 0, 0.08);
-  --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
-  --dp-radius: 16px;
-  --dp-accent: #ff4081;
-  --dp-glass-bg: rgba(255, 255, 255, 0.45);
-  --dp-glass-blur: 12px;
-  --dp-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --npd-primary: #3b82f6;
+  --npd-primary-hover: #2563eb;
+  --npd-primary-light: #dbeafe;
+  --npd-secondary: #8b5cf6;
+  --npd-success: #10b981;
+  --npd-danger: #ef4444;
+  --npd-warning: #f59e0b;
+
+  --npd-bg: #ffffff;
+  --npd-bg-secondary: #f9fafb;
+  --npd-bg-hover: #f3f4f6;
+  --npd-text: #1f2937;
+  --npd-text-muted: #6b7280;
+  --npd-text-light: #9ca3af;
+
+  --npd-border: #e5e7eb;
+  --npd-border-focus: #3b82f6;
+  --npd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --npd-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --npd-shadow-lg:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  --npd-radius: 0.5rem;
+  --npd-radius-sm: 0.375rem;
+  --npd-radius-lg: 0.75rem;
+  --npd-radius-full: 9999px;
+
+  --npd-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --npd-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --npd-z-index: 1000;
 }
 
-/* Auto Dark Mode & Manual Override */
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --dp-bg: rgba(18, 18, 18, 0.85);
-    --dp-text: #ecf0f1;
-    --dp-text-muted: #95a5a6;
-    --dp-border: rgba(255, 255, 255, 0.08);
-    --dp-glass-bg: rgba(0, 0, 0, 0.5);
-    --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  :root {
+    --npd-bg: #1f2937;
+    --npd-bg-secondary: #111827;
+    --npd-bg-hover: #374151;
+    --npd-text: #f9fafb;
+    --npd-text-muted: #9ca3af;
+    --npd-text-light: #6b7280;
+    --npd-border: #374151;
+    --npd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --npd-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --npd-shadow-lg:
+      0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   }
 }
 
 [data-theme="dark"] {
-  --dp-bg: rgba(18, 18, 18, 0.85);
-  --dp-text: #ecf0f1;
-  --dp-text-muted: #95a5a6;
-  --dp-border: rgba(255, 255, 255, 0.08);
-  --dp-glass-bg: rgba(0, 0, 0, 0.5);
-  --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --npd-bg: #1f2937;
+  --npd-bg-secondary: #111827;
+  --npd-bg-hover: #374151;
+  --npd-text: #f9fafb;
+  --npd-text-muted: #9ca3af;
+  --npd-text-light: #6b7280;
+  --npd-border: #374151;
 }
 
-.np-datepicker-container {
-  position: relative;
-  display: inline-block;
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
+/* ===============================================
+   Input Styling
+   =============================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.np-datepicker-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--dp-bg);
-  border: 1px solid var(--dp-border);
-  padding: 8px 12px;
-  border-radius: var(--dp-radius);
+.npd-input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--npd-text);
+  background-color: var(--npd-bg);
+  background-clip: padding-box;
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius);
+  transition: var(--npd-transition);
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.np-datepicker-input-wrapper:hover {
-  border-color: var(--dp-primary);
-  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1);
+.npd-input:hover {
+  border-color: var(--npd-primary);
 }
 
-.np-datepicker-modal {
-  position: absolute;
-  left: 0;
-  width: 320px;
-  background: var(--dp-glass-bg);
-  backdrop-filter: blur(var(--dp-glass-blur));
-  -webkit-backdrop-filter: blur(var(--dp-glass-blur));
-  border: 1px solid var(--dp-border);
-  border-radius: var(--dp-radius);
-  box-shadow: var(--dp-shadow);
-  padding: 16px;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: var(--dp-transition);
+.npd-input:focus {
+  color: var(--npd-text);
+  background-color: var(--npd-bg);
+  border-color: var(--npd-border-focus);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Positioning */
-.np-datepicker-modal.pos-bottom {
-  top: calc(100% + 12px);
-  transform: translateY(-20px) scale(0.95);
-}
-
-.np-datepicker-modal.pos-top {
-  bottom: calc(100% + 12px);
-  transform: translateY(20px) scale(0.95);
-}
-
-.np-datepicker-modal.active {
+.npd-input::placeholder {
+  color: var(--npd-text-light);
   opacity: 1;
+}
+
+/* ===============================================
+   Picker Container
+   =============================================== */
+
+.npd-picker {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  background: var(--npd-bg);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius-lg);
+  box-shadow: var(--npd-shadow-lg);
+  padding: 1.25rem;
+  z-index: var(--npd-z-index);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem) scale(0.95);
+  transition: var(--npd-transition);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+}
+
+.npd-picker.active {
+  opacity: 1;
+  visibility: visible;
   transform: translateY(0) scale(1);
-  pointer-events: auto;
 }
 
-/* Header */
-.np-datepicker-header {
+.npd-picker.npd-position-top {
+  transform: translateY(0.5rem) scale(0.95);
+}
+
+.npd-picker.npd-position-top.active {
+  transform: translateY(0) scale(1);
+}
+
+/* ===============================================
+   Header
+   =============================================== */
+
+.npd-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
 }
 
-.np-datepicker-title {
-  font-weight: 700;
-  color: var(--dp-text);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.np-datepicker-title:hover {
-  background: var(--dp-border);
-}
-
-.np-datepicker-nav {
+.npd-title {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--npd-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--npd-text);
+  cursor: pointer;
+  transition: var(--npd-transition-fast);
 }
 
-.np-datepicker-nav-btn {
-  background: var(--dp-border);
-  border: none;
-  width: 32px;
-  height: 32px;
+.npd-title:hover {
+  background: var(--npd-bg-hover);
+}
+
+.npd-title-icon {
+  width: 1rem;
+  height: 1rem;
+  transition: var(--npd-transition-fast);
+}
+
+.npd-title:hover .npd-title-icon {
+  transform: translateY(2px);
+}
+
+.npd-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.npd-nav-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius);
   cursor: pointer;
-  color: var(--dp-text);
-  transition: all 0.2s;
+  transition: var(--npd-transition-fast);
 }
 
-.np-datepicker-nav-btn:hover {
-  background: var(--dp-primary);
+.npd-nav-btn svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--npd-text-muted);
+  transition: var(--npd-transition-fast);
+}
+
+.npd-nav-btn:hover {
+  background: var(--npd-primary);
+  border-color: var(--npd-primary);
+}
+
+.npd-nav-btn:hover svg {
   color: white;
-  transform: translateY(-2px);
 }
 
-/* Calendar Grid */
-.np-datepicker-grid {
+.npd-nav-btn:active {
+  transform: scale(0.95);
+}
+
+/* ===============================================
+   Body / Views
+   =============================================== */
+
+.npd-body {
+  position: relative;
+  min-height: 280px;
+  margin-bottom: 1rem;
+}
+
+.npd-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition: var(--npd-transition);
+}
+
+.npd-view.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  position: relative;
+}
+
+/* Days View */
+.npd-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  text-align: center;
-  transition: all 0.3s ease;
+  gap: 2px;
 }
 
-.np-datepicker-grid.np-datepicker-year-grid {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 8px 0;
-}
-
-.np-datepicker-year {
-  aspect-ratio: auto !important;
-  padding: 12px 0 !important;
-  font-weight: 600;
-  border-radius: 12px;
-}
-
-.np-datepicker-weekday {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--dp-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding-bottom: 12px;
-}
-
-.np-datepicker-day {
-  aspect-ratio: 1;
+.npd-weekday {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: var(--dp-transition);
-  color: var(--dp-text);
-  user-select: none;
-}
-
-.np-datepicker-day:hover:not(.empty) {
-  background: var(--dp-primary-hover);
-  color: white;
-  transform: scale(1.1);
-}
-
-.np-datepicker-day.selected {
-  background: var(--dp-primary);
-  color: white;
+  padding: 0.5rem 0;
+  font-size: 0.7rem;
   font-weight: 700;
-  box-shadow: 0 8px 20px -6px var(--dp-primary);
+  color: var(--npd-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.np-datepicker-day.today {
-  box-shadow: inset 0 0 0 2px var(--dp-primary);
-  color: var(--dp-primary);
-  font-weight: 700;
-}
-
-.np-datepicker-day.empty {
-  cursor: default;
-  opacity: 0.2;
-}
-
-/* Footer / Quick Actions */
-.np-datepicker-footer {
+.npd-day {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--dp-border);
-  gap: 8px;
-}
-
-.np-datepicker-footer-btn {
-  flex: 1;
-  padding: 8px;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
+  background: transparent;
   border: none;
-  background: var(--dp-border);
-  color: var(--dp-text);
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: var(--npd-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--npd-text);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--npd-transition-fast);
+  position: relative;
 }
 
-.np-datepicker-footer-btn:hover {
-  background: var(--dp-primary);
+.npd-day:not(.npd-empty):hover {
+  background: var(--npd-primary-light);
+  color: var(--npd-primary);
+  z-index: 1;
+}
+
+.npd-day.holiday {
+  color: var(--npd-danger);
+  font-weight: 600;
+}
+
+.npd-day.npd-overflow {
+  color: var(--npd-text-light);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.npd-day.selected {
+  background: var(--npd-primary);
+  color: white !important;
+  font-weight: 700;
+}
+
+.npd-day.selected:hover {
+  background: var(--npd-primary-hover);
   color: white;
+}
+
+.npd-day.npd-empty {
+  cursor: default;
+  opacity: 0;
+}
+
+.npd-day:focus-visible {
+  outline: 2px solid var(--npd-primary);
+  outline-offset: 2px;
+}
+
+/* Today indicator */
+.npd-day.today::before {
+  content: "";
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.25rem;
+  height: 0.25rem;
+  background: var(--npd-primary);
+  border-radius: 50%;
+}
+
+.npd-day.today.selected::before {
+  background: white;
+}
+
+/* Months View */
+.npd-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.npd-month {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--npd-text);
+  cursor: pointer;
+  transition: var(--npd-transition-fast);
+}
+
+.npd-month:hover {
+  background: var(--npd-primary-light);
+  border-color: var(--npd-primary);
+  color: var(--npd-primary);
   transform: translateY(-2px);
 }
 
-.np-datepicker-footer-btn.primary {
-  background: var(--dp-primary);
+.npd-month.selected {
+  background: var(--npd-primary);
+  border-color: var(--npd-primary);
   color: white;
 }
 
-/* Toggle Switch */
-.np-datepicker-switch {
+/* Years View */
+.npd-years-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.npd-year {
   display: flex;
-  background: var(--dp-border);
-  padding: 4px;
-  border-radius: 12px;
-}
-
-.np-datepicker-switch-btn {
-  flex: 1;
-  padding: 6px;
-  border: none;
-  background: none;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--npd-text);
   cursor: pointer;
-  color: var(--dp-text-muted);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--npd-transition-fast);
 }
 
-.np-datepicker-switch-btn.active {
-  background: var(--dp-bg);
-  color: var(--dp-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+.npd-year:hover {
+  background: var(--npd-primary-light);
+  border-color: var(--npd-primary);
+  color: var(--npd-primary);
+  transform: translateY(-2px);
 }
 
-/* Focus States */
-.np-datepicker-day:focus,
-.np-datepicker-nav-btn:focus,
-.np-datepicker-footer-btn:focus {
-  outline: 2px solid var(--dp-primary);
+.npd-year.selected {
+  background: var(--npd-primary);
+  border-color: var(--npd-primary);
+  color: white;
+}
+
+/* ===============================================
+   Footer
+   =============================================== */
+
+.npd-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--npd-border);
+}
+
+.npd-mode-toggle {
+  display: flex;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius);
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.npd-mode-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--npd-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--npd-text-muted);
+  cursor: pointer;
+  transition: var(--npd-transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.npd-mode-btn:hover {
+  color: var(--npd-text);
+}
+
+.npd-mode-btn.active {
+  background: white;
+  color: var(--npd-primary);
+  box-shadow: var(--npd-shadow-sm);
+}
+
+@media (prefers-color-scheme: dark) {
+  .npd-mode-btn.active {
+    background: var(--npd-bg);
+  }
+}
+
+.npd-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.npd-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--npd-text);
+  cursor: pointer;
+  transition: var(--npd-transition-fast);
+  white-space: nowrap;
+}
+
+.npd-btn:hover {
+  background: var(--npd-bg-hover);
+  border-color: var(--npd-text-muted);
+}
+
+.npd-btn:active {
+  transform: scale(0.98);
+}
+
+.npd-today {
+  background: var(--npd-primary);
+  border-color: var(--npd-primary);
+  color: white;
+}
+
+.npd-today:hover {
+  background: var(--npd-primary-hover);
+  border-color: var(--npd-primary-hover);
+  color: white;
+}
+
+.npd-clear:hover {
+  background: var(--npd-danger);
+  border-color: var(--npd-danger);
+  color: white;
+}
+
+/* ===============================================
+   Time Picker Styling
+   =============================================== */
+
+.npd-time-picker {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--npd-border);
+}
+
+.npd-time-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.npd-time-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--npd-text-muted);
+}
+
+.npd-time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.npd-time-input {
+  width: 3rem;
+  padding: 0.25rem;
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius-sm);
+  background: var(--npd-bg-secondary);
+  color: var(--npd-text);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.npd-time-input:focus {
+  border-color: var(--npd-primary);
+  outline: none;
+}
+
+/* ===============================================
+   Responsive
+   =============================================== */
+
+@media (max-width: 480px) {
+  .npd-picker {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    border-radius: var(--npd-radius-lg) var(--npd-radius-lg) 0 0 !important;
+    transform: translateY(100%) !important;
+    padding-bottom: env(safe-area-inset-bottom, 1rem) !important;
+    min-width: 100% !important;
+  }
+
+  .npd-picker.active {
+    transform: translateY(0) !important;
+  }
+
+  .npd-body {
+    min-height: 250px;
+  }
+
+  .npd-day {
+    font-size: 1rem; /* Slightly larger targets for mobile */
+  }
+}
+
+/* ===============================================
+   Accessibility
+   =============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.npd-picker:focus-visible,
+.npd-btn:focus-visible,
+.npd-mode-btn:focus-visible,
+.npd-nav-btn:focus-visible {
+  outline: 2px solid var(--npd-primary);
   outline-offset: 2px;
+}
+
+/* ===============================================
+   Custom Themes
+   =============================================== */
+
+/* Purple Theme */
+.npd-picker[data-theme="purple"] {
+  --npd-primary: #8b5cf6;
+  --npd-primary-hover: #7c3aed;
+  --npd-primary-light: #ede9fe;
+}
+
+/* Green Theme */
+.npd-picker[data-theme="green"] {
+  --npd-primary: #10b981;
+  --npd-primary-hover: #059669;
+  --npd-primary-light: #d1fae5;
+}
+
+/* Orange Theme */
+.npd-picker[data-theme="orange"] {
+  --npd-primary: #f59e0b;
+  --npd-primary-hover: #d97706;
+  --npd-primary-light: #fef3c7;
+}
+
+/* Red Theme */
+.npd-picker[data-theme="red"] {
+  --npd-primary: #ef4444;
+  --npd-primary-hover: #dc2626;
+  --npd-primary-light: #fee2e2;
+}
+
+/* ===============================================
+   Print Styles
+   =============================================== */
+
+@media print {
+  .npd-picker {
+    display: none !important;
+  }
 }

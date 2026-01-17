@@ -1,568 +1,761 @@
 import init, { NepaliDate } from "./pkg/npdatetime_wasm.js";
 
-export class NepaliADDatePicker {
-  constructor(elementId, options = {}) {
-    this.container = document.getElementById(elementId);
+export class NepaliDatePicker {
+  static initialized = false;
+  static instances = new Map();
+
+  constructor(element, options = {}) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+
+    if (!element) {
+      throw new Error("Invalid element provided to NepaliDatePicker");
+    }
+
+    this.input = element;
+    this.id = `npd-${Math.random().toString(36).substr(2, 9)}`;
+
     this.options = {
-      mode: "BS", // 'BS' or 'AD'
-      language: "NP", // 'EN' or 'NP'
-      onSelect: null,
+      mode: (element.dataset.mode || options.mode || "BS").toUpperCase(),
+      language: (
+        element.dataset.language ||
+        options.language ||
+        "en"
+      ).toLowerCase(),
+      format: options.format || "%Y-%m-%d",
+      minDate: options.minDate || null,
+      maxDate: options.maxDate || null,
+      disabledDates: options.disabledDates || [],
+      theme: element.dataset.theme || options.theme || "auto",
+      position: options.position || "auto",
+      closeOnSelect: options.closeOnSelect !== false,
+      showTodayButton: options.showTodayButton !== false,
+      showClearButton: options.showClearButton !== false,
+      onChange: options.onChange || null,
+      onOpen: options.onOpen || null,
+      onClose: options.onClose || null,
       ...options,
     };
 
+    this.selectedDate = null;
+    this.selectedTime = {
+      hour: options.defaultHour || 0,
+      minute: options.defaultMinute || 0,
+    };
+    this.viewDate = { year: 2081, month: 1 };
+    this.viewMode = "days";
     this.isOpen = false;
-    this.initialized = false;
-    this.viewMode = "month"; // 'month' or 'year'
 
     this.init();
+    NepaliDatePicker.instances.set(element, this);
   }
 
   async init() {
-    await init();
-    this.selectedDate = NepaliDate.today();
-    this.viewDate = {
-      year: this.selectedDate.year,
-      month: this.selectedDate.month,
-    };
-    this.viewYear = this.viewDate.year; // Base year for decade view
-    this.initialized = true;
-    this.renderBaseStructure();
+    if (!NepaliDatePicker.initialized) {
+      await init();
+      NepaliDatePicker.initialized = true;
+    }
+
+    this.setupInput();
+    this.createPicker();
     this.attachEvents();
-    this.updateDisplay();
+    this.parseInitialValue();
   }
 
-  renderBaseStructure() {
-    this.container.classList.add("np-datepicker-container");
-    this.container.innerHTML = `
-            <div class="np-datepicker-input-wrapper" id="dp-input" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
-                <span id="dp-display-value">Select Date</span>
-                <span style="margin-left: auto; opacity: 0.6;">📅</span>
-            </div>
-            <div class="np-datepicker-modal" id="dp-modal" tabindex="-1">
-                <div class="np-datepicker-header">
-                    <div class="np-datepicker-title" id="dp-month-year" tabindex="0"></div>
-                    <div class="np-datepicker-nav">
-                        <button class="np-datepicker-nav-btn" id="dp-prev" title="Previous Month">◀</button>
-                        <button class="np-datepicker-nav-btn" id="dp-next" title="Next Month">▶</button>
-                    </div>
-                </div>
-                <div class="np-datepicker-grid" id="dp-grid" role="grid"></div>
-                
-                <div class="np-datepicker-switch">
-                    <button class="np-datepicker-switch-btn ${this.options.mode === "BS" ? "active" : ""}" data-mode="BS">Bikram Sambat</button>
-                    <button class="np-datepicker-switch-btn ${this.options.mode === "AD" ? "active" : ""}" data-mode="AD">Gregorian (AD)</button>
-                </div>
+  setupInput() {
+    this.input.setAttribute("autocomplete", "off");
+    this.input.setAttribute("data-npd-id", this.id);
+    this.input.classList.add("npd-input");
 
-                <div class="np-datepicker-footer">
-                    <button class="np-datepicker-footer-btn" id="dp-clear">Clear</button>
-                    <button class="np-datepicker-footer-btn primary" id="dp-today">Today</button>
-                </div>
-            </div>
-        `;
+    if (!this.input.placeholder) {
+      this.input.placeholder =
+        this.options.mode === "BS" ? "Select Nepali Date" : "Select Date";
+    }
+  }
 
-    this.modal = this.container.querySelector("#dp-modal");
-    this.inputWrapper = this.container.querySelector("#dp-input");
-    this.grid = this.container.querySelector("#dp-grid");
-    this.monthYearTitle = this.container.querySelector("#dp-month-year");
+  createPicker() {
+    const picker = document.createElement("div");
+    picker.className = "npd-picker";
+    picker.id = this.id;
+    picker.setAttribute("role", "dialog");
+    picker.setAttribute("aria-modal", "true");
+    picker.innerHTML = `
+      <div class="npd-header">
+        <button type="button" class="npd-title" aria-label="Change view">
+          <span class="npd-title-text"></span>
+          <svg class="npd-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="npd-nav">
+          <button type="button" class="npd-nav-btn npd-prev" aria-label="Previous">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button type="button" class="npd-nav-btn npd-next" aria-label="Next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="npd-body">
+        <div class="npd-view npd-view-days"></div>
+        <div class="npd-view npd-view-months"></div>
+        <div class="npd-view npd-view-years"></div>
+      </div>
+      
+      <div class="npd-footer">
+        <div class="npd-mode-toggle">
+          <button type="button" class="npd-mode-btn ${this.options.mode === "BS" ? "active" : ""}" data-mode="BS">
+            <span>BS</span>
+          </button>
+          <button type="button" class="npd-mode-btn ${this.options.mode === "AD" ? "active" : ""}" data-mode="AD">
+            <span>AD</span>
+          </button>
+        </div>
+        <div class="npd-actions">
+          ${this.options.showClearButton ? '<button type="button" class="npd-btn npd-clear">Clear</button>' : ""}
+          <button type="button" class="npd-btn npd-yesterday">Yesterday</button>
+          ${this.options.showTodayButton ? '<button type="button" class="npd-btn npd-today">Today</button>' : ""}
+          <button type="button" class="npd-btn npd-tomorrow">Tomorrow</button>
+        </div>
+
+        <div class="npd-time-picker">
+          <div class="npd-time-field">
+            <label>Time</label>
+            <div class="npd-time-inputs">
+              <input type="number" class="npd-time-input npd-hour" min="0" max="23" value="${this.selectedTime.hour}" placeholder="HH">
+              <span>:</span>
+              <input type="number" class="npd-time-input npd-minute" min="0" max="59" value="${this.selectedTime.minute}" placeholder="mm">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(picker);
+    this.picker = picker;
+    this.elements = {
+      title: picker.querySelector(".npd-title-text"),
+      daysView: picker.querySelector(".npd-view-days"),
+      monthsView: picker.querySelector(".npd-view-months"),
+      yearsView: picker.querySelector(".npd-view-years"),
+    };
   }
 
   attachEvents() {
-    this.inputWrapper.addEventListener("click", () => this.toggleModal());
+    this.input.addEventListener("focus", () => this.open());
+    this.input.addEventListener("click", () => this.open());
+    this.input.addEventListener("keydown", (e) => this.handleInputKeydown(e));
 
-    // Header click for year view toggle
-    this.monthYearTitle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.toggleViewMode();
+    this.picker
+      .querySelector(".npd-title")
+      .addEventListener("click", () => this.changeViewMode());
+    this.picker
+      .querySelector(".npd-prev")
+      .addEventListener("click", () => this.navigate(-1));
+    this.picker
+      .querySelector(".npd-next")
+      .addEventListener("click", () => this.navigate(1));
+
+    this.picker.querySelectorAll(".npd-mode-btn").forEach((btn) => {
+      btn.addEventListener("click", () => this.switchMode(btn.dataset.mode));
     });
 
-    // Month/Year Navigation
-    this.container.querySelector("#dp-prev").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (this.viewMode === "month") {
-        this.changeMonth(-1);
-      } else {
-        this.changeDecade(-1);
+    if (this.options.showTodayButton) {
+      this.picker
+        .querySelector(".npd-today")
+        .addEventListener("click", () => this.selectToday());
+    }
+
+    if (this.options.showClearButton) {
+      this.picker
+        .querySelector(".npd-clear")
+        .addEventListener("click", () => this.clear());
+    }
+
+    this.picker
+      .querySelector(".npd-yesterday")
+      .addEventListener("click", () => this.selectYesterday());
+    this.picker
+      .querySelector(".npd-tomorrow")
+      .addEventListener("click", () => this.selectTomorrow());
+
+    this.picker.querySelector(".npd-hour").addEventListener("change", (e) => {
+      this.selectedTime.hour = parseInt(e.target.value) || 0;
+      this.updateInput();
+    });
+
+    this.picker.querySelector(".npd-minute").addEventListener("change", (e) => {
+      this.selectedTime.minute = parseInt(e.target.value) || 0;
+      this.updateInput();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!this.picker.contains(e.target) && e.target !== this.input) {
+        this.close();
       }
     });
-    this.container.querySelector("#dp-next").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (this.viewMode === "month") {
-        this.changeMonth(1);
-      } else {
-        this.changeDecade(1);
-      }
+
+    window.addEventListener("resize", () => {
+      if (this.isOpen) this.position();
     });
 
-    // Mode Switching
-    this.container
-      .querySelectorAll(".np-datepicker-switch-btn")
-      .forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.switchMode(e.target.dataset.mode);
-        });
-      });
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (this.isOpen) this.position();
+      },
+      true,
+    );
+  }
 
-    // Footer Buttons
-    this.container.querySelector("#dp-today").addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.selectedDate = NepaliDate.today();
+  handleInputKeydown(e) {
+    if (e.key === "Escape") {
+      this.close();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      this.open();
+    }
+  }
+
+  parseInitialValue() {
+    const value = this.input.value.trim();
+    if (!value) return;
+
+    try {
+      if (this.options.mode === "BS") {
+        const [y, m, d] = value.split("-").map(Number);
+        this.selectedDate = new NepaliDate(y, m, d);
+      } else {
+        const [y, m, d] = value.split("-").map(Number);
+        this.selectedDate = NepaliDate.fromGregorian(y, m, d);
+      }
       this.viewDate = {
         year: this.selectedDate.year,
         month: this.selectedDate.month,
       };
-      if (this.options.mode === "AD") {
-        const [y, m] = this.selectedDate.toGregorian();
-        this.viewDate = { year: y, month: m };
-      }
-      this.updateDisplay();
-      this.renderCalendar();
-      this.closeModal();
-      if (this.options.onSelect) this.options.onSelect(this.selectedDate);
-    });
-
-    this.container.querySelector("#dp-clear").addEventListener("click", (e) => {
-      e.stopPropagation();
-      const display = this.container.querySelector("#dp-display-value");
-      display.textContent = "Select Date";
-      this.closeModal();
-      if (this.options.onSelect) this.options.onSelect(null);
-    });
-
-    // Keyboard Accessibility
-    this.container.addEventListener("keydown", (e) => this.handleKeydown(e));
-
-    // Close on click outside
-    document.addEventListener("click", (e) => {
-      if (!this.container.contains(e.target)) {
-        this.closeModal();
-      }
-    });
-
-    // Auto-reposition on scroll/resize if open
-    window.addEventListener(
-      "scroll",
-      () => {
-        if (this.isOpen) this.updatePosition();
-      },
-      true,
-    );
-    window.addEventListener("resize", () => {
-      if (this.isOpen) this.updatePosition();
-    });
-  }
-
-  handleKeydown(e) {
-    if (!this.isOpen) {
-      if (e.key === "Enter" || e.key === " ") {
-        this.openModal();
-        e.preventDefault();
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case "Escape":
-        this.closeModal();
-        break;
-      case "ArrowLeft":
-        this.changeMonth(-1);
-        break;
-      case "ArrowRight":
-        this.changeMonth(1);
-        break;
-      case "Tab":
-        // Let default tabbing work but keep focus in modal if needed (optional)
-        break;
+    } catch (e) {
+      console.warn("Invalid initial date value:", value);
     }
   }
 
-  updatePosition() {
-    const rect = this.inputWrapper.getBoundingClientRect();
-    const modalHeight = 400; // Estimated max height
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
+  open() {
+    if (this.isOpen) return;
 
-    this.modal.classList.remove("pos-top", "pos-bottom");
-
-    if (spaceBelow < modalHeight && spaceAbove > spaceBelow) {
-      this.modal.classList.add("pos-top");
-    } else {
-      this.modal.classList.add("pos-bottom");
-    }
-  }
-
-  toggleModal() {
-    if (this.isOpen) this.closeModal();
-    else this.openModal();
-  }
-
-  openModal() {
-    this.updatePosition();
-    this.modal.classList.add("active");
     this.isOpen = true;
-    this.inputWrapper.setAttribute("aria-expanded", "true");
-    this.renderCalendar();
+    this.picker.classList.add("active");
+    this.position();
+    this.render();
+
+    if (this.options.onOpen) {
+      this.options.onOpen(this);
+    }
   }
 
-  closeModal() {
-    this.modal.classList.remove("active");
+  close() {
+    if (!this.isOpen) return;
+
     this.isOpen = false;
-    this.inputWrapper.setAttribute("aria-expanded", "false");
+    this.picker.classList.remove("active");
+
+    if (this.options.onClose) {
+      this.options.onClose(this);
+    }
+  }
+
+  position() {
+    const inputRect = this.input.getBoundingClientRect();
+    const pickerHeight = 400;
+    const spaceBelow = window.innerHeight - inputRect.bottom;
+    const spaceAbove = inputRect.top;
+
+    this.picker.style.left = `${inputRect.left}px`;
+    this.picker.style.width = `${Math.max(inputRect.width, 320)}px`;
+
+    if (
+      this.options.position === "top" ||
+      (this.options.position === "auto" &&
+        spaceBelow < pickerHeight &&
+        spaceAbove > spaceBelow)
+    ) {
+      this.picker.style.bottom = `${window.innerHeight - inputRect.top + 8}px`;
+      this.picker.style.top = "auto";
+      this.picker.classList.add("npd-position-top");
+    } else {
+      this.picker.style.top = `${inputRect.bottom + 8}px`;
+      this.picker.style.bottom = "auto";
+      this.picker.classList.remove("npd-position-top");
+    }
   }
 
   switchMode(mode) {
     if (this.options.mode === mode) return;
 
-    // Capture current view context to convert it
-    const currentY = this.viewDate.year;
-    const currentM = this.viewDate.month;
-
     this.options.mode = mode;
-    this.container
-      .querySelectorAll(".np-datepicker-switch-btn")
-      .forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.mode === mode);
-      });
-
-    // Smart synchronization of view context
-    if (mode === "AD") {
-      // Convert BS view context to AD
-      try {
-        const tempDate = new NepaliDate(currentY, currentM, 1);
-        const [y, m] = tempDate.toGregorian();
-        this.viewDate = { year: y, month: m };
-      } catch (e) {
-        // Fallback to selectedDate if current view is invalid for some reason
-        const [y, m] = this.selectedDate.toGregorian();
-        this.viewDate = { year: y, month: m };
-      }
-    } else {
-      // Convert AD view context to BS
-      try {
-        const tempDate = NepaliDate.fromGregorian(currentY, currentM, 1);
-        this.viewDate = { year: tempDate.year, month: tempDate.month };
-      } catch (e) {
-        this.viewDate = {
-          year: this.selectedDate.year,
-          month: this.selectedDate.month,
-        };
-      }
-    }
-
-    // If in year mode, sync viewYear as well
-    if (this.viewMode === "year") {
-      this.viewYear = this.viewDate.year;
-    }
-
-    this.renderCalendar();
-    this.updateDisplay();
-  }
-
-  changeMonth(delta) {
-    let newMonth = this.viewDate.month + delta;
-    let newYear = this.viewDate.year;
-
-    if (newMonth > 12) {
-      newMonth = 1;
-      newYear++;
-    } else if (newMonth < 1) {
-      newMonth = 12;
-      newYear--;
-    }
-    this.viewDate = { year: newYear, month: newMonth };
-    this.renderCalendar();
-  }
-
-  toggleViewMode() {
-    this.viewMode = this.viewMode === "month" ? "year" : "month";
-    if (this.viewMode === "year") {
-      this.viewYear = this.viewDate.year;
-    }
-    this.renderCalendar();
-  }
-
-  changeDecade(delta) {
-    this.viewYear += delta * 12; // Show 12 years in a 3x4 grid
-    this.renderCalendar();
-  }
-
-  renderCalendar() {
-    this.grid.innerHTML = "";
-
-    if (this.viewMode === "year") {
-      this.renderYearGrid();
-      return;
-    }
-
-    // Ensure year grid class is removed when switching back to month view
-    this.grid.classList.remove("np-datepicker-year-grid");
-
-    const weekdaysEN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-    const weekdaysNP = ["आइ", "सो", "मं", "बु", "बि", "शु", "श"];
-
-    // Auto-switch weekday language for AD mode for better UX
-    const useNP = this.options.mode === "BS" && this.options.language === "NP";
-    const weekdays = useNP ? weekdaysNP : weekdaysEN;
-
-    weekdays.forEach((wd) => {
-      const div = document.createElement("div");
-      div.className = "np-datepicker-weekday";
-      div.textContent = wd;
-      this.grid.appendChild(div);
+    this.picker.querySelectorAll(".npd-mode-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
     });
 
-    if (this.options.mode === "BS") {
-      this.renderBSCalendar();
+    if (mode === "AD" && this.selectedDate) {
+      const [y, m] = this.selectedDate.toGregorian();
+      this.viewDate = { year: y, month: m };
+    } else if (mode === "BS" && this.selectedDate) {
+      this.viewDate = {
+        year: this.selectedDate.year,
+        month: this.selectedDate.month,
+      };
+    }
+
+    this.render();
+  }
+
+  changeViewMode() {
+    const modes = ["days", "months", "years"];
+    const currentIndex = modes.indexOf(this.viewMode);
+    this.viewMode = modes[(currentIndex + 1) % modes.length];
+    this.render();
+  }
+
+  navigate(direction) {
+    if (this.viewMode === "days") {
+      this.viewDate.month += direction;
+      if (this.viewDate.month > 12) {
+        this.viewDate.month = 1;
+        this.viewDate.year++;
+      } else if (this.viewDate.month < 1) {
+        this.viewDate.month = 12;
+        this.viewDate.year--;
+      }
+    } else if (this.viewMode === "months") {
+      this.viewDate.year += direction;
     } else {
-      this.renderADCalendar();
+      this.viewDate.year += direction * 12;
+    }
+    this.render();
+  }
+
+  render() {
+    this.picker
+      .querySelectorAll(".npd-view")
+      .forEach((v) => v.classList.remove("active"));
+
+    if (this.viewMode === "days") {
+      this.renderDays();
+    } else if (this.viewMode === "months") {
+      this.renderMonths();
+    } else {
+      this.renderYears();
     }
   }
 
-  renderYearGrid() {
-    this.monthYearTitle.textContent = `${this.viewYear} - ${this.viewYear + 11}`;
-    this.grid.classList.add("np-datepicker-year-grid");
+  renderDays() {
+    const months =
+      this.options.language === "np"
+        ? [
+            "बैशाख",
+            "जेठ",
+            "असार",
+            "साउन",
+            "भदौ",
+            "असोज",
+            "कात्तिक",
+            "मंसिर",
+            "पुस",
+            "माघ",
+            "फागुन",
+            "चैत",
+          ]
+        : [
+            "Baisakh",
+            "Jestha",
+            "Ashadh",
+            "Shrawan",
+            "Bhadra",
+            "Ashwin",
+            "Kartik",
+            "Mangshir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+          ];
 
-    for (let i = 0; i < 12; i++) {
-      const year = this.viewYear + i;
-      const div = document.createElement("div");
-      div.className = "np-datepicker-day np-datepicker-year";
-
-      const useNP = this.options.language === "NP";
-      div.textContent = useNP ? this.toDevanagari(year) : year;
-
-      if (year === this.viewDate.year) {
-        div.classList.add("selected");
-      }
-
-      div.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.selectYear(year);
-      });
-      this.grid.appendChild(div);
-    }
-  }
-
-  selectYear(year) {
-    this.viewDate.year = year;
-    this.viewMode = "month";
-    this.grid.classList.remove("np-datepicker-year-grid");
-    this.renderCalendar();
-  }
-
-  renderBSCalendar() {
-    const monthNamesEN = [
-      "Baisakh",
-      "Jestha",
-      "Ashadh",
-      "Shrawan",
-      "Bhadra",
-      "Ashwin",
-      "Kartik",
-      "Mangshir",
-      "Poush",
-      "Magh",
-      "Falgun",
-      "Chaitra",
-    ];
-    const monthNamesNP = [
-      "बैशाख",
-      "जेठ",
-      "असार",
-      "साउन",
-      "भदौ",
-      "असोज",
-      "कात्तिक",
-      "मंसिर",
-      "पुस",
-      "माघ",
-      "फागुन",
-      "चैत",
-    ];
-
-    const useNP = this.options.language === "NP";
-    const monthNames = useNP ? monthNamesNP : monthNamesEN;
-
-    const titleText = useNP
-      ? `${monthNames[this.viewDate.month - 1]} ${this.toDevanagari(this.viewDate.year)}`
-      : `${monthNames[this.viewDate.month - 1]} ${this.viewDate.year}`;
-
-    this.monthYearTitle.textContent = titleText;
-
-    const firstOfMonth = new NepaliDate(
-      this.viewDate.year,
-      this.viewDate.month,
-      1,
-    );
-    const [gY, gM, gD] = firstOfMonth.toGregorian();
-    const startWeekday = new Date(gY, gM - 1, gD).getDay();
-
-    const daysInMonth = this.getBSDaysInMonth(
-      this.viewDate.year,
-      this.viewDate.month,
-    );
-
-    for (let i = 0; i < startWeekday; i++) {
-      const div = document.createElement("div");
-      div.className = "np-datepicker-day empty";
-      this.grid.appendChild(div);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const div = document.createElement("div");
-      div.className = "np-datepicker-day";
-
-      const useNP = this.options.language === "NP";
-      div.textContent = useNP ? this.toDevanagari(d) : d;
-      div.setAttribute(
-        "aria-label",
-        `${d} ${monthNames[this.viewDate.month - 1]}`,
-      );
-
-      if (
-        this.selectedDate.year === this.viewDate.year &&
-        this.selectedDate.month === this.viewDate.month &&
-        this.selectedDate.day === d
-      ) {
-        div.classList.add("selected");
-        div.setAttribute("aria-selected", "true");
-      }
-
-      div.addEventListener("click", () => this.selectDateBS(d));
-      this.grid.appendChild(div);
-    }
-  }
-
-  renderADCalendar() {
-    const date = new Date(this.viewDate.year, this.viewDate.month - 1, 1);
-    const monthName = date.toLocaleString("default", { month: "long" });
-    this.monthYearTitle.textContent = `${monthName} ${this.viewDate.year}`;
-
-    const startWeekday = date.getDay();
-    const daysInMonth = new Date(
-      this.viewDate.year,
-      this.viewDate.month,
-      0,
-    ).getDate();
-
-    for (let i = 0; i < startWeekday; i++) {
-      const div = document.createElement("div");
-      div.className = "np-datepicker-day empty";
-      this.grid.appendChild(div);
-    }
-
-    const [selY, selM, selD] = this.selectedDate.toGregorian();
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const div = document.createElement("div");
-      div.className = "np-datepicker-day";
-      div.textContent = d;
-
-      if (
-        selY === this.viewDate.year &&
-        selM === this.viewDate.month &&
-        selD === d
-      ) {
-        div.classList.add("selected");
-      }
-
-      div.addEventListener("click", () => this.selectDateAD(d));
-      this.grid.appendChild(div);
-    }
-  }
-
-  selectDateBS(day) {
-    this.selectedDate = new NepaliDate(
-      this.viewDate.year,
-      this.viewDate.month,
-      day,
-    );
-    this.updateDisplay();
-    this.closeModal();
-    if (this.options.onSelect) this.options.onSelect(this.selectedDate);
-  }
-
-  selectDateAD(day) {
-    this.selectedDate = NepaliDate.fromGregorian(
-      this.viewDate.year,
-      this.viewDate.month,
-      day,
-    );
-    this.updateDisplay();
-    this.closeModal();
-    if (this.options.onSelect) this.options.onSelect(this.selectedDate);
-  }
-
-  updateDisplay() {
-    const display = this.container.querySelector("#dp-display-value");
-    const useNP = this.options.language === "NP";
+    const weekdays =
+      this.options.language === "np"
+        ? ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"]
+        : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     if (this.options.mode === "BS") {
-      let text = this.selectedDate.format("%d %B %Y");
-      if (useNP) {
-        // Localize month and numerals in display
-        const monthNamesEN = [
-          "Baisakh",
-          "Jestha",
-          "Ashadh",
-          "Shrawan",
-          "Bhadra",
-          "Ashwin",
-          "Kartik",
-          "Mangshir",
-          "Poush",
-          "Magh",
-          "Falgun",
-          "Chaitra",
-        ];
-        const monthNamesNP = [
-          "बैशाख",
-          "जेठ",
-          "असार",
-          "साउन",
-          "भदौ",
-          "असोज",
-          "कात्तिक",
-          "मंसिर",
-          "पुस",
-          "माघ",
-          "फागुन",
-          "चैत",
-        ];
-
-        let [d, mStr, y] = text.split(" ");
-        const mIndex = monthNamesEN.indexOf(mStr);
-        const mNP = monthNamesNP[mIndex];
-        text = `${this.toDevanagari(d)} ${mNP} ${this.toDevanagari(y)}`;
-      }
-      display.textContent = text;
+      const year =
+        this.options.language === "np"
+          ? this.toNepaliNum(this.viewDate.year)
+          : this.viewDate.year;
+      this.elements.title.textContent = `${months[this.viewDate.month - 1]} ${year}`;
     } else {
-      const [y, m, d] = this.selectedDate.toGregorian();
-      const date = new Date(y, m - 1, d);
-      display.textContent = date.toLocaleDateString(undefined, {
-        day: "numeric",
+      const date = new Date(this.viewDate.year, this.viewDate.month - 1);
+      this.elements.title.textContent = date.toLocaleDateString("en-US", {
         month: "long",
         year: "numeric",
       });
     }
+
+    let html = '<div class="npd-days-grid">';
+    weekdays.forEach((day) => {
+      html += `<div class="npd-weekday">${day}</div>`;
+    });
+
+    if (this.options.mode === "BS") {
+      const firstDate = new NepaliDate(
+        this.viewDate.year,
+        this.viewDate.month,
+        1,
+      );
+      const [gy, gm, gd] = firstDate.toGregorian();
+      const startWeekday = new Date(gy, gm - 1, gd).getDay();
+      const daysInMonth = this.getDaysInMonth(
+        this.viewDate.year,
+        this.viewDate.month,
+      );
+
+      const prevMonth =
+        this.viewDate.month === 1 ? 12 : this.viewDate.month - 1;
+      const prevYear =
+        this.viewDate.month === 1 ? this.viewDate.year - 1 : this.viewDate.year;
+      const daysInPrevMonth = this.getDaysInMonth(prevYear, prevMonth);
+
+      for (let i = startWeekday - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        const dayText =
+          this.options.language === "np" ? this.toNepaliNum(day) : day;
+        html += `<div class="npd-day npd-overflow">${dayText}</div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isSelected =
+          this.selectedDate?.year === this.viewDate.year &&
+          this.selectedDate?.month === this.viewDate.month &&
+          this.selectedDate?.day === day;
+
+        const currentWeekday = (startWeekday + day - 1) % 7;
+        const isHoliday = currentWeekday === 6; // Saturday in Nepal
+
+        const dayText =
+          this.options.language === "np" ? this.toNepaliNum(day) : day;
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}">${dayText}</button>`;
+      }
+
+      // Next month overflow
+      const totalCells = 42;
+      const currentCells = startWeekday + daysInMonth;
+      for (let day = 1; day <= totalCells - currentCells; day++) {
+        const dayText =
+          this.options.language === "np" ? this.toNepaliNum(day) : day;
+        html += `<div class="npd-day npd-overflow">${dayText}</div>`;
+      }
+    } else {
+      const date = new Date(this.viewDate.year, this.viewDate.month - 1, 1);
+      const startWeekday = date.getDay();
+      const daysInMonth = new Date(
+        this.viewDate.year,
+        this.viewDate.month,
+        0,
+      ).getDate();
+
+      const daysInPrevMonth = new Date(
+        this.viewDate.year,
+        this.viewDate.month - 1,
+        0,
+      ).getDate();
+
+      for (let i = startWeekday - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        html += `<div class="npd-day npd-overflow">${day}</div>`;
+      }
+
+      const [selY, selM, selD] = this.selectedDate
+        ? this.selectedDate.toGregorian()
+        : [null, null, null];
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isSelected =
+          selY === this.viewDate.year &&
+          selM === this.viewDate.month &&
+          selD === day;
+
+        const currentWeekday = (startWeekday + day - 1) % 7;
+        const isHoliday = currentWeekday === 0; // Sunday for AD
+
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}">${day}</button>`;
+      }
+
+      // Next month overflow
+      const totalCells = 42;
+      const currentCells = startWeekday + daysInMonth;
+      for (let day = 1; day <= totalCells - currentCells; day++) {
+        html += `<div class="npd-day npd-overflow">${day}</div>`;
+      }
+    }
+
+    html += "</div>";
+    this.elements.daysView.innerHTML = html;
+    this.elements.daysView.classList.add("active");
+
+    this.elements.daysView
+      .querySelectorAll(".npd-day[data-day]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () =>
+          this.selectDate(parseInt(btn.dataset.day)),
+        );
+      });
   }
 
-  toDevanagari(num) {
-    const devanagariMap = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-    return String(num).replace(/[0-9]/g, (w) => devanagariMap[+w]);
+  renderMonths() {
+    const months =
+      this.options.language === "np"
+        ? [
+            "बैशाख",
+            "जेठ",
+            "असार",
+            "साउन",
+            "भदौ",
+            "असोज",
+            "कात्तिक",
+            "मंसिर",
+            "पुस",
+            "माघ",
+            "फागुन",
+            "चैत",
+          ]
+        : [
+            "Baisakh",
+            "Jestha",
+            "Ashadh",
+            "Shrawan",
+            "Bhadra",
+            "Ashwin",
+            "Kartik",
+            "Mangshir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+          ];
+
+    const year =
+      this.options.language === "np"
+        ? this.toNepaliNum(this.viewDate.year)
+        : this.viewDate.year;
+    this.elements.title.textContent = year;
+
+    let html = '<div class="npd-months-grid">';
+    months.forEach((month, index) => {
+      const isSelected =
+        this.selectedDate?.year === this.viewDate.year &&
+        this.selectedDate?.month === index + 1;
+      html += `<button type="button" class="npd-month ${isSelected ? "selected" : ""}" data-month="${index + 1}">${month}</button>`;
+    });
+    html += "</div>";
+
+    this.elements.monthsView.innerHTML = html;
+    this.elements.monthsView.classList.add("active");
+
+    this.elements.monthsView.querySelectorAll(".npd-month").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this.viewDate.month = parseInt(btn.dataset.month);
+        this.viewMode = "days";
+        this.render();
+      });
+    });
   }
 
-  // Helper because the current bindings might not expose days_in_month directly easily or efficiently
-  getBSDaysInMonth(y, m) {
-    // We can just use the WASM instance to check
+  renderYears() {
+    const startYear = Math.floor(this.viewDate.year / 12) * 12;
+    this.elements.title.textContent = `${startYear} - ${startYear + 11}`;
+
+    let html = '<div class="npd-years-grid">';
+    for (let i = 0; i < 12; i++) {
+      const year = startYear + i;
+      const isSelected = this.selectedDate?.year === year;
+      const yearText =
+        this.options.language === "np" ? this.toNepaliNum(year) : year;
+      html += `<button type="button" class="npd-year ${isSelected ? "selected" : ""}" data-year="${year}">${yearText}</button>`;
+    }
+    html += "</div>";
+
+    this.elements.yearsView.innerHTML = html;
+    this.elements.yearsView.classList.add("active");
+
+    this.elements.yearsView.querySelectorAll(".npd-year").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this.viewDate.year = parseInt(btn.dataset.year);
+        this.viewMode = "months";
+        this.render();
+      });
+    });
+  }
+
+  selectDate(day) {
+    try {
+      if (this.options.mode === "BS") {
+        this.selectedDate = new NepaliDate(
+          this.viewDate.year,
+          this.viewDate.month,
+          day,
+        );
+      } else {
+        this.selectedDate = NepaliDate.fromGregorian(
+          this.viewDate.year,
+          this.viewDate.month,
+          day,
+        );
+      }
+
+      this.updateInput();
+      if (this.options.closeOnSelect) {
+        this.close();
+      } else {
+        this.render();
+      }
+
+      if (this.options.onChange) {
+        this.options.onChange(this.selectedDate, this);
+      }
+    } catch (e) {
+      console.error("Invalid date selection:", e);
+    }
+  }
+
+  selectToday() {
+    this.selectedDate = NepaliDate.today();
+    this.viewDate = {
+      year: this.selectedDate.year,
+      month: this.selectedDate.month,
+    };
+    this.updateInput();
+    this.close();
+
+    if (this.options.onChange) {
+      this.options.onChange(this.selectedDate, this);
+    }
+  }
+
+  selectYesterday() {
+    const today = NepaliDate.today();
+    this.selectedDate = today.addDays(-1);
+    this.viewDate = {
+      year: this.selectedDate.year,
+      month: this.selectedDate.month,
+    };
+    this.updateInput();
+    this.close();
+
+    if (this.options.onChange) {
+      this.options.onChange(this.selectedDate, this);
+    }
+  }
+
+  selectTomorrow() {
+    const today = NepaliDate.today();
+    this.selectedDate = today.addDays(1);
+    this.viewDate = {
+      year: this.selectedDate.year,
+      month: this.selectedDate.month,
+    };
+    this.updateInput();
+    this.close();
+
+    if (this.options.onChange) {
+      this.options.onChange(this.selectedDate, this);
+    }
+  }
+
+  clear() {
+    this.selectedDate = null;
+    this.input.value = "";
+    this.close();
+
+    if (this.options.onChange) {
+      this.options.onChange(null, this);
+    }
+  }
+
+  updateInput() {
+    if (!this.selectedDate) {
+      this.input.value = "";
+      return;
+    }
+
+    if (this.options.mode === "BS") {
+      let value = this.selectedDate.format(this.options.format);
+      if (
+        this.options.format.includes("%H") ||
+        this.options.format.includes("%M") ||
+        true
+      ) {
+        // Simple append if not in format (or we can enhance format support in WASM but let's do JS side for now)
+        const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
+        if (!value.includes(":")) value += ` ${timeStr}`;
+      }
+      this.input.value = value;
+    } else {
+      const [y, m, d] = this.selectedDate.toGregorian();
+      this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
+    }
+
+    this.input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  getDaysInMonth(year, month) {
     try {
       for (let d = 32; d >= 27; d--) {
         try {
-          new NepaliDate(y, m, d);
+          new NepaliDate(year, month, d);
           return d;
         } catch (e) {}
       }
     } catch (e) {}
     return 30;
   }
+
+  toNepaliNum(num) {
+    const map = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    return String(num).replace(/\d/g, (d) => map[+d]);
+  }
+
+  destroy() {
+    this.close();
+    this.picker.remove();
+    this.input.classList.remove("npd-input");
+    this.input.removeAttribute("data-npd-id");
+    NepaliDatePicker.instances.delete(this.input);
+  }
+
+  static init(
+    selector = 'input[type="npdate"], input[data-npdate]',
+    options = {},
+  ) {
+    const inputs = document.querySelectorAll(selector);
+    inputs.forEach((input) => {
+      if (!NepaliDatePicker.instances.has(input)) {
+        new NepaliDatePicker(input, options);
+      }
+    });
+  }
 }
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () =>
+      NepaliDatePicker.init(),
+    );
+  } else {
+    NepaliDatePicker.init();
+  }
+}
+
+export default NepaliDatePicker;

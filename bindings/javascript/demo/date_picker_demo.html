@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Modern Dual Nepali/AD Date Picker</title>
-    <link rel="stylesheet" href="date_picker.css" />
+    <link rel="stylesheet" href="../date_picker.css" />
     <style>
       body {
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -105,12 +105,57 @@
       <span class="badge">Futuristic • JS + WASM + Premium UI</span>
       <h1>NPDateTime Picker v2.0</h1>
       <p>Premium dual calendar experience with smart features.</p>
+      <div
+        style="
+          margin: 40px 0;
+          padding: 20px;
+          border: 1px dashed rgba(0, 0, 0, 0.1);
+          border-radius: 20px;
+          background: rgba(255, 255, 255, 0.3);
+        "
+      >
+        <h3 style="margin-top: 0; font-size: 18px; color: var(--dp-primary)">
+          Auto-Initialization (Zero Config)
+        </h3>
+        <p
+          style="
+            font-size: 0.9em;
+            color: var(--dp-text-muted);
+            margin-bottom: 20px;
+          "
+        >
+          These inputs are initialized automatically via
+          <code>type="npdate"</code> and <code>type="npdatetime"</code>.
+        </p>
 
-      <div>
-        <label for="bs-date">BS Date</label>
-        <input type="date" id="bs-date" />
-        <input type="npdate" id="ad-date" />
-        <input type="npdatetime" />
+        <div
+          style="
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+          "
+        >
+          <div class="field-group" style="margin-bottom: 0">
+            <label for="auto-bs">NPDate (BS)</label>
+            <input type="npdate" id="auto-bs" name="nepali_date" />
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0">
+            <label for="auto-ad">NPDate (AD Mode)</label>
+            <input
+              type="npdate"
+              id="auto-ad"
+              data-mode="AD"
+              data-language="EN"
+            />
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0">
+            <label for="auto-datetime">NPDateTime</label>
+            <input type="npdatetime" id="auto-datetime" />
+          </div>
+        </div>
       </div>
 
       <div style="margin: 40px 0">
@@ -156,7 +201,7 @@
     </div>
 
     <script type="module">
-      import { NepaliADDatePicker } from "./date_picker.js";
+      import { NepaliADDatePicker } from "../date_picker.js";
 
       async function initDemo() {
         const picker = new NepaliADDatePicker("picker-container", {
