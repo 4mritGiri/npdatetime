@@ -107,6 +107,41 @@ impl NepaliDate {
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
+    /// Get the ordinal representation of the date (days since 1975-01-01 BS)
+    fn to_ordinal(&self) -> i32 {
+        self.inner.to_ordinal()
+    }
+
+    /// Create NepaliDate from an ordinal
+    #[staticmethod]
+    fn from_ordinal(ordinal: i32) -> PyResult<Self> {
+        npdatetime::NepaliDate::from_ordinal(ordinal)
+            .map(|inner| NepaliDate { inner })
+            .map_err(|e| PyValueError::new_err(e.to_string()))
+    }
+
+    /// Get the Nepali Fiscal Year (e.g., "2080/81")
+    #[getter]
+    fn fiscal_year(&self) -> String {
+        self.inner.fiscal_year()
+    }
+
+    /// Get the fiscal quarter (1-4)
+    #[getter]
+    fn fiscal_quarter(&self) -> u8 {
+        self.inner.fiscal_quarter()
+    }
+
+    /// Format the date in Unicode Devanagari script
+    fn format_unicode(&self) -> String {
+        self.inner.format_unicode()
+    }
+
+    /// Generate a visual month calendar
+    fn month_calendar(&self) -> String {
+        self.inner.month_calendar()
+    }
+
     /// Get the year
     #[getter]
     fn year(&self) -> i32 {

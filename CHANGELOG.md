@@ -11,16 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release of NPDateTime Rust library
-- Core `NepaliDate` type with BS ↔ AD conversions
-- Fast lookup-table based date conversions (1975-2100 BS)
-- Astronomical calculation module with VSOP87 and ELP-2000 theories
-- Solar Sankranti (zodiac transit) finder with ±10 second accuracy
-- Lunar Tithi calculator supporting all 30 tithis
-- Leap month (Adhika Masa) detection
-- Format module with strftime-style patterns
-- Date parsing (strptime-like) for flexible input processing
-- Unicode Devanagari numerals support
-- Date arithmetic (`add_days`) across month/year boundaries
+- BS ↔ AD conversion (2000-2090 BS)
+- Date formatting and parsing (strptime-like)
+- Date arithmetic operations
+- Nepali Fiscal Year logic and Quarter calculation
+- Ordinal date support (to/from ordinal)
+- Visual month calendar generator
 - Python bindings via PyO3
 - JavaScript/WASM bindings via wasm-bindgen
 - Comprehensive test suite (69 tests, 100% passing)

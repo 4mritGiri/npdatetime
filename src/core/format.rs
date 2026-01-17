@@ -17,6 +17,11 @@ impl NepaliDate {
     /// - `%d` - Day as zero-padded decimal (01-31)
     /// - `%e` - Day as space-padded decimal ( 1-31)
     /// - `%A` - Full weekday name (requires conversion to Gregorian)
+    /// - `%K` - Devanagari year (e.g., २०७७)
+    /// - `%n` - Devanagari month (e.g., ०५)
+    /// - `%D` - Devanagari day (e.g., १९)
+    /// - `%N` - Devanagari month name (e.g., भाद्र)
+    /// - `%G` - Devanagari weekday name (e.g., शुक्रवार)
     /// - `%%` - Literal % character
     ///
     /// # Examples:
@@ -47,6 +52,19 @@ impl NepaliDate {
                             if let Ok((y, m, d)) = self.to_gregorian() {
                                 let weekday = calculate_weekday(y, m, d);
                                 result.push_str(NEPALI_WEEKDAYS[weekday]);
+                            }
+                        }
+                        'K' => result.push_str(&to_devanagari_number(self.year)),
+                        'n' => result.push_str(&to_devanagari_number_padded(self.month as i32, 2)),
+                        'D' => result.push_str(&to_devanagari_number_padded(self.day as i32, 2)),
+                        'N' => result.push_str(NEPALI_MONTHS_UNICODE[(self.month - 1) as usize]),
+                        'G' => {
+                            if let Ok((y, m, d)) = self.to_gregorian() {
+                                let weekday = calculate_weekday(y, m, d);
+                                const DEVANAGARI_WEEKDAYS: [&str; 7] = [
+                                    "आइतवार", "सोमवार", "मङ्गलवार", "बुधवार", "बिहीवार", "शुक्रवार", "शनिवार"
+                                ];
+                                result.push_str(DEVANAGARI_WEEKDAYS[weekday]);
                             }
                         }
                         '%' => result.push('%'),
@@ -82,6 +100,36 @@ impl NepaliDate {
             NEPALI_MONTHS_UNICODE[(self.month - 1) as usize],
             to_devanagari_number(self.year)
         )
+    }
+
+    /// Generates a visual calendar string for the month of this date
+    pub fn month_calendar(&self) -> String {
+        let mut result = String::new();
+        let month_name = NEPALI_MONTHS[(self.month - 1) as usize];
+        let header = format!("{} {}", month_name, self.year);
+        result.push_str(&format!("{:^20}\n", header));
+        result.push_str("Su Mo Tu We Th Fr Sa\n");
+
+        let first_day = NepaliDate::new(self.year, self.month, 1).unwrap();
+        let (g_y, g_m, g_d) = first_day.to_gregorian().unwrap_or((1943, 4, 14));
+        let start_weekday = calculate_weekday(g_y, g_m, g_d);
+
+        for _ in 0..start_weekday {
+            result.push_str("   ");
+        }
+
+        let days = Self::days_in_month(self.year, self.month).unwrap_or(30);
+        for day in 1..=days {
+            result.push_str(&format!("{:2} ", day));
+            if (day as usize + start_weekday) % 7 == 0 {
+                result.push('\n');
+            }
+        }
+        if (days as usize + start_weekday) % 7 != 0 {
+            result.push('\n');
+        }
+
+        result
     }
 }
 
@@ -121,6 +169,24 @@ fn to_devanagari_number(num: i32) -> String {
         })
         .collect()
 }
+
+/// Convert a number to Devanagari numerals with padding
+fn to_devanagari_number_padded(num: i32, width: usize) -> String {
+    let s = format!("{:0width$}", num, width = width);
+    const DEVANAGARI_DIGITS: [char; 10] = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+
+    s.chars()
+        .map(|c| {
+            if let Some(digit) = c.to_digit(10) {
+                DEVANAGARI_DIGITS[digit as usize]
+            } else {
+                c
+            }
+        })
+        .collect()
+}
+
+
 
 #[cfg(test)]
 mod tests {

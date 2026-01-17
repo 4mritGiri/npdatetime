@@ -71,7 +71,12 @@ impl NepaliDate {
     /// @returns {NepaliDate} Today's date in BS
     #[wasm_bindgen(js_name = today)]
     pub fn today() -> Result<NepaliDate, JsValue> {
-        npdatetime::NepaliDate::today()
+        let now = js_sys::Date::new_0();
+        let year = now.get_full_year() as i32;
+        let month = (now.get_month() + 1) as u8;
+        let day = now.get_date() as u8;
+        
+        npdatetime::NepaliDate::from_gregorian(year, month, day)
             .map(|inner| NepaliDate { inner })
             .map_err(|e| JsValue::from_str(&e.to_string()))
     }
@@ -97,6 +102,44 @@ impl NepaliDate {
         self.inner.add_days(days)
             .map(|inner| NepaliDate { inner })
             .map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    /// Get the ordinal representation of the date (days since 1975-01-01 BS)
+    #[wasm_bindgen(js_name = toOrdinal)]
+    pub fn to_ordinal(&self) -> i32 {
+        self.inner.to_ordinal()
+    }
+
+    /// Create NepaliDate from an ordinal
+    #[wasm_bindgen(js_name = fromOrdinal)]
+    pub fn from_ordinal(ordinal: i32) -> Result<NepaliDate, JsValue> {
+        npdatetime::NepaliDate::from_ordinal(ordinal)
+            .map(|inner| NepaliDate { inner })
+            .map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    /// Get the Nepali Fiscal Year (e.g., "2080/81")
+    #[wasm_bindgen(getter, js_name = fiscalYear)]
+    pub fn fiscal_year(&self) -> String {
+        self.inner.fiscal_year()
+    }
+
+    /// Get the fiscal quarter (1-4)
+    #[wasm_bindgen(getter, js_name = fiscalQuarter)]
+    pub fn fiscal_quarter(&self) -> u8 {
+        self.inner.fiscal_quarter()
+    }
+
+    /// Format the date in Unicode Devanagari script
+    #[wasm_bindgen(js_name = formatUnicode)]
+    pub fn format_unicode(&self) -> String {
+        self.inner.format_unicode()
+    }
+
+    /// Generate a visual month calendar
+    #[wasm_bindgen(js_name = monthCalendar)]
+    pub fn month_calendar(&self) -> String {
+        self.inner.month_calendar()
     }
 
     /// Get the year

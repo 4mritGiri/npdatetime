@@ -63,11 +63,32 @@ let next_month = today.add_days(30)?;
 let previous_week = today.add_days(-7)?;
 ```
 
-### Formatting
+### Fiscal Year and Ordinals (Feature Parity)
+NPDateTime now includes full parity with the original Python `npdatetime` library:
+
 ```rust
-let date = NepaliDate::new(2077, 5, 19)?;
-println!("{}", date.format("%d %B %Y"));     // 19 Bhadra 2077
-println!("{}", date.format_unicode());      // १९ भाद्र २०७७
+let date = NepaliDate::new(2080, 4, 15)?;
+println!("Fiscal Year: {}", date.fiscal_year());    // "2080/81"
+println!("Quarter: {}", date.fiscal_quarter());     // 1
+
+let ordinal = date.to_ordinal();
+let back = NepaliDate::from_ordinal(ordinal)?;
+assert_eq!(date, back);
+```
+
+### Formatting (Extensive Tokens)
+| Token | Description | Example |
+|-------|-------------|---------|
+| `%K`  | Devanagari Year | २०७७ |
+| `%n`  | Devanagari Month | ०५ |
+| `%D`  | Devanagari Day | १९ |
+| `%N`  | Devanagari Month Name | भाद्र |
+| `%G`  | Devanagari Weekday | शुक्रवार |
+
+### Visual Calendar
+```rust
+let date = NepaliDate::today()?;
+println!("{}", date.month_calendar());
 ```
 
 ### Tithis and Sankrantis

@@ -89,38 +89,66 @@
     <script type="module">
       import init, { NepaliDate } from "./pkg/npdatetime_wasm.js";
 
-      await init();
-
-      // Show today's date
-      const today = NepaliDate.today();
-      document.getElementById("today").textContent =
-        `${today.toString()} (${today.format("%d %B %Y")})`;
-
-      // Make functions global for onclick handlers
+      // Define functions first to ensure they are available to the UI
       window.convertToAD = function () {
         try {
-          const year = parseInt(document.getElementById("year").value);
-          const month = parseInt(document.getElementById("month").value);
-          const day = parseInt(document.getElementById("day").value);
+          const yearInput = document.getElementById("year");
+          const monthInput = document.getElementById("month");
+          const dayInput = document.getElementById("day");
+          const resultDiv = document.getElementById("result");
+
+          if (!yearInput || !monthInput || !dayInput || !resultDiv) return;
+
+          const year = parseInt(yearInput.value);
+          const month = parseInt(monthInput.value);
+          const day = parseInt(dayInput.value);
 
           const date = new NepaliDate(year, month, day);
           const [adYear, adMonth, adDay] = date.toGregorian();
 
           const formatted = date.format("%d %B %Y");
 
-          document.getElementById("result").innerHTML = `
+          resultDiv.innerHTML = `
                     <strong>BS Date:</strong> ${formatted}<br>
                     <strong>AD Date:</strong> ${adYear}-${String(adMonth).padStart(2, "0")}-${String(adDay).padStart(2, "0")}<br>
                     <strong>Raw:</strong> ${date.toString()}
                 `;
         } catch (e) {
-          document.getElementById("result").innerHTML =
-            `<span style="color: red;">Error: ${e}</span>`;
+          const resultDiv = document.getElementById("result");
+          if (resultDiv) {
+            resultDiv.innerHTML = `<span style="color: red;">Error: ${e}</span>`;
+          }
         }
       };
 
-      // Run initial conversion
-      convertToAD();
+      // Initialize WASM
+      try {
+        await init();
+
+        // Show today's date
+        try {
+          const today = NepaliDate.today();
+          const todayDiv = document.getElementById("today");
+          if (todayDiv) {
+            todayDiv.textContent = `${today.toString()} (${today.format("%d %B %Y")})`;
+          }
+        } catch (e) {
+          console.error("Failed to get today's date:", e);
+          const todayDiv = document.getElementById("today");
+          if (todayDiv) {
+            todayDiv.textContent = "Error loading today's date.";
+          }
+        }
+
+        // Run initial conversion
+        window.convertToAD();
+      } catch (e) {
+        console.error("WASM Initialization failed:", e);
+        const resultDiv = document.getElementById("result");
+        if (resultDiv) {
+          resultDiv.innerHTML = `<span style="color: red;">WASM Error: ${e.message}</span>`;
+        }
+      }
     </script>
   </body>
 </html>

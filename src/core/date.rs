@@ -38,7 +38,11 @@ pub const NEPALI_WEEKDAYS: [&str; 7] = [
     "Shanibaar",
 ];
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct NepaliDate {
     pub year: i32,
     pub month: u8,
@@ -159,6 +163,65 @@ impl NepaliDate {
         Self::new(bs_year, bs_month, bs_day)
     }
 
+    /// Returns the ordinal representation of the date (days since 1975-01-01 BS)
+    /// 1975-01-01 BS is ordinal 1.
+    pub fn to_ordinal(&self) -> i32 {
+        let mut total_days = 0;
+
+        for y in BS_EPOCH_YEAR..self.year {
+            for m in 1..=12 {
+                total_days += Self::days_in_month(y, m).unwrap_or(30) as i32;
+            }
+        }
+
+        for m in 1..self.month {
+            total_days += Self::days_in_month(self.year, m).unwrap_or(30) as i32;
+        }
+
+        total_days += self.day as i32;
+        total_days
+    }
+
+    /// Creates a NepaliDate from an ordinal (days since 1975-01-01 BS)
+    pub fn from_ordinal(ordinal: i32) -> Result<Self> {
+        if ordinal < 1 {
+            return Err(NpdatetimeError::InvalidDate(
+                "Ordinal must be at least 1".to_string(),
+            ));
+        }
+
+        let mut remaining_days = (ordinal - 1) as i64;
+        let mut bs_year = BS_EPOCH_YEAR;
+        let mut bs_month = 1u8;
+
+        loop {
+            let mut year_days = 0;
+            for m in 1..=12 {
+                year_days += Self::days_in_month(bs_year, m)? as i64;
+            }
+
+            if remaining_days >= year_days {
+                remaining_days -= year_days;
+                bs_year += 1;
+            } else {
+                break;
+            }
+        }
+
+        while bs_month <= 12 {
+            let month_days = Self::days_in_month(bs_year, bs_month)? as i64;
+            if remaining_days >= month_days {
+                remaining_days -= month_days;
+                bs_month += 1;
+            } else {
+                break;
+            }
+        }
+
+        let bs_day = (remaining_days + 1) as u8;
+        Self::new(bs_year, bs_month, bs_day)
+    }
+
     /// Returns today's date in Nepali calendar
     pub fn today() -> Result<Self> {
         use std::time::{SystemTime, UNIX_EPOCH};
@@ -169,6 +232,34 @@ impl NepaliDate {
         let (year, month, day) = unix_epoch_to_gregorian(days_since_unix_epoch);
 
         Self::from_gregorian(year, month, day)
+    }
+
+    /// Returns the Nepali Fiscal Year for the date.
+    /// In Nepal, the fiscal year starts on Shrawan 1.
+    /// Returns a string like "2080/81"
+    pub fn fiscal_year(&self) -> String {
+        if self.month >= 4 {
+            // Shrawan (4) or later
+            format!("{}/{:02}", self.year, (self.year + 1) % 100)
+        } else {
+            // Before Shrawan
+            format!("{}/{:02}", self.year - 1, self.year % 100)
+        }
+    }
+
+    /// Returns the fiscal quarter (1-4)
+    /// Q1: Shrawan, Bhadra, Ashwin
+    /// Q2: Kartik, Mangsir, Poush
+    /// Q3: Magh, Falgun, Chaitra
+    /// Q4: Baisakh, Jestha, Ashadh
+    pub fn fiscal_quarter(&self) -> u8 {
+        match self.month {
+            4..=6 => 1,
+            7..=9 => 2,
+            10..=12 => 3,
+            1..=3 => 4,
+            _ => 1, // Should not happen
+        }
     }
 
     /// Formats the date as a string
