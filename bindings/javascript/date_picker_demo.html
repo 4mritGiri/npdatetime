@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Dual Nepali/AD Date Picker</title>
+    <link rel="stylesheet" href="date_picker.css" />
+    <style>
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+        color: #2d3436;
+      }
+
+      .demo-container {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: 24px;
+        background: linear-gradient(45deg, #2196f3, #ff4081);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      p {
+        color: #636e72;
+        margin-bottom: 32px;
+      }
+
+      .field-group {
+        text-align: left;
+        margin-bottom: 24px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2d3436;
+      }
+
+      .selected-info {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 14px;
+        color: #636e72;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: #e1f5fe;
+        color: #0288d1;
+        font-weight: 600;
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <span class="badge">Static Component • JS + WASM</span>
+      <h1>NPDateTime Picker</h1>
+      <p>Premium dual calendar experience</p>
+
+      <div class="field-group">
+        <label>Select Date</label>
+        <div id="datepicker-root"></div>
+      </div>
+
+      <div class="selected-info" id="info">Selected date will appear here</div>
+    </div>
+
+    <script type="module">
+      import { NepaliADDatePicker } from "./date_picker.js";
+
+      const picker = new NepaliADDatePicker("datepicker-root", {
+        mode: "BS",
+        onSelect: (date) => {
+          const [y, m, d] = date.toGregorian();
+          const info = document.getElementById("info");
+          info.innerHTML = `
+                    <strong>BS:</strong> ${date.format("%d %B %Y")}<br>
+                    <strong>AD:</strong> ${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}<br>
+                    <strong>Fiscal Year:</strong> ${date.fiscalYear}
+                `;
+        },
+      });
+    </script>
+  </body>
+</html>
