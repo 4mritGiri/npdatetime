@@ -432,7 +432,7 @@ export class NepaliDatePicker {
         const day = daysInPrevMonth - i;
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<div class="npd-day npd-overflow">${dayText}</div>`;
+        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="-1">${dayText}</button>`;
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
@@ -446,7 +446,7 @@ export class NepaliDatePicker {
 
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}">${dayText}</button>`;
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
       }
 
       // Next month overflow
@@ -455,7 +455,7 @@ export class NepaliDatePicker {
       for (let day = 1; day <= totalCells - currentCells; day++) {
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<div class="npd-day npd-overflow">${dayText}</div>`;
+        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="1">${dayText}</button>`;
       }
     } else {
       const date = new Date(this.viewDate.year, this.viewDate.month - 1, 1);
@@ -474,7 +474,7 @@ export class NepaliDatePicker {
 
       for (let i = startWeekday - 1; i >= 0; i--) {
         const day = daysInPrevMonth - i;
-        html += `<div class="npd-day npd-overflow">${day}</div>`;
+        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="-1">${day}</button>`;
       }
 
       const [selY, selM, selD] = this.selectedDate
@@ -490,14 +490,14 @@ export class NepaliDatePicker {
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 0; // Sunday for AD
 
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}">${day}</button>`;
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${day}</button>`;
       }
 
       // Next month overflow
       const totalCells = 42;
       const currentCells = startWeekday + daysInMonth;
       for (let day = 1; day <= totalCells - currentCells; day++) {
-        html += `<div class="npd-day npd-overflow">${day}</div>`;
+        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="1">${day}</button>`;
       }
     }
 
@@ -508,9 +508,29 @@ export class NepaliDatePicker {
     this.elements.daysView
       .querySelectorAll(".npd-day[data-day]")
       .forEach((btn) => {
-        btn.addEventListener("click", () =>
-          this.selectDate(parseInt(btn.dataset.day)),
-        );
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const day = parseInt(btn.dataset.day);
+          const offset = parseInt(btn.dataset.monthOffset || "0");
+
+          if (offset !== 0) {
+            let newMonth = this.viewDate.month + offset;
+            let newYear = this.viewDate.year;
+
+            if (newMonth > 12) {
+              newMonth = 1;
+              newYear++;
+            } else if (newMonth < 1) {
+              newMonth = 12;
+              newYear--;
+            }
+
+            this.viewDate = { year: newYear, month: newMonth };
+            this.render();
+          } else {
+            this.selectDate(day);
+          }
+        });
       });
   }
 

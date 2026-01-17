@@ -304,7 +304,12 @@
 .npd-day.npd-overflow {
   color: var(--npd-text-light);
   opacity: 0.5;
-  cursor: default;
+  cursor: pointer;
+}
+
+.npd-day.npd-overflow:hover {
+  opacity: 0.8;
+  background: var(--npd-bg-secondary);
 }
 
 .npd-day.selected {
