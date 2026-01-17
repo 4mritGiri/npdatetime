@@ -59,50 +59,132 @@
         padding-top: 24px;
         border-top: 1px solid rgba(0, 0, 0, 0.05);
         font-size: 14px;
-        color: #636e72;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        background: #e1f5fe;
-        color: #0288d1;
-        font-weight: 600;
-        font-size: 12px;
-        margin-bottom: 16px;
-      }
+        body {
+            /* Smooth theme transition */
+            transition: background 0.3s, color 0.3s;
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .scroll-spacer {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--dp-border);
+            margin: 40px 0;
+            border-radius: 20px;
+            color: var(--dp-text-muted);
+            font-style: italic;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            text-align: left;
+        }
+        .feature-card {
+            background: var(--dp-glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--dp-border);
+        }
+        .feature-card h3 {
+            margin-top: 0;
+            color: var(--dp-primary);
+        }
     </style>
   </head>
   <body>
     <div class="demo-container">
-      <span class="badge">Static Component • JS + WASM</span>
-      <h1>NPDateTime Picker</h1>
-      <p>Premium dual calendar experience</p>
+      <span class="badge">Futuristic • JS + WASM + Premium UI</span>
+      <h1>NPDateTime Picker v2.0</h1>
+      <p>Premium dual calendar experience with smart features.</p>
 
-      <div class="field-group">
-        <label>Select Date</label>
-        <div id="datepicker-root"></div>
+      <div>
+        <label for="bs-date">BS Date</label>
+        <input type="date" id="bs-date" />
+        <input type="npdate" id="ad-date" />
+        <input type="npdatetime" />
       </div>
 
-      <div class="selected-info" id="info">Selected date will appear here</div>
+      <div style="margin: 40px 0">
+        <label style="display: block; margin-bottom: 15px; font-weight: 600"
+          >Pick a Date (Auto-Positioning Demo)</label
+        >
+        <div id="picker-container"></div>
+
+        <div id="info" class="selected-info" style="margin-top: 30px">
+          Selected date info will appear here...
+        </div>
+      </div>
+
+      <div class="scroll-spacer">Scroll down to test bottom positioning...</div>
+
+      <div style="margin: 40px 0">
+        <label style="display: block; margin-bottom: 15px; font-weight: 600"
+          >Bottom Picker (Should flip UP)</label
+        >
+        <div id="picker-container-bottom"></div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Auto Theme</h3>
+          <p>Detects system light/dark mode automatically. No config needed.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Smart UI</h3>
+          <p>
+            Flips position based on viewport space. Bouncy fluid animations.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h3>Localized</h3>
+          <p>Full Devanagari support for month names and numerals.</p>
+        </div>
+        <div class="feature-card">
+          <h3>WASM Powered</h3>
+          <p>High-performance Rust calculations running in your browser.</p>
+        </div>
+      </div>
     </div>
 
     <script type="module">
       import { NepaliADDatePicker } from "./date_picker.js";
 
-      const picker = new NepaliADDatePicker("datepicker-root", {
-        mode: "BS",
-        onSelect: (date) => {
-          const [y, m, d] = date.toGregorian();
-          const info = document.getElementById("info");
-          info.innerHTML = `
-                    <strong>BS:</strong> ${date.format("%d %B %Y")}<br>
-                    <strong>AD:</strong> ${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}<br>
-                    <strong>Fiscal Year:</strong> ${date.fiscalYear}
-                `;
-        },
-      });
+      async function initDemo() {
+        const picker = new NepaliADDatePicker("picker-container", {
+          language: "NP",
+          onSelect: (date) => {
+            if (!date) {
+              document.getElementById("info").innerHTML = "Date cleared.";
+              return;
+            }
+            const [y, m, d] = date.toGregorian();
+            const info = document.getElementById("info");
+
+            // Format for display
+            info.innerHTML = `
+                        <strong>BS:</strong> ${date.format("%d %B %Y")}<br>
+                        <strong>AD:</strong> ${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}<br>
+                        <strong>Fiscal Year:</strong> ${date.fiscalYear}
+                    `;
+          },
+        });
+
+        const pickerBottom = new NepaliADDatePicker("picker-container-bottom", {
+          mode: "AD",
+          language: "EN",
+        });
+      }
+
+      initDemo();
     </script>
   </body>
 </html>

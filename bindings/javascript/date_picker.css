@@ -1,23 +1,38 @@
+/* Base Theme Variables */
 :root {
   --dp-primary: #2196f3;
   --dp-primary-hover: #1976d2;
-  --dp-bg: rgba(255, 255, 255, 0.8);
-  --dp-text: #333;
-  --dp-text-muted: #666;
-  --dp-border: rgba(0, 0, 0, 0.1);
-  --dp-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  --dp-radius: 12px;
+  --dp-bg: rgba(255, 255, 255, 0.85);
+  --dp-text: #2c3e50;
+  --dp-text-muted: #7f8c8d;
+  --dp-border: rgba(0, 0, 0, 0.08);
+  --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+  --dp-radius: 16px;
   --dp-accent: #ff4081;
-  --dp-glass-bg: rgba(255, 255, 255, 0.4);
-  --dp-glass-blur: 10px;
+  --dp-glass-bg: rgba(255, 255, 255, 0.45);
+  --dp-glass-blur: 12px;
+  --dp-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Auto Dark Mode & Manual Override */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --dp-bg: rgba(18, 18, 18, 0.85);
+    --dp-text: #ecf0f1;
+    --dp-text-muted: #95a5a6;
+    --dp-border: rgba(255, 255, 255, 0.08);
+    --dp-glass-bg: rgba(0, 0, 0, 0.5);
+    --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  }
 }
 
 [data-theme="dark"] {
-  --dp-bg: rgba(30, 30, 30, 0.8);
-  --dp-text: #eee;
-  --dp-text-muted: #aaa;
-  --dp-border: rgba(255, 255, 255, 0.1);
-  --dp-glass-bg: rgba(0, 0, 0, 0.4);
+  --dp-bg: rgba(18, 18, 18, 0.85);
+  --dp-text: #ecf0f1;
+  --dp-text-muted: #95a5a6;
+  --dp-border: rgba(255, 255, 255, 0.08);
+  --dp-glass-bg: rgba(0, 0, 0, 0.5);
+  --dp-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 .np-datepicker-container {
@@ -49,7 +64,6 @@
 
 .np-datepicker-modal {
   position: absolute;
-  top: calc(100% + 8px);
   left: 0;
   width: 320px;
   background: var(--dp-glass-bg);
@@ -61,14 +75,24 @@
   padding: 16px;
   z-index: 1000;
   opacity: 0;
-  transform: translateY(-10px);
   pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--dp-transition);
+}
+
+/* Positioning */
+.np-datepicker-modal.pos-bottom {
+  top: calc(100% + 12px);
+  transform: translateY(-20px) scale(0.95);
+}
+
+.np-datepicker-modal.pos-top {
+  bottom: calc(100% + 12px);
+  transform: translateY(20px) scale(0.95);
 }
 
 .np-datepicker-modal.active {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -77,48 +101,77 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .np-datepicker-title {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--dp-text);
   cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.np-datepicker-title:hover {
+  background: var(--dp-border);
 }
 
 .np-datepicker-nav {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .np-datepicker-nav-btn {
-  background: none;
+  background: var(--dp-border);
   border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
   cursor: pointer;
   color: var(--dp-text);
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .np-datepicker-nav-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--dp-primary);
+  color: white;
+  transform: translateY(-2px);
 }
 
 /* Calendar Grid */
 .np-datepicker-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 4px;
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+.np-datepicker-grid.np-datepicker-year-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.np-datepicker-year {
+  aspect-ratio: auto !important;
+  padding: 12px 0 !important;
+  font-weight: 600;
+  border-radius: 12px;
 }
 
 .np-datepicker-weekday {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
   color: var(--dp-text-muted);
   text-transform: uppercase;
-  padding: 8px 0;
+  letter-spacing: 0.05em;
+  padding-bottom: 12px;
 }
 
 .np-datepicker-day {
@@ -127,44 +180,78 @@
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  border-radius: 50%;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--dp-transition);
   color: var(--dp-text);
+  user-select: none;
 }
 
-.np-datepicker-day:hover {
-  background: var(--dp-primary);
+.np-datepicker-day:hover:not(.empty) {
+  background: var(--dp-primary-hover);
   color: white;
+  transform: scale(1.1);
 }
 
 .np-datepicker-day.selected {
   background: var(--dp-primary);
   color: white;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 8px 20px -6px var(--dp-primary);
 }
 
 .np-datepicker-day.today {
-  border: 1px solid var(--dp-primary);
+  box-shadow: inset 0 0 0 2px var(--dp-primary);
   color: var(--dp-primary);
+  font-weight: 700;
 }
 
 .np-datepicker-day.empty {
   cursor: default;
+  opacity: 0.2;
 }
 
-.np-datepicker-day.empty:hover {
-  background: none;
+/* Footer / Quick Actions */
+.np-datepicker-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--dp-border);
+  gap: 8px;
+}
+
+.np-datepicker-footer-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: var(--dp-border);
+  color: var(--dp-text);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.np-datepicker-footer-btn:hover {
+  background: var(--dp-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.np-datepicker-footer-btn.primary {
+  background: var(--dp-primary);
+  color: white;
 }
 
 /* Toggle Switch */
 .np-datepicker-switch {
   display: flex;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--dp-border);
   padding: 4px;
-  border-radius: 8px;
-  margin-top: 16px;
+  border-radius: 12px;
 }
 
 .np-datepicker-switch-btn {
@@ -172,20 +259,24 @@
   padding: 6px;
   border: none;
   background: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
   color: var(--dp-text-muted);
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .np-datepicker-switch-btn.active {
-  background: white;
+  background: var(--dp-bg);
   color: var(--dp-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] .np-datepicker-switch-btn.active {
-  background: #333;
+/* Focus States */
+.np-datepicker-day:focus,
+.np-datepicker-nav-btn:focus,
+.np-datepicker-footer-btn:focus {
+  outline: 2px solid var(--dp-primary);
+  outline-offset: 2px;
 }
