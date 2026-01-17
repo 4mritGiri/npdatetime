@@ -13,18 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release of NPDateTime Rust library
 - Core `NepaliDate` type with BS ↔ AD conversions
 - Fast lookup-table based date conversions (1975-2100 BS)
-- Astronomical calculation module with VSOP87 and ELP-2000
+- Astronomical calculation module with VSOP87 and ELP-2000 theories
 - Solar Sankranti (zodiac transit) finder with ±10 second accuracy
 - Lunar Tithi calculator supporting all 30 tithis
 - Leap month (Adhika Masa) detection
 - Format module with strftime-style patterns
-- Unicode Devanagari number support
-- Date arithmetic (`add_days`)
+- Date parsing (strptime-like) for flexible input processing
+- Unicode Devanagari numerals support
+- Date arithmetic (`add_days`) across month/year boundaries
 - Python bindings via PyO3
 - JavaScript/WASM bindings via wasm-bindgen
-- Comprehensive test suite (67 tests, 100% passing)
+- Comprehensive test suite (69 tests, 100% passing)
 - Benchmark suite showing <50ns lookup performance
-- Complete documentation
+- Professional documentation (User Guide, ROADMAP, etc.)
 
 ### Performance
 - Lookup table access: 9-12 nanoseconds
