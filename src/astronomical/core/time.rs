@@ -86,7 +86,6 @@ pub fn npt_to_utc(jd: JulianDay) -> JulianDay {
     jd.add_days(-NEPAL_TZ_OFFSET / 24.0)
 }
 
-
 /// Ayanamsha (Chitra Paksha/Lahiri) approximation for Nirayana calculations
 pub fn get_ayanamsha(jd: JulianDay) -> f64 {
     let t = jd.centuries_since_j2000();

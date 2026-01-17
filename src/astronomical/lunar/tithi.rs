@@ -1,26 +1,50 @@
 //! Tithi calculation (Lunar day)
-//! 
+//!
 //! Tithi is determined by the elongation of the Moon from the Sun.
 //! Each Tithi corresponds to 12° of increasing elongation.
 
+use super::elp2000::Elp2000Calculator;
 use crate::astronomical::core::{JulianDay, newton_raphson::NewtonRaphsonSolver};
 use crate::astronomical::solar::vsop87::Vsop87Calculator;
-use super::elp2000::Elp2000Calculator;
 
 /// Tithi names in order
 pub const TITHI_NAMES: [&str; 30] = [
-    "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
-    "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
-    "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima",
-    "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
-    "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
-    "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Amavasya",
+    "Pratipada",
+    "Dwitiya",
+    "Tritiya",
+    "Chaturthi",
+    "Panchami",
+    "Shashthi",
+    "Saptami",
+    "Ashtami",
+    "Navami",
+    "Dashami",
+    "Ekadashi",
+    "Dwadashi",
+    "Trayodashi",
+    "Chaturdashi",
+    "Purnima",
+    "Pratipada",
+    "Dwitiya",
+    "Tritiya",
+    "Chaturthi",
+    "Panchami",
+    "Shashthi",
+    "Saptami",
+    "Ashtami",
+    "Navami",
+    "Dashami",
+    "Ekadashi",
+    "Dwadashi",
+    "Trayodashi",
+    "Chaturdashi",
+    "Amavasya",
 ];
 
 /// Paksha (Lunar fortnight)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Paksha {
-    Shukla, // Waxing (Bright)
+    Shukla,  // Waxing (Bright)
     Krishna, // Waning (Dark)
 }
 
@@ -50,8 +74,12 @@ impl Tithi {
     pub fn from_elongation(elongation: f64) -> Self {
         let elongation = elongation.rem_euclid(360.0);
         let index = (elongation / 12.0).floor() as u8 + 1;
-        let paksha = if index <= 15 { Paksha::Shukla } else { Paksha::Krishna };
-        
+        let paksha = if index <= 15 {
+            Paksha::Shukla
+        } else {
+            Paksha::Krishna
+        };
+
         Self {
             index: index.min(30),
             paksha,
@@ -67,7 +95,7 @@ impl TithiCalculator {
     pub fn get_tithi(jd: JulianDay) -> Tithi {
         let sun_long = Vsop87Calculator::sun_apparent_longitude(jd);
         let moon_long = Elp2000Calculator::apparent_longitude(jd);
-        
+
         let elongation = (moon_long - sun_long).rem_euclid(360.0);
         Tithi::from_elongation(elongation)
     }
@@ -75,11 +103,11 @@ impl TithiCalculator {
     /// Find the ending time (Julian Day) of a specific Tithi
     pub fn find_tithi_end(target_index: u8, approx_jd: JulianDay) -> Result<JulianDay, String> {
         let target_elongation = (target_index as f64) * 12.0;
-        
+
         let f = |jd: f64| {
             let tithi = Self::get_tithi(JulianDay(jd));
             let mut diff = tithi.elongation - target_elongation;
-            
+
             // Normalize to [-180, 180] for root finding
             diff = (diff + 180.0).rem_euclid(360.0) - 180.0;
             diff
@@ -94,7 +122,7 @@ impl TithiCalculator {
 
     /// Find the next New Moon (Amavasya end) after the given Julian Day
     pub fn find_next_new_moon(jd: JulianDay) -> Result<JulianDay, String> {
-        // A lunar month is approximately 29.53 days. 
+        // A lunar month is approximately 29.53 days.
         // Search from jd + 20 days to ensure we don't find the current one again
         // but stay within the range of the next one.
         Self::find_tithi_end(0, JulianDay(jd.0 + 25.0))

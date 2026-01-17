@@ -1,5 +1,5 @@
 //! Newton-Raphson root finding algorithm
-//! 
+//!
 //! Implements iterative root finding for continuous functions
 
 use std::fmt;
@@ -18,8 +18,15 @@ pub enum NewtonRaphsonError {
 impl fmt::Display for NewtonRaphsonError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::MaxIterationsReached { iterations, last_value } => {
-                write!(f, "Maximum iterations ({}) reached at x = {}", iterations, last_value)
+            Self::MaxIterationsReached {
+                iterations,
+                last_value,
+            } => {
+                write!(
+                    f,
+                    "Maximum iterations ({}) reached at x = {}",
+                    iterations, last_value
+                )
             }
             Self::ZeroDerivative { x } => {
                 write!(f, "Derivative is zero at x = {}", x)
@@ -75,7 +82,7 @@ impl NewtonRaphsonSolver {
 
         for _iteration in 0..self.max_iterations {
             let fx = f(x);
-            
+
             // Check for convergence
             if fx.abs() < self.tolerance {
                 return Ok(x);
@@ -193,7 +200,7 @@ mod tests {
     fn test_numerical_derivative() {
         // Solve x^2 - 9 = 0 using numerical derivative
         let f = |x: f64| x * x - 9.0;
-        
+
         let solver = NewtonRaphsonSolver::default();
         let result = solver.solve_numerical(f, 2.0, 0.001).unwrap();
         assert!((result - 3.0).abs() < 1e-6);
@@ -217,7 +224,10 @@ mod tests {
         let df = |x: f64| 0.5 / x.abs().sqrt();
 
         let result = find_root(f, df, 1.0);
-        assert!(matches!(result, Err(NewtonRaphsonError::MaxIterationsReached { .. })));
+        assert!(matches!(
+            result,
+            Err(NewtonRaphsonError::MaxIterationsReached { .. })
+        ));
     }
 
     #[test]
@@ -227,6 +237,9 @@ mod tests {
         let df = |_x: f64| 0.0; // Force zero derivative
 
         let result = find_root(f, df, 2.0);
-        assert!(matches!(result, Err(NewtonRaphsonError::ZeroDerivative { .. })));
+        assert!(matches!(
+            result,
+            Err(NewtonRaphsonError::ZeroDerivative { .. })
+        ));
     }
 }

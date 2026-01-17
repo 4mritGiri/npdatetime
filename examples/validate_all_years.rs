@@ -15,8 +15,10 @@ fn main() -> Result<()> {
         let mut total_months = 0;
 
         for year in 1975..=2100 {
-            let info = cal.get_year_info(year).map_err(|e| NpdatetimeError::ParseError(e))?;
-            
+            let info = cal
+                .get_year_info(year)
+                .map_err(|e| NpdatetimeError::ParseError(e))?;
+
             for month in 1..=12 {
                 total_months += 1;
                 let lookup_val = NepaliDate::days_in_month(year, month as u8)?;
@@ -25,7 +27,10 @@ fn main() -> Result<()> {
                 if lookup_val != astro_val {
                     discrepancies += 1;
                     if discrepancies <= 10 {
-                        println!("Discrepancy at {}-{:02}: Lookup={}, Astro={}", year, month, lookup_val, astro_val);
+                        println!(
+                            "Discrepancy at {}-{:02}: Lookup={}, Astro={}",
+                            year, month, lookup_val, astro_val
+                        );
                     }
                 }
             }
@@ -34,8 +39,11 @@ fn main() -> Result<()> {
         println!("\nVerification Complete.");
         println!("Total Months Checked: {}", total_months);
         println!("Total Discrepancies: {}", discrepancies);
-        println!("Accuracy: {:.2}%", (1.0 - (discrepancies as f64 / total_months as f64)) * 100.0);
-        
+        println!(
+            "Accuracy: {:.2}%",
+            (1.0 - (discrepancies as f64 / total_months as f64)) * 100.0
+        );
+
         if discrepancies > 0 {
             println!("\nNote: Minor discrepancies are expected due to floating-point precision ");
             println!("and different Lahiri Ayanamsha approximations used in various sources.");

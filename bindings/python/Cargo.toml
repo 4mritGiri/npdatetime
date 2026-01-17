@@ -1,0 +1,14 @@
+[package]
+name = "npdatetime-python"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "npdatetime"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+npdatetime = { path = "../.." }
+
+[build-dependencies]

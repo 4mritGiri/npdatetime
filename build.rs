@@ -4,11 +4,11 @@ use std::io::Write;
 
 fn main() {
     println!("cargo:rerun-if-changed=data/calendar_bs.csv");
-    
+
     // Read CSV
     let mut reader = csv::Reader::from_path("data/calendar_bs.csv").unwrap();
     let mut data: Vec<(i32, u8, u8)> = Vec::new();
-    
+
     for result in reader.records() {
         let record = result.unwrap();
         let year: i32 = record[0].parse().unwrap();
@@ -17,12 +17,12 @@ fn main() {
             data.push((year, month as u8, days));
         }
     }
-    
+
     // Generate Rust code with embedded data
     let out_dir = std::env::var("OUT_DIR").unwrap();
     let dest_path = std::path::Path::new(&out_dir).join("calendar_data.rs");
     let mut f = File::create(&dest_path).unwrap();
-    
+
     // Write as Rust const array
     writeln!(f, "const BS_CALENDAR_DATA: &[(i32, u8, u8)] = &[").unwrap();
     for (year, month, days) in data {

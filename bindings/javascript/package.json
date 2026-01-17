@@ -1,0 +1,30 @@
+{
+  "name": "npdatetime-wasm",
+  "version": "0.1.0",
+  "description": "Fast Nepali (Bikram Sambat) datetime for JavaScript/TypeScript via WebAssembly",
+  "main": "pkg/npdatetime_wasm.js",
+  "types": "pkg/npdatetime_wasm.d.ts",
+  "files": [
+    "pkg"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target bundler",
+    "build:nodejs": "wasm-pack build --target nodejs",
+    "build:web": "wasm-pack build --target web",
+    "test": "wasm-pack test --headless --firefox"
+  },
+  "keywords": [
+    "nepali",
+    "bikram-sambat",
+    "calendar",
+    "datetime",
+    "wasm",
+    "webassembly"
+  ],
+  "author": "Amrit Giri",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4mritGiri/npdatetime-rust"
+  }
+}

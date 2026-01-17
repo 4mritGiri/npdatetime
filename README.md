@@ -67,28 +67,84 @@ Enable the `astronomical` feature to access high-precision tools:
 
 ## 📊 Performance
 
-NPDateTime is designed for high-throughput applications.
+NPDateTime achieves exceptional performance through compile-time CSV embedding:
 
-| Operation | Lookup Method | Astronomical |
+| Operation | Time | Notes |
 | :--- | :--- | :--- |
-| `days_in_month` | ~8 ns | ~690 µs |
-| `to_gregorian` | ~8.5 µs | N/A |
+| `days_in_month` | **9-12 ns** | Lookup table access |
+| Date creation | **12 ns** | Validates and constructs |
+| BS ↔ AD conversion | **6-8 µs** | Full date conversion |
+| Format operations | **98-640 ns** | strftime-style formatting |
 
-*(Benchmarks performed on local environment)*
+*Benchmarks on Rust 1.92, release mode*
+
+## 🌍 Multi-Language Support
+
+NPDateTime provides **official bindings** for multiple languages:
+
+### Python (PyO3)
+```bash
+pip install npdatetime
+```
+
+```python
+from npdatetime import NepaliDate
+
+date = NepaliDate(2077, 5, 19)
+year, month, day = date.to_gregorian()
+print(f"{year}-{month:02d}-{day:02d}")  # 2020-09-04
+```
+
+### JavaScript/WASM
+```bash
+npm install npdatetime-wasm
+```
+
+```javascript
+import init, { NepaliDate } from 'npdatetime-wasm';
+await init();
+
+const date = new NepaliDate(2077, 5, 19);
+const [year, month, day] = date.toGregorian();
+console.log(`${year}-${month}-${day}`);  // 2020-9-4
+```
+
+See [`bindings/`](bindings/) for detailed setup and API documentation.
 
 ## 📚 Documentation
 
-- **[Contributing](CONTRIBUTING.md)**: How to get involved.
+- **[CHANGELOG](CHANGELOG.md)**: Release notes and version history.
+- **[CONTRIBUTING](CONTRIBUTING.md)**: How to contribute.
+- **[SECURITY](SECURITY.md)**: Security policy and vulnerability reporting.
 - **[Roadmap](docs/ROADMAP.md)**: Future plans and progress.
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)**: Architecture and coding standards.
-- **[Astronomy Theory](docs/ASTRONOMY.md)**: The math behind the calculations.
+- **[Astronomy Theory](docs/ASTRONOMY.md)**: The math behind calculations.
+- **[Project Structure](docs/PROJECT_STRUCTURE.md)**: Codebase layout.
 
 ## 📂 Project Structure
 
-- `src/core/`: Shared types (`NepaliDate`, `NpdatetimeError`).
-- `src/lookup/`: Table-based civil calendar logic.
-- `src/astronomical/`: Solar (VSOP87) and Lunar (ELP-2000) models.
-- `bindings/`: Support for Python, JS, Java, and PHP.
+- `src/core/`: Shared types (`NepaliDate`, error handling, formatting).
+- `src/lookup/`: Fast table-based calendar logic (1975-2100 BS).
+- `src/astronomical/`: High-precision solar (VSOP87) and lunar (ELP-2000) calculations.
+- `bindings/python/`: PyO3 bindings for Python.
+- `bindings/javascript/`: wasm-bindgen bindings for JavaScript/WASM.
+- `examples/`: Usage examples and demonstrations.
+- `benches/`: Performance benchmarks.
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+cargo test
+
+# Run with all features
+cargo test --all-features
+
+# Run benchmarks
+cargo bench
+```
+
+**Test Coverage:** 67 tests, 100% passing
 
 ## 📜 License
 

@@ -2,7 +2,7 @@ use npdatetime::prelude::*;
 
 fn main() -> Result<()> {
     println!("Comparing Lookup vs Astronomical methods...");
-    
+
     let year = 2081;
     let month = 1;
 
@@ -14,7 +14,10 @@ fn main() -> Result<()> {
     {
         let calc = AstronomicalCalendar::new();
         let astro_days = calc.calculate_month_days(year, month);
-        println!("Astronomical: {} month {} has {} days", year, month, astro_days);
+        println!(
+            "Astronomical: {} month {} has {} days",
+            year, month, astro_days
+        );
     }
 
     Ok(())

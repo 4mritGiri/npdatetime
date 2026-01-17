@@ -1,11 +1,13 @@
 //! Sankranti (Solar Transit) calculation
-//! 
+//!
 //! Finds when the Sun enters different zodiac signs using Newton-Raphson method
 //! and high-precision VSOP87 solar position.
 
-use crate::astronomical::core::{JulianDay, newton_raphson::NewtonRaphsonSolver, time::get_ayanamsha};
 use super::vsop87::Vsop87Calculator;
 use crate::NepaliDate;
+use crate::astronomical::core::{
+    JulianDay, newton_raphson::NewtonRaphsonSolver, time::get_ayanamsha,
+};
 
 /// Information about a Sankranti event
 #[derive(Debug, Clone, Copy)]
@@ -39,7 +41,11 @@ impl Sankranti {
     /// Convert to BS date
     pub fn to_bs_date(&self) -> NepaliDate {
         let (y, m, d, _) = self.julian_day.to_gregorian();
-        NepaliDate::from_gregorian(y, m, d).unwrap_or(NepaliDate { year: 0, month: 0, day: 0 })
+        NepaliDate::from_gregorian(y, m, d).unwrap_or(NepaliDate {
+            year: 0,
+            month: 0,
+            day: 0,
+        })
     }
 }
 
@@ -47,31 +53,31 @@ pub struct SankrantiFinder;
 
 impl SankrantiFinder {
     /// Find when the Sun enters a specific zodiac sign
-    /// 
+    ///
     /// # Arguments
     /// * `target_sign` - Zodiac sign index (0-11)
     /// * `approx_jd` - Approximate Julian Day to start searching from
     pub fn find_sankranti(target_sign: u8, approx_jd: JulianDay) -> Result<Sankranti, String> {
         let target_long = (target_sign as f64) * 30.0;
-        
+
         // Function to find root for: nirayana_sun_longitude(jd) - target_long = 0
         let f = |jd: f64| {
             let julian_day = JulianDay(jd);
             let sayana_long = Vsop87Calculator::sun_apparent_longitude(julian_day);
             let ayanamsha = get_ayanamsha(julian_day);
             let nirayana_long = (sayana_long - ayanamsha).rem_euclid(360.0);
-            
+
             // println!("JD: {}, Sayana: {}, Ay: {}, Nirayana: {}", jd, sayana_long, ayanamsha, nirayana_long);
-            
+
             let mut diff = nirayana_long - target_long;
-            
+
             // Normalize difference to [-180, 180] for root finding
             diff = (diff + 180.0).rem_euclid(360.0) - 180.0;
             diff
         };
 
         let solver = NewtonRaphsonSolver::new(50, 1e-8);
-        
+
         // Use numerical derivative for simplicity (h = 0.001 days is about 1.4 minutes)
         match solver.solve_numerical(f, approx_jd.0, 0.0001) {
             Ok(root_jd) => Ok(Sankranti {
@@ -85,7 +91,7 @@ impl SankrantiFinder {
     /// Find all Sankrantis in a given BS year
     pub fn find_all_in_year(bs_year: i32) -> Result<Vec<Sankranti>, String> {
         let mut results = Vec::new();
-        
+
         // Mesh Sankranti 2081 is around April 13, 2024
         // Approximate year in Gregorian: bs_year - 57
         let approx_greg_year = bs_year - 57;

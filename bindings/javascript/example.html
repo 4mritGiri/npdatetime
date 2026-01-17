@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NPDateTime WASM Example</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      .result {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+      }
+      button {
+        background: #2196f3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background: #1976d2;
+      }
+      input {
+        padding: 8px;
+        margin: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>🗓️ NPDateTime WASM Demo</h1>
+      <p>Fast Nepali Calendar in your browser!</p>
+    </div>
+
+    <div class="card">
+      <h2>Try it out:</h2>
+      <div>
+        <label>BS Date:</label>
+        <input type="number" id="year" value="2077" placeholder="Year" />
+        <input
+          type="number"
+          id="month"
+          value="5"
+          placeholder="Month"
+          min="1"
+          max="12"
+        />
+        <input
+          type="number"
+          id="day"
+          value="19"
+          placeholder="Day"
+          min="1"
+          max="32"
+        />
+        <button onclick="convertToAD()">Convert to AD</button>
+      </div>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="card">
+      <h2>Today's Nepali Date:</h2>
+      <div class="result" id="today"></div>
+    </div>
+
+    <script type="module">
+      import init, { NepaliDate } from "./pkg/npdatetime_wasm.js";
+
+      await init();
+
+      // Show today's date
+      const today = NepaliDate.today();
+      document.getElementById("today").textContent =
+        `${today.toString()} (${today.format("%d %B %Y")})`;
+
+      // Make functions global for onclick handlers
+      window.convertToAD = function () {
+        try {
+          const year = parseInt(document.getElementById("year").value);
+          const month = parseInt(document.getElementById("month").value);
+          const day = parseInt(document.getElementById("day").value);
+
+          const date = new NepaliDate(year, month, day);
+          const [adYear, adMonth, adDay] = date.toGregorian();
+
+          const formatted = date.format("%d %B %Y");
+
+          document.getElementById("result").innerHTML = `
+                    <strong>BS Date:</strong> ${formatted}<br>
+                    <strong>AD Date:</strong> ${adYear}-${String(adMonth).padStart(2, "0")}-${String(adDay).padStart(2, "0")}<br>
+                    <strong>Raw:</strong> ${date.toString()}
+                `;
+        } catch (e) {
+          document.getElementById("result").innerHTML =
+            `<span style="color: red;">Error: ${e}</span>`;
+        }
+      };
+
+      // Run initial conversion
+      convertToAD();
+    </script>
+  </body>
+</html>

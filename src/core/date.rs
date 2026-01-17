@@ -7,20 +7,35 @@ pub const BS_EPOCH_AD: (i32, u8, u8) = (1918, 4, 13);
 
 /// Month names in Nepali
 pub const NEPALI_MONTHS: [&str; 12] = [
-    "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
-    "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra",
+    "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin", "Kartik", "Mangsir", "Poush",
+    "Magh", "Falgun", "Chaitra",
 ];
 
 /// Month names in Nepali (Devanagari)
 pub const NEPALI_MONTHS_UNICODE: [&str; 12] = [
-    "बैशाख", "जेष्ठ", "आषाढ", "श्रावण", "भाद्र", "आश्विन",
-    "कार्तिक", "मंसिर", "पौष", "माघ", "फाल्गुन", "चैत्र",
+    "बैशाख",
+    "जेष्ठ",
+    "आषाढ",
+    "श्रावण",
+    "भाद्र",
+    "आश्विन",
+    "कार्तिक",
+    "मंसिर",
+    "पौष",
+    "माघ",
+    "फाल्गुन",
+    "चैत्र",
 ];
 
 /// Weekday names in Nepali
 pub const NEPALI_WEEKDAYS: [&str; 7] = [
-    "Aaitabaar", "Sombaar", "Mangalbaar", "Budhabaar",
-    "Bihibaar", "Shukrabaar", "Shanibaar",
+    "Aaitabaar",
+    "Sombaar",
+    "Mangalbaar",
+    "Budhabaar",
+    "Bihibaar",
+    "Shukrabaar",
+    "Shanibaar",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -33,17 +48,19 @@ pub struct NepaliDate {
 impl NepaliDate {
     /// Creates a new Nepali date
     pub fn new(year: i32, month: u8, day: u8) -> Result<Self> {
-        if month < 1 || month > 12 {
-            return Err(NpdatetimeError::InvalidDate(
-                format!("Month must be between 1 and 12, got {}", month)
-            ));
+        if !(1..=12).contains(&month) {
+            return Err(NpdatetimeError::InvalidDate(format!(
+                "Month must be between 1 and 12, got {}",
+                month
+            )));
         }
 
         let max_day = Self::days_in_month(year, month)?;
         if day < 1 || day > max_day {
-            return Err(NpdatetimeError::InvalidDate(
-                format!("Day must be between 1 and {}, got {}", max_day, day)
-            ));
+            return Err(NpdatetimeError::InvalidDate(format!(
+                "Day must be between 1 and {}, got {}",
+                max_day, day
+            )));
         }
 
         Ok(NepaliDate { year, month, day })
@@ -51,19 +68,20 @@ impl NepaliDate {
 
     /// Returns the number of days in a given month
     pub fn days_in_month(year: i32, month: u8) -> Result<u8> {
-        if month < 1 || month > 12 {
-            return Err(NpdatetimeError::InvalidDate(
-                format!("Invalid month: {}", month)
-            ));
+        if !(1..=12).contains(&month) {
+            return Err(NpdatetimeError::InvalidDate(format!(
+                "Invalid month: {}",
+                month
+            )));
         }
 
-        // Access the lookup data. 
+        // Access the lookup data.
         // Note: For now, we'll keep the lookup logic here or in a dedicated lookup module.
         // In the final lib.rs, we'll probably have a way to access BS_MONTH_DATA.
-        // For now, let's assume we'll use a trait or a global provided by lib.rs 
+        // For now, let's assume we'll use a trait or a global provided by lib.rs
         // (but that creates circular dependencies).
         // Let's keep it simple for now and move the data access to lib.rs or a dedicated lookup mod.
-        
+
         crate::lookup::get_days_in_month(year, month)
     }
 
@@ -144,14 +162,12 @@ impl NepaliDate {
     /// Returns today's date in Nepali calendar
     pub fn today() -> Result<Self> {
         use std::time::{SystemTime, UNIX_EPOCH};
-        
-        let duration = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap();
-        
+
+        let duration = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+
         let days_since_unix_epoch = duration.as_secs() / 86400;
         let (year, month, day) = unix_epoch_to_gregorian(days_since_unix_epoch);
-        
+
         Self::from_gregorian(year, month, day)
     }
 
@@ -190,7 +206,13 @@ pub fn gregorian_days_in_month(year: i32, month: u8) -> u8 {
     match month {
         1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
         4 | 6 | 9 | 11 => 30,
-        2 => if is_gregorian_leap_year(year) { 29 } else { 28 },
+        2 => {
+            if is_gregorian_leap_year(year) {
+                29
+            } else {
+                28
+            }
+        }
         _ => 0,
     }
 }
@@ -202,11 +224,10 @@ pub fn gregorian_days_since_epoch(
     epoch: (i32, u8, u8),
 ) -> Result<i64> {
     let (ey, em, ed) = epoch;
-    
-    if year < ey || (year == ey && month < em) 
-        || (year == ey && month == em && day < ed) {
+
+    if year < ey || (year == ey && month < em) || (year == ey && month == em && day < ed) {
         return Err(NpdatetimeError::OutOfRange(
-            "Date is before the BS epoch".to_string()
+            "Date is before the BS epoch".to_string(),
         ));
     }
 
@@ -243,7 +264,11 @@ pub fn gregorian_to_days(year: i32, month: u8, day: u8) -> i64 {
 pub fn days_to_gregorian(mut days: i64) -> (i32, u8, u8) {
     let mut year = 1i32;
     loop {
-        let year_days = if is_gregorian_leap_year(year) { 366 } else { 365 };
+        let year_days = if is_gregorian_leap_year(year) {
+            366
+        } else {
+            365
+        };
         if days > year_days {
             days -= year_days;
             year += 1;
@@ -314,5 +339,49 @@ mod tests {
     fn test_display() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
         assert_eq!(format!("{}", date), "2077-05-19");
+    }
+
+    #[test]
+    fn test_add_days_within_month() {
+        let date = NepaliDate::new(2077, 5, 10).unwrap();
+        let new_date = date.add_days(5).unwrap();
+        assert_eq!(new_date.year, 2077);
+        assert_eq!(new_date.month, 5);
+        assert_eq!(new_date.day, 15);
+    }
+
+    #[test]
+    fn test_add_days_across_month() {
+        // 2077 Bhadra (month 5) has 31 days
+        let date = NepaliDate::new(2077, 5, 28).unwrap();
+        let new_date = date.add_days(5).unwrap();
+        assert_eq!(new_date.year, 2077);
+        assert_eq!(new_date.month, 6); // Should move to Ashwin
+    }
+
+    #[test]
+    fn test_add_days_across_year() {
+        // 2077 Chaitra (month 12) has 31 days
+        let date = NepaliDate::new(2077, 12, 30).unwrap();
+        let new_date = date.add_days(5).unwrap();
+        assert_eq!(new_date.year, 2078);
+        assert_eq!(new_date.month, 1);
+    }
+
+    #[test]
+    fn test_add_negative_days() {
+        let date = NepaliDate::new(2077, 5, 19).unwrap();
+        let new_date = date.add_days(-5).unwrap();
+        assert_eq!(new_date.year, 2077);
+        assert_eq!(new_date.month, 5);
+        assert_eq!(new_date.day, 14);
+    }
+
+    #[test]
+    fn test_add_days_round_trip() {
+        let original = NepaliDate::new(2077, 5, 19).unwrap();
+        let forward = original.add_days(100).unwrap();
+        let back = forward.add_days(-100).unwrap();
+        assert_eq!(original, back);
     }
 }
