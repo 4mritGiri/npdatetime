@@ -258,7 +258,8 @@
 .npd-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 0; /* Removed gap for continuous range look */
+  row-gap: 2px;
 }
 
 .npd-weekday {
@@ -277,6 +278,7 @@
   color: var(--npd-danger);
 }
 
+/* Modern Day Styling */
 .npd-day {
   display: flex;
   align-items: center;
@@ -285,19 +287,70 @@
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: var(--npd-radius-sm);
+  border-radius: var(--npd-radius-sm); /* Default to slightly rounded square */
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--npd-text);
   cursor: pointer;
   transition: var(--npd-transition-fast);
   position: relative;
+  margin: 1px 0; /* Tiny vertical margin */
 }
 
-.npd-day:not(.npd-empty):hover {
+/* Range Styling */
+/* Start of Range */
+.npd-day.range-start {
+  background: var(--npd-primary);
+  color: white;
+  border-radius: var(--npd-radius-full) 0 0 var(--npd-radius-full);
+  position: relative;
+  z-index: 2;
+}
+
+/* End of Range */
+.npd-day.range-end {
+  background: var(--npd-primary);
+  color: white;
+  border-radius: 0 var(--npd-radius-full) var(--npd-radius-full) 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Middle of Range */
+.npd-day.in-range:not(.range-start):not(.range-end) {
   background: var(--npd-primary-light);
   color: var(--npd-primary);
+  border-radius: 0;
+  position: relative;
   z-index: 1;
+}
+
+/* Single Point Range OR Start=End */
+.npd-day.range-only,
+.npd-day.range-start.range-end {
+  border-radius: var(--npd-radius-full);
+}
+
+/* Selected State (Non-Range or Range Start/End) */
+.npd-day.selected {
+  background: var(--npd-primary);
+  color: white !important;
+  font-weight: 700;
+}
+
+/* Hover States */
+/* Range middle hover */
+.npd-day.in-range:not(.range-start):not(.range-end):hover {
+  background: var(--npd-primary-light);
+  filter: brightness(0.95);
+}
+
+/* General hover for non-selected items */
+.npd-day:not(.selected):not(.range-start):not(.range-end):not(.in-range):not(
+    .npd-empty
+  ):hover {
+  background: var(--npd-bg-secondary);
+  color: var(--npd-text);
 }
 
 .npd-day.holiday {
@@ -316,17 +369,6 @@
   background: var(--npd-bg-secondary);
 }
 
-.npd-day.selected {
-  background: var(--npd-primary);
-  color: white !important;
-  font-weight: 700;
-}
-
-.npd-day.selected:hover {
-  background: var(--npd-primary-hover);
-  color: white;
-}
-
 .npd-day.npd-empty {
   cursor: default;
   opacity: 0;
@@ -342,6 +384,12 @@
   border: 1px solid var(--npd-primary);
   font-weight: 700;
   color: var(--npd-primary);
+}
+
+.npd-day.today.selected {
+  background: var(--npd-primary);
+  color: white;
+  border-color: var(--npd-primary);
 }
 
 .npd-day.today::before {

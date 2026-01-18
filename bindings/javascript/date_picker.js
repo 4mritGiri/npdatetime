@@ -39,6 +39,9 @@ export class NepaliDatePicker {
     };
 
     this.selectedDate = null;
+    this.rangeStart = null;
+    this.rangeEnd = null;
+
     const now = new Date();
     this.selectedTime = {
       hour:
@@ -386,7 +389,7 @@ export class NepaliDatePicker {
 
   position() {
     const inputRect = this.input.getBoundingClientRect();
-    const pickerHeight = 400;
+    const pickerHeight = this.picker.offsetHeight || 400;
     const spaceBelow = window.innerHeight - inputRect.bottom;
     const spaceAbove = inputRect.top;
 
@@ -613,10 +616,28 @@ export class NepaliDatePicker {
       const isCurrentMonth = this.viewDate.month === todayBS.month;
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const isSelected =
-          this.selectedDate?.year === this.viewDate.year &&
-          this.selectedDate?.month === this.viewDate.month &&
-          this.selectedDate?.day === day;
+        let isSelected = false;
+        let isRangeStart = false;
+        let isRangeEnd = false;
+        let isInRange = false;
+
+        const currentDayDate = new NepaliDate(
+          this.viewDate.year,
+          this.viewDate.month,
+          day,
+        );
+
+        if (this.options.isRange) {
+          isRangeStart = this.isSameDate(currentDayDate, this.rangeStart);
+          isRangeEnd = this.isSameDate(currentDayDate, this.rangeEnd);
+          isInRange = this.isDateInRange(currentDayDate);
+          isSelected = isRangeStart || isRangeEnd;
+        } else {
+          isSelected =
+            this.selectedDate?.year === this.viewDate.year &&
+            this.selectedDate?.month === this.viewDate.month &&
+            this.selectedDate?.day === day;
+        }
 
         const isToday = isCurrentYear && isCurrentMonth && day === todayBS.day;
 
@@ -625,7 +646,16 @@ export class NepaliDatePicker {
 
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
+
+        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}`;
+        if (this.options.isRange) {
+          if (isRangeStart) classes += " range-start";
+          if (isRangeEnd) classes += " range-end";
+          if (isInRange) classes += " in-range";
+          if (isRangeStart && !this.rangeEnd) classes += " range-only";
+        }
+
+        html += `<button type="button" class="${classes}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
       }
 
       // Next month overflow
@@ -670,10 +700,39 @@ export class NepaliDatePicker {
       const isCurrentMonth = this.viewDate.month === today.getMonth() + 1;
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const isSelected =
-          selY === this.viewDate.year &&
-          selM === this.viewDate.month &&
-          selD === day;
+        let isSelected = false;
+        let isRangeStart = false;
+        let isRangeEnd = false;
+        let isInRange = false;
+
+        // Construct comparable object for AD (using existing helper logic or simple object)
+        // Since we store rangeStart/End as NepaliDate objects or wrappers?
+        // Wait, rangeStart is a NepaliDate object from selectDate.
+        // But in AD mode, selectDate creates a NepaliDate wrapper around the AD date via .fromGregorian().
+        // So comparison logic `isSameDate` works if `currentDayDate` is also a NepaliDate.
+
+        const currentAdDate = new Date(
+          this.viewDate.year,
+          this.viewDate.month - 1,
+          day,
+        );
+        const currentDayDate = NepaliDate.fromGregorian(
+          currentAdDate.getFullYear(),
+          currentAdDate.getMonth() + 1,
+          currentAdDate.getDate(),
+        );
+
+        if (this.options.isRange) {
+          isRangeStart = this.isSameDate(currentDayDate, this.rangeStart);
+          isRangeEnd = this.isSameDate(currentDayDate, this.rangeEnd);
+          isInRange = this.isDateInRange(currentDayDate);
+          isSelected = isRangeStart || isRangeEnd;
+        } else {
+          isSelected =
+            selY === this.viewDate.year &&
+            selM === this.viewDate.month &&
+            selD === day;
+        }
 
         const isToday =
           isCurrentYear && isCurrentMonth && day === today.getDate();
@@ -681,7 +740,14 @@ export class NepaliDatePicker {
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 0; // Sunday for AD
 
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${day}</button>`;
+        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}`;
+        if (this.options.isRange) {
+          if (isRangeStart) classes += " range-start";
+          if (isRangeEnd) classes += " range-end";
+          if (isInRange) classes += " in-range";
+        }
+
+        html += `<button type="button" class="${classes}" data-day="${day}" data-month-offset="0">${day}</button>`;
       }
 
       // Next month overflow
@@ -812,31 +878,79 @@ export class NepaliDatePicker {
     });
   }
 
+  isSameDate(d1, d2) {
+    if (!d1 || !d2) return false;
+    return d1.year === d2.year && d1.month === d2.month && d1.day === d2.day;
+  }
+
+  compareDates(d1, d2) {
+    if (!d1 || !d2) return 0;
+    if (d1.year !== d2.year) return d1.year - d2.year;
+    if (d1.month !== d2.month) return d1.month - d2.month;
+    return d1.day - d2.day;
+  }
+
+  isDateInRange(date) {
+    if (!this.rangeStart || !this.rangeEnd || !date) return false;
+    return (
+      this.compareDates(date, this.rangeStart) > 0 &&
+      this.compareDates(date, this.rangeEnd) < 0
+    );
+  }
+
   selectDate(day) {
     try {
+      let selected;
       if (this.options.mode === "BS") {
-        this.selectedDate = new NepaliDate(
-          this.viewDate.year,
-          this.viewDate.month,
-          day,
-        );
+        selected = new NepaliDate(this.viewDate.year, this.viewDate.month, day);
       } else {
-        this.selectedDate = NepaliDate.fromGregorian(
+        selected = NepaliDate.fromGregorian(
           this.viewDate.year,
           this.viewDate.month,
           day,
         );
       }
 
-      this.updateInput();
-      if (this.options.closeOnSelect) {
-        this.close();
-      } else {
+      if (this.options.isRange) {
+        if (!this.rangeStart || (this.rangeStart && this.rangeEnd)) {
+          this.rangeStart = selected;
+          this.rangeEnd = null;
+        } else {
+          if (this.compareDates(selected, this.rangeStart) < 0) {
+            this.rangeEnd = this.rangeStart;
+            this.rangeStart = selected;
+          } else {
+            this.rangeEnd = selected;
+          }
+          if (this.options.closeOnSelect) {
+            this.close();
+          }
+        }
+
+        // Update view to maintain visibility if range spans months?
+        // Actually typically we don't jump view on second click unless necessary.
+
+        this.updateInput();
         this.render();
-      }
 
-      if (this.options.onChange) {
-        this.options.onChange(this.selectedDate, this);
+        if (this.options.onChange) {
+          this.options.onChange(
+            { start: this.rangeStart, end: this.rangeEnd },
+            this,
+          );
+        }
+      } else {
+        this.selectedDate = selected;
+        this.updateInput();
+        if (this.options.closeOnSelect) {
+          this.close();
+        } else {
+          this.render();
+        }
+
+        if (this.options.onChange) {
+          this.options.onChange(this.selectedDate, this);
+        }
       }
     } catch (e) {
       console.error("Invalid date selection:", e);
@@ -898,24 +1012,49 @@ export class NepaliDatePicker {
   }
 
   updateInput() {
-    if (!this.selectedDate) {
-      this.input.value = "";
-      return;
-    }
-
-    const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
-
-    if (this.options.mode === "BS") {
-      let value = this.selectedDate.format(this.options.format);
-      // Always append time for now if not present, because our format engine is simple
-      // and user expects time if they see the picker
-      if (!value.match(/\d{2}:\d{2}/)) {
-        value += ` ${timeStr}`;
+    if (this.options.isRange) {
+      if (!this.rangeStart) {
+        this.input.value = "";
+        return;
       }
-      this.input.value = value;
+
+      let startStr = "";
+      let endStr = "";
+
+      if (this.options.mode === "BS") {
+        startStr = this.rangeStart.format(this.options.format);
+        if (this.rangeEnd) endStr = this.rangeEnd.format(this.options.format);
+      } else {
+        const [y1, m1, d1] = this.rangeStart.toGregorian();
+        startStr = `${y1}-${String(m1).padStart(2, "0")}-${String(d1).padStart(2, "0")}`;
+
+        if (this.rangeEnd) {
+          const [y2, m2, d2] = this.rangeEnd.toGregorian();
+          endStr = `${y2}-${String(m2).padStart(2, "0")}-${String(d2).padStart(2, "0")}`;
+        }
+      }
+
+      this.input.value = endStr ? `${startStr} to ${endStr}` : startStr;
     } else {
-      const [y, m, d] = this.selectedDate.toGregorian();
-      this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${timeStr}`;
+      if (!this.selectedDate) {
+        this.input.value = "";
+        return;
+      }
+
+      const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
+
+      if (this.options.mode === "BS") {
+        let value = this.selectedDate.format(this.options.format);
+        // Always append time for now if not present, because our format engine is simple
+        // and user expects time if they see the picker
+        if (!value.match(/\d{2}:\d{2}/)) {
+          value += ` ${timeStr}`;
+        }
+        this.input.value = value;
+      } else {
+        const [y, m, d] = this.selectedDate.toGregorian();
+        this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${timeStr}`;
+      }
     }
 
     this.input.dispatchEvent(new Event("change", { bubbles: true }));

@@ -395,15 +395,15 @@
           </div>
         </div>
         <div class="demo-card">
-          <h3>Nan</h3>
-          <p>Event handling & validation</p>
+          <h3>Date Range Picker</h3>
+          <p>Select a start and end date</p>
           <div class="form-group">
-            <label for="callback-date">Date with Events</label>
-            <input type="npdate"/>
+            <label for="range-date">Select Range</label>
+            <input type="text" id="range-date" placeholder="Start to End" />
           </div>
           <div class="output">
-            <strong>Events:</strong>
-            <span id="callback-output">No events yet</span>
+            <strong>Selected Range:</strong>
+            <span id="range-output">None</span>
           </div>
         </div>
       </div>
@@ -415,19 +415,24 @@
           1. Include Files
         </h3>
         <div class="code-block">
-          &lt;link rel="stylesheet" href="date_picker.css"&gt; &lt;script
-          type="module"&gt; import NepaliDatePicker from './date_picker.js';
-          &lt;/script&gt;
+          &lt;link rel="stylesheet" href="date_picker.css"&gt; <br />
+          &lt;script type="module"&gt; <br />
+          &nbsp;&nbsp; import NepaliDatePicker from './date_picker.js'; <br />
+          &lt;/script&gt; <br />
         </div>
 
         <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
           2. HTML Usage (Automatic)
         </h3>
         <div class="code-block">
-          &lt;!-- Nepali Date (BS) --&gt; &lt;input type="npdate" data-mode="BS"
-          data-language="en"&gt; &lt;!-- With Nepali numerals --&gt; &lt;input
-          type="npdate" data-mode="BS" data-language="np"&gt; &lt;!-- Gregorian
-          Date (AD) --&gt; &lt;input type="npdate" data-mode="AD"&gt;
+          &lt;!-- Nepali Date (BS) --&gt; <br />
+          &lt;input type="npdate" data-mode="BS" data-language="en"&gt;
+          <br /><br />
+          &lt;!-- With Nepali numerals --&gt; <br />
+          &lt;input type="npdate" data-mode="BS" data-language="np"&gt;
+          <br /><br />
+          &lt;!-- Gregorian Date (AD) --&gt; <br />
+          &lt;input type="npdate" data-mode="AD"&gt;
         </div>
 
         <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
@@ -435,11 +440,14 @@
         </h3>
         <div class="code-block">
           <code>import</code> NepaliDatePicker
-          <code>from</code> './date_picker.js'; // Create instance
+          <code>from</code> './date_picker.js'; <br />
+          // Create instance <br />
           <code>const</code> picker =
           <code>new</code> NepaliDatePicker('#my-input', { mode: 'BS', language:
           'en', onChange: (date, picker) => { console.log('Selected:',
-          date.format('%Y-%m-%d')); } }); // Initialize all npdate inputs
+          date.format('%Y-%m-%d')); } }); <br />
+          <br />
+          // Initialize all npdate inputs <br />
           NepaliDatePicker.init();
         </div>
 
@@ -447,14 +455,23 @@
           4. Options
         </h3>
         <div class="code-block">
-          { mode: 'BS', // 'BS' or 'AD' language: 'en', // 'en' or 'np' format:
-          '%Y-%m-%d', // Date format theme: 'auto', // 'auto', 'light', 'dark'
-          position: 'auto', // 'auto', 'top', 'bottom' closeOnSelect:
-          <code>true</code>, // Auto close on select showTodayButton:
-          <code>true</code>, // Show today button showClearButton:
-          <code>true</code>, // Show clear button onChange: <code>null</code>,
-          // Callback function onOpen: <code>null</code>, // Open callback
-          onClose: <code>null</code> // Close callback }
+          { <br />
+          &nbsp;&nbsp; mode: 'BS', // 'BS' or 'AD' <br />
+          &nbsp;&nbsp; language: 'en', // 'en' or 'np' <br />
+          &nbsp;&nbsp; format: '%Y-%m-%d', // Date format <br />
+          &nbsp;&nbsp; theme: 'auto', // 'auto', 'light', 'dark' <br />
+          &nbsp;&nbsp; position: 'auto', // 'auto', 'top', 'bottom' <br />
+          &nbsp;&nbsp; closeOnSelect: <code>true</code>, // Auto close on select
+          <br />
+          &nbsp;&nbsp; showTodayButton: <code>true</code>, // Show today button
+          <br />
+          &nbsp;&nbsp; showClearButton: <code>true</code>, // Show clear button
+          <br />
+          &nbsp;&nbsp; onChange: <code>null</code>, // Callback function <br />
+          &nbsp;&nbsp; // Callback function <br />
+          &nbsp;&nbsp; onOpen: <code>null</code>, // Open callback <br />
+          &nbsp;&nbsp; onClose: <code>null</code> // Close callback <br />
+          }
         </div>
       </div>
     </div>
@@ -538,6 +555,22 @@
             if (current === "Picker opened") {
               document.getElementById("callback-output").textContent =
                 "Picker closed";
+            }
+          },
+        });
+
+        // Range Picker Demo
+        new NepaliDatePicker("#range-date", {
+          mode: "BS",
+          isRange: true,
+          onChange: (result) => {
+            const output = document.getElementById("range-output");
+            if (result && result.start) {
+              const start = result.start.format("%Y-%m-%d");
+              const end = result.end ? result.end.format("%Y-%m-%d") : "...";
+              output.textContent = `${start} to ${end}`;
+            } else {
+              output.textContent = "None";
             }
           },
         });
