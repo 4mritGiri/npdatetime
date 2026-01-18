@@ -273,6 +273,10 @@
   letter-spacing: 0.05em;
 }
 
+.npd-weekday.holiday {
+  color: var(--npd-danger);
+}
+
 .npd-day {
   display: flex;
   align-items: center;

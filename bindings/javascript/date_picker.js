@@ -39,9 +39,16 @@ export class NepaliDatePicker {
     };
 
     this.selectedDate = null;
+    const now = new Date();
     this.selectedTime = {
-      hour: options.defaultHour || 0,
-      minute: options.defaultMinute || 0,
+      hour:
+        options.defaultHour !== undefined
+          ? options.defaultHour
+          : now.getHours(),
+      minute:
+        options.defaultMinute !== undefined
+          ? options.defaultMinute
+          : now.getMinutes(),
     };
     this.viewDate = { year: 2081, month: 1 };
     this.viewMode = "days";
@@ -155,6 +162,8 @@ export class NepaliDatePicker {
     this.input.addEventListener("focus", () => this.open());
     this.input.addEventListener("click", () => this.open());
     this.input.addEventListener("keydown", (e) => this.handleInputKeydown(e));
+    this.input.addEventListener("input", (e) => this.handleInputChange(e));
+    this.input.addEventListener("blur", () => this.handleInputBlur());
 
     this.picker
       .querySelector(".npd-title")
@@ -189,13 +198,21 @@ export class NepaliDatePicker {
       .querySelector(".npd-tomorrow")
       .addEventListener("click", () => this.selectTomorrow());
 
-    this.picker.querySelector(".npd-hour").addEventListener("change", (e) => {
-      this.selectedTime.hour = parseInt(e.target.value) || 0;
+    this.picker.querySelector(".npd-hour").addEventListener("input", (e) => {
+      let val = parseInt(e.target.value);
+      if (isNaN(val)) val = 0;
+      if (val < 0) val = 0;
+      if (val > 23) val = 23;
+      this.selectedTime.hour = val;
       this.updateInput();
     });
 
-    this.picker.querySelector(".npd-minute").addEventListener("change", (e) => {
-      this.selectedTime.minute = parseInt(e.target.value) || 0;
+    this.picker.querySelector(".npd-minute").addEventListener("input", (e) => {
+      let val = parseInt(e.target.value);
+      if (isNaN(val)) val = 0;
+      if (val < 0) val = 0;
+      if (val > 59) val = 59;
+      this.selectedTime.minute = val;
       this.updateInput();
     });
 
@@ -227,17 +244,98 @@ export class NepaliDatePicker {
     }
   }
 
+  handleInputChange(e) {
+    // Prevent infinite loop if the event was triggered by our own updateInput
+    if (e.isTrusted === false && e.detail?.origin === "datepicker") return;
+
+    const value = e.target.value.trim();
+    if (!value) {
+      this.selectedDate = null;
+      this.render();
+      return;
+    }
+
+    try {
+      const [datePart, timePart] = value.split(" ");
+      let year, month, day;
+
+      // Try YYYY-MM-DD
+      if (datePart.includes("-")) {
+        [year, month, day] = datePart.split("-").map(Number);
+      } else if (datePart.length === 10) {
+        // Handle 2081/01/01 if user types slashes, though format option usually controls this
+        // For now let's assume standard format matches options.
+        // But simple split is safest for demo.
+        // If manual typing, we should be forgiving or strict.
+        // Let's reuse the parsing logic slightly.
+        [year, month, day] = datePart
+          .replace(/\//g, "-")
+          .split("-")
+          .map(Number);
+      }
+
+      if (!year || !month || !day) return; // Incomplete
+
+      // Parse Time
+      if (timePart) {
+        const [h, m] = timePart.split(":").map(Number);
+        if (!isNaN(h)) this.selectedTime.hour = h;
+        if (!isNaN(m)) this.selectedTime.minute = m;
+      }
+
+      let newDate;
+      if (this.options.mode === "BS") {
+        newDate = new NepaliDate(year, month, day);
+      } else {
+        newDate = NepaliDate.fromGregorian(year, month, day);
+      }
+
+      this.selectedDate = newDate;
+      this.viewDate = {
+        year: this.selectedDate.year,
+        month: this.selectedDate.month,
+      };
+
+      // Update time inputs in picker UI
+      const hourInput = this.picker.querySelector(".npd-hour");
+      const minInput = this.picker.querySelector(".npd-minute");
+      if (hourInput) hourInput.value = this.selectedTime.hour;
+      if (minInput) minInput.value = this.selectedTime.minute;
+
+      this.render();
+    } catch (err) {
+      // incomplete or invalid date, ignore until valid
+    }
+  }
+
   parseInitialValue() {
     const value = this.input.value.trim();
     if (!value) return;
 
     try {
-      if (this.options.mode === "BS") {
-        const [y, m, d] = value.split("-").map(Number);
-        this.selectedDate = new NepaliDate(y, m, d);
+      // Split date and time
+      const [datePart, timePart] = value.split(" ");
+
+      let year, month, day;
+      if (datePart.includes("-")) {
+        [year, month, day] = datePart.split("-").map(Number);
       } else {
-        const [y, m, d] = value.split("-").map(Number);
-        this.selectedDate = NepaliDate.fromGregorian(y, m, d);
+        // fallback or other format? assume YYYY-MM-DD for now
+        [year, month, day] = datePart.split("-").map(Number);
+      }
+
+      if (timePart) {
+        const [h, m] = timePart.split(":").map(Number);
+        this.selectedTime = {
+          hour: isNaN(h) ? 0 : h,
+          minute: isNaN(m) ? 0 : m,
+        };
+      }
+
+      if (this.options.mode === "BS") {
+        this.selectedDate = new NepaliDate(year, month, day);
+      } else {
+        this.selectedDate = NepaliDate.fromGregorian(year, month, day);
       }
       this.viewDate = {
         year: this.selectedDate.year,
@@ -450,8 +548,14 @@ export class NepaliDatePicker {
     }
 
     let html = '<div class="npd-days-grid">';
-    weekdays.forEach((day) => {
-      html += `<div class="npd-weekday">${day}</div>`;
+    weekdays.forEach((day, index) => {
+      let isHoliday = false;
+      if (this.options.mode === "BS") {
+        isHoliday = index === 6; // Saturday
+      } else {
+        isHoliday = index === 0; // Sunday
+      }
+      html += `<div class="npd-weekday ${isHoliday ? "holiday" : ""}">${day}</div>`;
     });
 
     if (this.options.mode === "BS") {
@@ -475,9 +579,33 @@ export class NepaliDatePicker {
 
       for (let i = startWeekday - 1; i >= 0; i--) {
         const day = daysInPrevMonth - i;
+        const currentWeekday = (startWeekday - 1 - i) % 7;
+        // Actually, we are counting down.
+        // startWeekday is the first day of CURRENT month.
+        // So the day before is startWeekday-1.
+        // If startWeekday is 0 (Sunday), loops runs for i=-1 which is false? No startWeekday=0 means loop doesn't run.
+        // If startWeekday is 3 (Wed), i runs 2,1,0.
+        // i=2: day before start
+        // Wait, startWeekday is 0..6.
+        // The cell index for "day before start" is `startWeekday - 1`.
+        // The cell index relative to 0 is `startWeekday - 1 - i`?
+        // Let's count forward positions in the grid.
+        // The grid fills 0 to startWeekday-1 with prev month.
+        // So cell position is `startWeekday - 1 - i`.
+        // If startWeekday is 3 (Wed, index 3). i=2. 3-1-2 = 0 (Sunday). Correct.
+        // i=1. 3-1-1 = 1 (Monday).
+        // i=0. 3-1-0 = 2 (Tuesday).
+
+        // Wait, startWeekday comes from .getDay(). 0=Sun, 6=Sat.
+        // In BS mode, holiday is 6 (Sat).
+        // So we just check if the cell position % 7 === 6.
+
+        const cellIndex = startWeekday - 1 - i;
+        const isHoliday = cellIndex % 7 === 6;
+
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="-1">${dayText}</button>`;
+        html += `<button type="button" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${dayText}</button>`;
       }
 
       const todayBS = NepaliDate.today();
@@ -504,9 +632,12 @@ export class NepaliDatePicker {
       const totalCells = 42;
       const currentCells = startWeekday + daysInMonth;
       for (let day = 1; day <= totalCells - currentCells; day++) {
+        const cellIndex = currentCells + day - 1;
+        const isHoliday = cellIndex % 7 === 6;
+
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="1">${dayText}</button>`;
+        html += `<button type="button" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="1">${dayText}</button>`;
       }
     } else {
       const date = new Date(this.viewDate.year, this.viewDate.month - 1, 1);
@@ -524,8 +655,10 @@ export class NepaliDatePicker {
       ).getDate();
 
       for (let i = startWeekday - 1; i >= 0; i--) {
+        const cellIndex = startWeekday - 1 - i;
+        const isHoliday = cellIndex % 7 === 0; // Sunday logic for AD
         const day = daysInPrevMonth - i;
-        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="-1">${day}</button>`;
+        html += `<button type="button" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${day}</button>`;
       }
 
       const [selY, selM, selD] = this.selectedDate
@@ -555,7 +688,9 @@ export class NepaliDatePicker {
       const totalCells = 42;
       const currentCells = startWeekday + daysInMonth;
       for (let day = 1; day <= totalCells - currentCells; day++) {
-        html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="1">${day}</button>`;
+        const cellIndex = currentCells + day - 1;
+        const isHoliday = cellIndex % 7 === 0; // Sunday for AD
+        html += `<button type="button" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="1">${day}</button>`;
       }
     }
 
@@ -768,24 +903,23 @@ export class NepaliDatePicker {
       return;
     }
 
+    const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
+
     if (this.options.mode === "BS") {
       let value = this.selectedDate.format(this.options.format);
-      if (
-        this.options.format.includes("%H") ||
-        this.options.format.includes("%M") ||
-        true
-      ) {
-        // Simple append if not in format (or we can enhance format support in WASM but let's do JS side for now)
-        const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
-        if (!value.includes(":")) value += ` ${timeStr}`;
+      // Always append time for now if not present, because our format engine is simple
+      // and user expects time if they see the picker
+      if (!value.match(/\d{2}:\d{2}/)) {
+        value += ` ${timeStr}`;
       }
       this.input.value = value;
     } else {
       const [y, m, d] = this.selectedDate.toGregorian();
-      this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
+      this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${timeStr}`;
     }
 
     this.input.dispatchEvent(new Event("change", { bubbles: true }));
+    this.input.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   getDaysInMonth(year, month) {
@@ -811,6 +945,99 @@ export class NepaliDatePicker {
     this.input.classList.remove("npd-input");
     this.input.removeAttribute("data-npd-id");
     NepaliDatePicker.instances.delete(this.input);
+  }
+
+  handleInputBlur() {
+    const value = this.input.value.trim();
+    if (!value) {
+      this.updateInput();
+      return;
+    }
+
+    try {
+      const [datePart, timePart] = value.split(" ");
+      let year, month, day;
+
+      if (datePart.includes("-")) {
+        [year, month, day] = datePart.split("-").map(Number);
+      } else {
+        [year, month, day] = datePart
+          .replace(/\//g, "-")
+          .split("-")
+          .map(Number);
+      }
+
+      if (!year || !month || !day) {
+        this.updateInput();
+        return;
+      }
+
+      // Smart Rollover Logic
+      let yearOffset = 0;
+      let monthOffset = 0;
+
+      // Handle Month Overflow first (e.g. Month 13 -> Year + 1, Month 1)
+      while (month > 12) {
+        month -= 12;
+        yearOffset++;
+      }
+      while (month < 1) {
+        month += 12;
+        yearOffset--;
+      }
+      year += yearOffset;
+
+      // Handle Day Overflow
+      // We need loop because adding days might push us through multiple months (e.g. day 90)
+      // But for simple "32", one check is usually enough. Let's do a robust loop.
+      let maxDays = 32; // safe upper bound to start checking
+      let safety = 0;
+
+      while (true && safety < 12) {
+        // limit 1 year rollover to prevent infinite loops
+        // Get max days for current Year/Month
+        if (this.options.mode === "BS") {
+          maxDays = this.getDaysInMonth(year, month);
+        } else {
+          maxDays = new Date(year, month, 0).getDate();
+        }
+
+        if (day <= maxDays) break;
+
+        day -= maxDays;
+        month++;
+        if (month > 12) {
+          month = 1;
+          year++;
+        }
+        safety++;
+      }
+
+      // Parse Time (preserve existing logic)
+      if (timePart) {
+        const [h, m] = timePart.split(":").map(Number);
+        if (!isNaN(h)) this.selectedTime.hour = h;
+        if (!isNaN(m)) this.selectedTime.minute = m;
+      }
+
+      let newDate;
+      if (this.options.mode === "BS") {
+        newDate = new NepaliDate(year, month, day);
+      } else {
+        newDate = NepaliDate.fromGregorian(year, month, day);
+      }
+
+      this.selectedDate = newDate;
+      this.viewDate = {
+        year: this.selectedDate.year,
+        month: this.selectedDate.month,
+      };
+      this.render();
+      this.updateInput(); // Format it nicely
+    } catch (e) {
+      // If totally invalid, revert
+      this.updateInput();
+    }
   }
 
   static init(
