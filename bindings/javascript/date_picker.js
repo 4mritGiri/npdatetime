@@ -61,6 +61,10 @@ export class NepaliDatePicker {
     this.createPicker();
     this.attachEvents();
     this.parseInitialValue();
+
+    if (!this.selectedDate) {
+      this.setDetailsFromToday();
+    }
   }
 
   setupInput() {
@@ -244,6 +248,20 @@ export class NepaliDatePicker {
     }
   }
 
+  setDetailsFromToday() {
+    try {
+      const today = NepaliDate.today();
+      if (this.options.mode === "BS") {
+        this.viewDate = { year: today.year, month: today.month };
+      } else {
+        const [y, m] = today.toGregorian();
+        this.viewDate = { year: y, month: m };
+      }
+    } catch (e) {
+      console.error("Failed to set default today date:", e);
+    }
+  }
+
   open() {
     if (this.isOpen) return;
 
@@ -301,14 +319,41 @@ export class NepaliDatePicker {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     });
 
-    if (mode === "AD" && this.selectedDate) {
-      const [y, m] = this.selectedDate.toGregorian();
-      this.viewDate = { year: y, month: m };
-    } else if (mode === "BS" && this.selectedDate) {
-      this.viewDate = {
-        year: this.selectedDate.year,
-        month: this.selectedDate.month,
-      };
+    if (this.selectedDate) {
+      if (mode === "AD") {
+        const [y, m] = this.selectedDate.toGregorian();
+        this.viewDate = { year: y, month: m };
+      } else {
+        this.viewDate = {
+          year: this.selectedDate.year,
+          month: this.selectedDate.month,
+        };
+      }
+    } else {
+      // If no date is selected, convert the current view date
+      try {
+        if (mode === "AD") {
+          // BS -> AD: Use Day 15 to avoid backward drift (Day 1 usually maps to previous month)
+          const bsDate = new NepaliDate(
+            this.viewDate.year,
+            this.viewDate.month,
+            15,
+          );
+          const [y, m] = bsDate.toGregorian();
+          this.viewDate = { year: y, month: m };
+        } else {
+          // AD -> BS: Use Day 15
+          const bsDate = NepaliDate.fromGregorian(
+            this.viewDate.year,
+            this.viewDate.month,
+            15,
+          );
+          this.viewDate = { year: bsDate.year, month: bsDate.month };
+        }
+      } catch (e) {
+        console.error("Failed to convert view date on mode switch:", e);
+        this.setDetailsFromToday();
+      }
     }
 
     this.render();
@@ -435,18 +480,24 @@ export class NepaliDatePicker {
         html += `<button type="button" class="npd-day npd-overflow" data-day="${day}" data-month-offset="-1">${dayText}</button>`;
       }
 
+      const todayBS = NepaliDate.today();
+      const isCurrentYear = this.viewDate.year === todayBS.year;
+      const isCurrentMonth = this.viewDate.month === todayBS.month;
+
       for (let day = 1; day <= daysInMonth; day++) {
         const isSelected =
           this.selectedDate?.year === this.viewDate.year &&
           this.selectedDate?.month === this.viewDate.month &&
           this.selectedDate?.day === day;
 
+        const isToday = isCurrentYear && isCurrentMonth && day === todayBS.day;
+
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 6; // Saturday in Nepal
 
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
       }
 
       // Next month overflow
@@ -481,16 +532,23 @@ export class NepaliDatePicker {
         ? this.selectedDate.toGregorian()
         : [null, null, null];
 
+      const today = new Date();
+      const isCurrentYear = this.viewDate.year === today.getFullYear();
+      const isCurrentMonth = this.viewDate.month === today.getMonth() + 1;
+
       for (let day = 1; day <= daysInMonth; day++) {
         const isSelected =
           selY === this.viewDate.year &&
           selM === this.viewDate.month &&
           selD === day;
 
+        const isToday =
+          isCurrentYear && isCurrentMonth && day === today.getDate();
+
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 0; // Sunday for AD
 
-        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${day}</button>`;
+        html += `<button type="button" class="npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="0">${day}</button>`;
       }
 
       // Next month overflow

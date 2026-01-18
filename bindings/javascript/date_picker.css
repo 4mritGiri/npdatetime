@@ -334,20 +334,20 @@
 }
 
 /* Today indicator */
-.npd-day.today::before {
-  content: "";
-  position: absolute;
-  bottom: 0.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0.25rem;
-  height: 0.25rem;
-  background: var(--npd-primary);
-  border-radius: 50%;
+.npd-day.today {
+  border: 1px solid var(--npd-primary);
+  font-weight: 700;
+  color: var(--npd-primary);
 }
 
-.npd-day.today.selected::before {
-  background: white;
+.npd-day.today::before {
+  display: none;
+}
+
+.npd-day.today.selected {
+  background: var(--npd-primary);
+  color: white;
+  border-color: var(--npd-primary);
 }
 
 /* Months View */

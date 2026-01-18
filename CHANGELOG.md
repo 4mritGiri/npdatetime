@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-01-18
+
+### Changed
+- Promoted to stable 1.0.0 release for production use.
+- Added "miti" to package keywords for better discovery.
+
+### Added
+- Comprehensive integration tests for public API verification.
+
 ## [0.1.0] - 2026-01-17
 
 ### Added

@@ -1,30 +1,37 @@
 {
-  "name": "npdatetime-wasm",
-  "version": "0.1.0",
-  "description": "Fast Nepali (Bikram Sambat) datetime for JavaScript/TypeScript via WebAssembly",
-  "main": "pkg/npdatetime_wasm.js",
-  "types": "pkg/npdatetime_wasm.d.ts",
+  "name": "miti",
+  "version": "3.0.0",
+  "description": "Modern, production-ready Nepali Date Picker (Bikram Sambat) and Gregorian calendar library.",
+  "type": "module",
+  "main": "date_picker.js",
   "files": [
-    "pkg"
+    "date_picker.js",
+    "date_picker.css",
+    "pkg/",
+    "README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target bundler",
-    "build:nodejs": "wasm-pack build --target nodejs",
-    "build:web": "wasm-pack build --target web",
-    "test": "wasm-pack test --headless --firefox"
+    "build": "wasm-pack build --target web --out-dir pkg ../../",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4mritGiri/npdatetime-rust.git"
   },
   "keywords": [
     "nepali",
-    "bikram-sambat",
+    "date-picker",
     "calendar",
-    "datetime",
-    "wasm",
-    "webassembly"
+    "miti",
+    "bikram-sambat",
+    "bs",
+    "ad"
   ],
   "author": "Amrit Giri",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/4mritGiri/npdatetime-rust"
-  }
+  "bugs": {
+    "url": "https://github.com/4mritGiri/npdatetime-rust/issues"
+  },
+  "homepage": "https://github.com/4mritGiri/npdatetime-rust"
 }
