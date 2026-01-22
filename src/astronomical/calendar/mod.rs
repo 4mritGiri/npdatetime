@@ -7,8 +7,10 @@ pub mod leap_month;
 pub mod month_calculator;
 pub mod synchronization;
 
+pub use bs_date::BsDate;
 pub use leap_month::{AdhikaMasa, LeapMonthDetector};
 pub use month_calculator::SolarMonthCalculator;
+pub use synchronization::{CalendarSynchronizer, MonthDetail};
 
 /// Information about a full Bikram Sambat year
 #[derive(Debug, Clone)]

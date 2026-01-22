@@ -7,6 +7,7 @@ pub enum NpdatetimeError {
     InvalidDate(String),
     OutOfRange(String),
     ParseError(String),
+    CalculationError(String),
 }
 
 impl fmt::Display for NpdatetimeError {
@@ -15,6 +16,7 @@ impl fmt::Display for NpdatetimeError {
             NpdatetimeError::InvalidDate(msg) => write!(f, "Invalid date: {}", msg),
             NpdatetimeError::OutOfRange(msg) => write!(f, "Out of range: {}", msg),
             NpdatetimeError::ParseError(msg) => write!(f, "Parse error: {}", msg),
+            NpdatetimeError::CalculationError(msg) => write!(f, "Calculation error: {}", msg),
         }
     }
 }

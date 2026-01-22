@@ -8,5 +8,6 @@ pub mod lunar;
 pub mod solar;
 
 pub use calendar::BsCalendar as AstronomicalCalendar;
+pub use calendar::BsDate;
 pub use lunar::tithi::TithiCalculator;
 pub use solar::sankranti::SankrantiFinder;
