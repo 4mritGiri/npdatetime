@@ -159,6 +159,39 @@ export class NepaliDatePicker {
       monthsView: picker.querySelector(".npd-view-months"),
       yearsView: picker.querySelector(".npd-view-years"),
     };
+
+    this.createTooltip(); // Create tooltip element
+  }
+
+  createTooltip() {
+    this.tooltip = document.createElement("div");
+    this.tooltip.className = "npd-tooltip";
+    this.picker.appendChild(this.tooltip);
+    this.longPressTimer = null;
+  }
+
+  showTooltip(element, text) {
+    if (!this.tooltip || !text) return;
+    this.tooltip.textContent = text;
+
+    // Position tooltip
+    const rect = element.getBoundingClientRect();
+    const pickerRect = this.picker.getBoundingClientRect();
+
+    // Calculate relative position within picker
+    const top = rect.top - pickerRect.top - this.tooltip.offsetHeight - 8;
+    const left =
+      rect.left - pickerRect.left + (rect.width - this.tooltip.offsetWidth) / 2;
+
+    this.tooltip.style.top = `${top}px`;
+    this.tooltip.style.left = `${left}px`;
+    this.tooltip.classList.add("active");
+  }
+
+  hideTooltip() {
+    if (this.tooltip) {
+      this.tooltip.classList.remove("active");
+    }
   }
 
   attachEvents() {
@@ -500,36 +533,54 @@ export class NepaliDatePicker {
   }
 
   renderDays() {
-    const months =
-      this.options.language === "np"
-        ? [
-            "बैशाख",
-            "जेठ",
-            "असार",
-            "साउन",
-            "भदौ",
-            "असोज",
-            "कात्तिक",
-            "मंसिर",
-            "पुस",
-            "माघ",
-            "फागुन",
-            "चैत",
-          ]
-        : [
-            "Baisakh",
-            "Jestha",
-            "Ashadh",
-            "Shrawan",
-            "Bhadra",
-            "Ashwin",
-            "Kartik",
-            "Mangshir",
-            "Poush",
-            "Magh",
-            "Falgun",
-            "Chaitra",
-          ];
+    let months;
+    if (this.options.mode === "BS") {
+      months =
+        this.options.language === "np"
+          ? [
+              "बैशाख",
+              "जेठ",
+              "असार",
+              "साउन",
+              "भदौ",
+              "असोज",
+              "कात्तिक",
+              "मंसिर",
+              "पुस",
+              "माघ",
+              "फागुन",
+              "चैत",
+            ]
+          : [
+              "Baisakh",
+              "Jestha",
+              "Ashadh",
+              "Shrawan",
+              "Bhadra",
+              "Ashwin",
+              "Kartik",
+              "Mangshir",
+              "Poush",
+              "Magh",
+              "Falgun",
+              "Chaitra",
+            ];
+    } else {
+      months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+    }
 
     const weekdays =
       this.options.language === "np"
@@ -655,7 +706,24 @@ export class NepaliDatePicker {
           if (isRangeStart && !this.rangeEnd) classes += " range-only";
         }
 
-        html += `<button type="button" class="${classes}" data-day="${day}" data-month-offset="0">${dayText}</button>`;
+        const fullDate =
+          this.options.mode == "BS"
+            ? `${currentDayDate.year}-${String(currentDayDate.month).padStart(2, "0")}-${String(currentDayDate.day).padStart(2, "0")}`
+            : `${currentDayDate.year}-${String(currentDayDate.month).padStart(2, "0")}-${String(currentDayDate.day).padStart(2, "0")}`;
+
+        let details = fullDate;
+        try {
+          if (typeof currentDayDate.tithi === "function") {
+            const tithi = currentDayDate.tithi();
+            if (tithi) {
+              details += `\n${tithi}`;
+            }
+          }
+        } catch (e) {
+          // Tithi calculation failed or feature disabled
+        }
+
+        html += `<button type="button" class="${classes}" data-day="${day}" data-month-offset="0" data-details="${details}">${dayText}</button>`;
       }
 
       // Next month overflow
@@ -790,40 +858,94 @@ export class NepaliDatePicker {
             this.selectDate(day);
           }
         });
+
+        // Tooltip Events
+        this.elements.daysView
+          .querySelectorAll(".npd-day[data-details]")
+          .forEach((btn) => {
+            // Desktop Hover
+            btn.addEventListener("mouseenter", () => {
+              this.showTooltip(btn, btn.dataset.details);
+            });
+
+            btn.addEventListener("mouseleave", () => {
+              this.hideTooltip();
+            });
+
+            // Mobile Long Press
+            btn.addEventListener(
+              "touchstart",
+              (e) => {
+                // e.preventDefault(); // Don't block click
+                this.longPressTimer = setTimeout(() => {
+                  this.showTooltip(btn, btn.dataset.details);
+                }, 500); // 500ms long press
+              },
+              { passive: true },
+            );
+
+            btn.addEventListener("touchend", () => {
+              if (this.longPressTimer) clearTimeout(this.longPressTimer);
+              this.hideTooltip();
+            });
+
+            btn.addEventListener("touchmove", () => {
+              if (this.longPressTimer) clearTimeout(this.longPressTimer);
+              this.hideTooltip();
+            });
+          });
       });
   }
 
   renderMonths() {
-    const months =
-      this.options.language === "np"
-        ? [
-            "बैशाख",
-            "जेठ",
-            "असार",
-            "साउन",
-            "भदौ",
-            "असोज",
-            "कात्तिक",
-            "मंसिर",
-            "पुस",
-            "माघ",
-            "फागुन",
-            "चैत",
-          ]
-        : [
-            "Baisakh",
-            "Jestha",
-            "Ashadh",
-            "Shrawan",
-            "Bhadra",
-            "Ashwin",
-            "Kartik",
-            "Mangshir",
-            "Poush",
-            "Magh",
-            "Falgun",
-            "Chaitra",
-          ];
+    let months;
+    if (this.options.mode === "BS") {
+      months =
+        this.options.language === "np"
+          ? [
+              "बैशाख",
+              "जेठ",
+              "असार",
+              "साउन",
+              "भदौ",
+              "असोज",
+              "कात्तिक",
+              "मंसिर",
+              "पुस",
+              "माघ",
+              "फागुन",
+              "चैत",
+            ]
+          : [
+              "Baisakh",
+              "Jestha",
+              "Ashadh",
+              "Shrawan",
+              "Bhadra",
+              "Ashwin",
+              "Kartik",
+              "Mangshir",
+              "Poush",
+              "Magh",
+              "Falgun",
+              "Chaitra",
+            ];
+    } else {
+      months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+    }
 
     const year =
       this.options.language === "np"

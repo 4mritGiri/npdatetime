@@ -706,3 +706,41 @@
     display: none !important;
   }
 }
+
+/* Tooltip Styling */
+.npd-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--npd-bg);
+  color: var(--npd-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--npd-radius);
+  box-shadow: var(--npd-shadow-lg);
+  border: 1px solid var(--npd-border);
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+  white-space: pre;
+  text-align: center;
+  line-height: 1.4;
+  transform: translateY(5px);
+}
+
+.npd-tooltip.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+[data-theme="dark"] .npd-tooltip {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}

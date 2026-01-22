@@ -180,6 +180,30 @@ impl NepaliDate {
     pub fn to_string(&self) -> String {
         format!("{}", self.inner)
     }
+
+    /// Get Tithi for the date (Astronomical)
+    /// 
+    /// @returns {string} Tithi name (e.g., "Shukla Pratipada")
+    #[wasm_bindgen]
+    #[wasm_bindgen]
+    pub fn tithi(&self) -> Result<String, JsValue> {
+        // Convert to Julian Day
+        // We need a way to get JD. If not directly available on NepaliDate, 
+        // we can convert to Gregorian and then to JD using `npdatetime` utils if exposed,
+        // or rely on `TithiCalculator` accepting a date if possible.
+        // Looking at `tithi.rs`: `get_tithi(jd: JulianDay)`
+        
+        let (y, m, d) = self.inner.to_gregorian().map_err(|e| JsValue::from_str(&e.to_string()))?;
+        
+        use npdatetime::astronomical::core::JulianDay;
+        use npdatetime::astronomical::TithiCalculator;
+        
+        // Julian Day from Gregorian at noon (approximate for Tithi of the day)
+        let jd = JulianDay::from_gregorian(y, m, d, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd);
+        
+        Ok(format!("{} {}", tithi.paksha, tithi.name()))
+    }
 }
 
 /// Initialize WASM module
