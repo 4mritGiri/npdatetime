@@ -1,0 +1,61 @@
+site_name: NPDateTime
+site_description: High-performance Nepali (Bikram Sambat) datetime library
+site_url: https://4mritGiri.github.io/npdatetime-rust/
+repo_url: https://github.com/4mritGiri/npdatetime-rust
+repo_name: 4mritGiri/npdatetime-rust
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.mermaid_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Guide: guide.md
+  - Astronomical Logic: ASTRONOMY.md
+  - Project Structure: PROJECT_STRUCTURE.md
+  - Implementation: IMPLEMENTATION_GUIDE.md
+  - Development: DEVELOPMENT_GUIDE.md
+  - Roadmap: ROADMAP.md
+  - API Reference:
+      - Rust: rustdoc/npdatetime/index.html
