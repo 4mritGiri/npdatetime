@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["TITHI_NAMES"],"enum":["Paksha"],"struct":["Tithi","TithiCalculator"]};

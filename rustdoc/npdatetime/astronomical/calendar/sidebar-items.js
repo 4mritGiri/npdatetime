@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bs_date","leap_month","month_calculator","synchronization"],"struct":["BsCalendar","YearInfo"]};

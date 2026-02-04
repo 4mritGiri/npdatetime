@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BS_EPOCH_AD","BS_EPOCH_YEAR","NEPALI_MONTHS","NEPALI_MONTHS_UNICODE","NEPALI_WEEKDAYS"],"fn":["days_to_gregorian","gregorian_days_in_month","gregorian_days_since_epoch","gregorian_to_days","is_gregorian_leap_year","unix_epoch_to_gregorian"],"struct":["NepaliDate"]};

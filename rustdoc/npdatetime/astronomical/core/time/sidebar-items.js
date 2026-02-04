@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_ayanamsha","npt_to_utc","utc_to_npt"],"struct":["JulianDay"]};

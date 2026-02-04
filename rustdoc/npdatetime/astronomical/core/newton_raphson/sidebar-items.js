@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NewtonRaphsonError"],"fn":["find_root"],"struct":["NewtonRaphsonSolver"],"type":["Result"]};

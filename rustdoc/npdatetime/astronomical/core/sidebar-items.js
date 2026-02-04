@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ZodiacSign"],"mod":["constants","newton_raphson","time"]};
