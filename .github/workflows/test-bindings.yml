@@ -32,7 +32,7 @@ jobs:
       - name: Build Python package
         run: |
           cd bindings/python
-          maturin develop
+          pip install .
       
       - name: Run tests
         run: |
@@ -85,7 +85,9 @@ jobs:
       - name: Install Django and package
         run: |
           pip install Django==${{ matrix.django-version }}
-          pip install npdatetime || echo "npdatetime not on PyPI yet, will build locally"
+          # Install core npdatetime from local source
+          pip install ./bindings/python
+          # Install django package
           cd bindings/django
           pip install -e .
       
