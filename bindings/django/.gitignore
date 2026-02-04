@@ -1,0 +1,18 @@
+# Django package build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# Local development
+.venv/
+env/
+venv/
+.env
+
+# JavaScript build artifacts (copied via sync)
+npdatetime_django/static/npdatetime_django/js/pkg/
+npdatetime_django/static/npdatetime_django/js/date_picker.min.js
+npdatetime_django/static/npdatetime_django/css/date_picker.css

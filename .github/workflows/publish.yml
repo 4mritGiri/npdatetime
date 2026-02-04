@@ -1,0 +1,207 @@
+name: Publish All Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v0.1.0, v1.2.3
+  workflow_dispatch:  # Allows manual triggering
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Job 1: Publish Rust Crate to crates.io
+  publish-rust:
+    name: 📦 Publish Rust Crate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run tests
+        run: cargo test --all-features
+
+      - name: Build release
+        run: cargo build --release
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
+        continue-on-error: true  # Don't fail if already published
+
+  # Job 2: Build and Publish WASM to NPM
+  publish-wasm:
+    name: 📦 Publish WASM/JavaScript to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Build WASM package
+        run: |
+          cd bindings/javascript
+          wasm-pack build --target web --release
+
+      - name: Publish to NPM
+        run: |
+          cd bindings/javascript/pkg
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        continue-on-error: true
+
+  # Job 3: Publish Python Package to PyPI
+  publish-python:
+    name: 📦 Publish Python Package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build Python wheels
+        run: |
+          cd bindings/python
+          maturin build --release
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: bindings/python/target/wheels/*.whl
+
+  publish-python-wheels:
+    name: 📦 Publish Python Wheels to PyPI
+    needs: publish-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
+
+  # Job 4: Publish Django Package to PyPI
+  publish-django:
+    name: 📦 Publish Django Package
+    runs-on: ubuntu-latest
+    needs: publish-python-wheels  # Wait for Python package first
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Install Rust and wasm-pack
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM bindings (for Django static assets)
+        run: |
+          cd bindings/javascript
+          wasm-pack build --target web --release
+
+      - name: Sync assets to Django package
+        run: |
+          cd bindings/django
+          python3 build_assets.py
+
+      - name: Build Django package
+        run: |
+          cd bindings/django
+          python -m build
+
+      - name: Publish to PyPI
+        run: |
+          cd bindings/django
+          python -m twine upload --skip-existing dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+  # Job 5: Create GitHub Release
+  create-release:
+    name: 🎉 Create GitHub Release
+    needs: [publish-rust, publish-wasm, publish-python-wheels, publish-django]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## 🎉 Release v${{ steps.version.outputs.VERSION }}
+            
+            ### Published Packages:
+            - 🦀 Rust: [`npdatetime`](https://crates.io/crates/npdatetime) v${{ steps.version.outputs.VERSION }}
+            - 🐍 Python: [`npdatetime`](https://pypi.org/project/npdatetime/) v${{ steps.version.outputs.VERSION }}
+            - 🌐 JavaScript: [`npdatetime-wasm`](https://www.npmjs.com/package/npdatetime-wasm) v${{ steps.version.outputs.VERSION }}
+            - 🎯 Django: [`django-npdatetime`](https://pypi.org/project/django-npdatetime/) v${{ steps.version.outputs.VERSION }}
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

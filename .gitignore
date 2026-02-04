@@ -58,3 +58,9 @@ coverage/
 
 # Benchmark results
 /target/criterion/
+
+# Secrets and Environment
+.env
+.env.*
+!.env.example
+*.secrets

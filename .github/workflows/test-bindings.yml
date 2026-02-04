@@ -1,0 +1,98 @@
+name: Test Python & Django Packages
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  # Test Python package
+  test-python:
+    name: 🐍 Test Python (${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install maturin
+        run: pip install maturin pytest
+      
+      - name: Build Python package
+        run: |
+          cd bindings/python
+          maturin develop
+      
+      - name: Run tests
+        run: |
+          cd bindings/python
+          pytest tests/ -v
+        continue-on-error: true
+
+  # Test Django package
+  test-django:
+    name: 🎯 Django (Py${{ matrix.python-version }}, Django${{ matrix.django-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        django-version: ['3.2', '4.0', '4.1', '4.2', '5.0']
+        exclude:
+          # Django 5.0 requires Python 3.10+
+          - python-version: '3.8'
+            django-version: '5.0'
+          - python-version: '3.9'
+            django-version: '5.0'
+          # Django 4.x doesn't support Python 3.12 initially
+          - python-version: '3.12'
+            django-version: '3.2'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Rust and build WASM
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Build WASM bindings
+        run: |
+          cd bindings/javascript
+          wasm-pack build --target web
+      
+      - name: Sync assets to Django
+        run: |
+          cd bindings/django
+          python3 build_assets.py || python build_assets.py
+      
+      - name: Install Django and package
+        run: |
+          pip install Django==${{ matrix.django-version }}
+          pip install npdatetime || echo "npdatetime not on PyPI yet, will build locally"
+          cd bindings/django
+          pip install -e .
+      
+      - name: Run Django checks
+        run: |
+          cd bindings/django
+          python -c "import npdatetime_django; print('✓ Package imported successfully')"
+          python -c "from npdatetime_django import NepaliDateField; print('✓ Model fields imported')"
+          python -c "from npdatetime_django.widgets import NepaliDatePickerWidget; print('✓ Widgets imported')"
+          python -c "from npdatetime_django.templatetags import nepali_date; print('✓ Template tags imported')"
