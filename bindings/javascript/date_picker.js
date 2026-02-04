@@ -430,7 +430,9 @@ export class NepaliDatePicker {
     const spaceAbove = inputRect.top;
 
     this.picker.style.left = `${inputRect.left}px`;
-    this.picker.style.width = `${Math.max(inputRect.width, 320)}px`;
+    // Set picker width with a reasonable max-width instead of matching input width
+    // Min: 320px, Max: 400px to prevent overly wide pickers on full-width inputs
+    this.picker.style.width = `${Math.min(Math.max(inputRect.width, 320), 400)}px`;
 
     if (
       this.options.position === "top" ||
