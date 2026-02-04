@@ -29,10 +29,11 @@ jobs:
       - name: Install maturin
         run: pip install maturin pytest
       
-      - name: Build Python package
+      - name: Build and install Python package
         run: |
           cd bindings/python
-          pip install .
+          maturin build --out dist
+          pip install dist/*.whl
       
       - name: Run tests
         run: |
@@ -85,11 +86,14 @@ jobs:
       - name: Install Django and package
         run: |
           pip install Django==${{ matrix.django-version }}
-          # Install core npdatetime from local source
-          pip install ./bindings/python
+          # Build and install core npdatetime from local source
+          cd bindings/python
+          maturin build --out dist
+          pip install dist/*.whl
+          cd ../..
           # Install django package
           cd bindings/django
-          pip install -e .
+          pip install .
       
       - name: Run Django checks
         run: |
