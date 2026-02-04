@@ -71,8 +71,10 @@ jobs:
       - name: Install Rust and build WASM
         uses: dtolnay/rust-toolchain@stable
       
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install wasm-pack and maturin
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          pip install maturin
       
       - name: Build WASM bindings
         run: |
