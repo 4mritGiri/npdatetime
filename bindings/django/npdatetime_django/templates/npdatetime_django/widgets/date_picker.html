@@ -1,0 +1,28 @@
+{% load static %}
+
+<input 
+   type="{{ widget.type }}" 
+   name="{{ widget.name }}"
+   {% if widget.value != None %} 
+      value="{{ widget.value }}"
+   {% endif %}
+   {% include "django/forms/widgets/attrs.html" %}
+>
+
+<script type="module">
+  import { NepaliDatePicker } from '{% static "npdatetime_django/js/date_picker.min.js" %}';
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const input = document.querySelector('input[name="{{ widget.name }}"]');
+    if (input && !input.dataset.npdInitialized) {
+      const options = {{ widget.picker_options|safe }};
+      
+      try {
+        new NepaliDatePicker(input, options);
+        input.dataset.npdInitialized = 'true';
+      } catch (error) {
+        console.error('Failed to initialize Nepali Date Picker:', error);
+      }
+    }
+  });
+</script>

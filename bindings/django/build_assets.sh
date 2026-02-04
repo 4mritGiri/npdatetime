@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Build script to copy static assets from JavaScript bindings to Django package
+# Run this script whenever you update the date picker JavaScript or CSS
+
+set -e  # Exit on error
+
+echo "📦 Building Django package assets..."
+
+# Define paths
+JS_SOURCE="../javascript"
+DJANGO_STATIC="npdatetime_django/static/npdatetime_django"
+
+# Create directories if they don't exist
+mkdir -p "$DJANGO_STATIC/js"
+mkdir -p "$DJANGO_STATIC/css"
+
+# Copy JavaScript files
+echo "   Copying JavaScript files..."
+cp "$JS_SOURCE/date_picker.js" "$DJANGO_STATIC/js/date_picker.min.js"
+
+# Copy CSS files
+echo "   Copying CSS files..."
+cp "$JS_SOURCE/date_picker.css" "$DJANGO_STATIC/css/date_picker.css"
+
+# Copy WASM package
+echo "   Copying WASM bindings..."
+if [ -d "$JS_SOURCE/pkg" ]; then
+    cp -r "$JS_SOURCE/pkg" "$DJANGO_STATIC/js/"
+    echo "   ✓ WASM bindings copied"
+else
+    echo "   ⚠ Warning: WASM pkg directory not found. Run 'wasm-pack build' first."
+fi
+
+echo "✅ Assets built successfully!"
+echo ""
+echo "📝 Summary:"
+echo "   - date_picker.js → date_picker.min.js"
+echo "   - date_picker.css → date_picker.css"
+echo "   - pkg/ → js/pkg/"
+echo ""
+echo "💡 Tip: Run './build_assets.sh' whenever you update the JavaScript/CSS files"

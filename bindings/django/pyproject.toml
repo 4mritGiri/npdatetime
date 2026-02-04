@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-npdatetime"
+version = "0.1.0"
+description = "Nepali Date Field and Date Picker Widget for Django"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Amrit Giri", email = "4mritgiri@gmail.com"}
+]
+keywords = ["django", "nepali", "bikram sambat", "date picker", "calendar"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "Django>=3.2",
+    "npdatetime>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/4mritGiri/npdatetime-rust"
+Documentation = "https://github.com/4mritGiri/npdatetime-rust/tree/main/bindings/django"
+Repository = "https://github.com/4mritGiri/npdatetime-rust.git"
+"Bug Tracker" = "https://github.com/4mritGiri/npdatetime-rust/issues"
+
+[tool.setuptools]
+packages = ["npdatetime_django"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+npdatetime_django = [
+    "static/npdatetime_django/**/*",
+    "templates/npdatetime_django/**/*",
+]

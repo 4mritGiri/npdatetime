@@ -1,0 +1,25 @@
+{% load static %}
+
+<div class="npd-date-range-widget">
+  <div class="npd-range-start">{{ widget.0 }}</div>
+  <span class="npd-range-separator">to</span>
+  <div class="npd-range-end">{{ widget.1 }}</div>
+</div>
+
+<style>
+  .npd-date-range-widget {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .npd-range-separator {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .npd-range-start,
+  .npd-range-end {
+    flex: 1;
+  }
+</style>
