@@ -4,10 +4,10 @@
 //! and high-precision VSOP87 solar position.
 
 use super::vsop87::Vsop87Calculator;
-use crate::NepaliDate;
 use crate::astronomical::core::{
     JulianDay, newton_raphson::NewtonRaphsonSolver, time::get_ayanamsha,
 };
+use crate::astronomical::calendar::BsDate;
 
 /// Information about a Sankranti event
 #[derive(Debug, Clone, Copy)]
@@ -39,9 +39,8 @@ impl Sankranti {
     }
 
     /// Convert to BS date
-    pub fn to_bs_date(&self) -> NepaliDate {
-        let (y, m, d, _) = self.julian_day.to_gregorian();
-        NepaliDate::from_gregorian(y, m, d).unwrap_or(NepaliDate {
+    pub fn to_bs_date(&self) -> BsDate {
+        BsDate::from_julian_day(self.julian_day).unwrap_or(BsDate {
             year: 0,
             month: 0,
             day: 0,

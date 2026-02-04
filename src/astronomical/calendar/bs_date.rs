@@ -5,7 +5,11 @@ use crate::core::error::{NpdatetimeError, Result};
 use std::fmt;
 
 /// Represents a date in the astronomical Bikram Sambat calendar
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct BsDate {
     pub year: i32,
     pub month: u8,

@@ -86,7 +86,22 @@ impl NepaliDate {
         // (but that creates circular dependencies).
         // Let's keep it simple for now and move the data access to lib.rs or a dedicated lookup mod.
 
-        crate::lookup::get_days_in_month(year, month)
+        #[cfg(feature = "lookup-tables")]
+        if year >= 1975 && year <= 2100 {
+            return crate::lookup::get_days_in_month(year, month);
+        }
+
+        #[cfg(feature = "astronomical")]
+        {
+            let cal = crate::astronomical::calendar::BsCalendar::new();
+            return Ok(cal.calculate_month_days(year, month));
+        }
+
+        #[allow(unreachable_code)]
+        Err(NpdatetimeError::OutOfRange(format!(
+            "Year {} is out of supported range",
+            year
+        )))
     }
 
     /// Converts Nepali date to Gregorian date (year, month, day)

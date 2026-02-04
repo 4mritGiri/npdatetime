@@ -185,20 +185,73 @@ impl NepaliDate {
     /// 
     /// @returns {string} Tithi name (e.g., "Shukla Pratipada")
     #[wasm_bindgen]
-    #[wasm_bindgen]
     pub fn tithi(&self) -> Result<String, JsValue> {
-        // Convert to Julian Day
-        // We need a way to get JD. If not directly available on NepaliDate, 
-        // we can convert to Gregorian and then to JD using `npdatetime` utils if exposed,
-        // or rely on `TithiCalculator` accepting a date if possible.
-        // Looking at `tithi.rs`: `get_tithi(jd: JulianDay)`
-        
         let (y, m, d) = self.inner.to_gregorian().map_err(|e| JsValue::from_str(&e.to_string()))?;
         
         use npdatetime::astronomical::core::JulianDay;
         use npdatetime::astronomical::TithiCalculator;
         
         // Julian Day from Gregorian at noon (approximate for Tithi of the day)
+        let jd = JulianDay::from_gregorian(y, m, d, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd);
+        
+        Ok(format!("{} {}", tithi.paksha, tithi.name()))
+    }
+}
+
+/// Astronomical Bikram Sambat date for JavaScript
+#[wasm_bindgen]
+#[derive(Clone, Serialize, Deserialize)]
+pub struct BsDate {
+    #[wasm_bindgen(skip)]
+    pub inner: npdatetime::astronomical::BsDate,
+}
+
+#[wasm_bindgen]
+impl BsDate {
+    /// Create a new astronomical BS date
+    #[wasm_bindgen(constructor)]
+    pub fn new(year: i32, month: u8, day: u8) -> Result<BsDate, JsValue> {
+        npdatetime::astronomical::BsDate::new(year, month, day)
+            .map(|inner| BsDate { inner })
+            .map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    #[wasm_bindgen(js_name = toGregorian)]
+    pub fn to_gregorian(&self) -> Result<Vec<i32>, JsValue> {
+        self.inner.to_gregorian()
+            .map(|(y, m, d)| vec![y, m as i32, d as i32])
+            .map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    #[wasm_bindgen(js_name = fromGregorian)]
+    pub fn from_gregorian(year: i32, month: u8, day: u8) -> Result<BsDate, JsValue> {
+        npdatetime::astronomical::BsDate::from_gregorian(year, month, day)
+            .map(|inner| BsDate { inner })
+            .map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn year(&self) -> i32 { self.inner.year }
+    #[wasm_bindgen(getter)]
+    pub fn month(&self) -> u8 { self.inner.month }
+    #[wasm_bindgen(getter)]
+    pub fn day(&self) -> u8 { self.inner.day }
+
+    #[wasm_bindgen(js_name = toString)]
+    pub fn to_string(&self) -> String {
+        format!("{}", self.inner)
+    }
+
+    /// Get Tithi for the date (Astronomical)
+    #[wasm_bindgen]
+    pub fn tithi(&self) -> Result<String, JsValue> {
+        let (y, m, d) = self.inner.to_gregorian().map_err(|e| JsValue::from_str(&e.to_string()))?;
+        
+        use npdatetime::astronomical::core::JulianDay;
+        use npdatetime::astronomical::TithiCalculator;
+        
+        // Julian Day from Gregorian at noon
         let jd = JulianDay::from_gregorian(y, m, d, 12.0);
         let tithi = TithiCalculator::get_tithi(jd);
         

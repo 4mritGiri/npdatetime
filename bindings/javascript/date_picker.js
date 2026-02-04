@@ -3,6 +3,7 @@ import init, { NepaliDate } from "./pkg/npdatetime_wasm.js";
 export class NepaliDatePicker {
   static initialized = false;
   static instances = new Map();
+  static daysCache = new Map();
 
   constructor(element, options = {}) {
     if (typeof element === "string") {
@@ -56,6 +57,8 @@ export class NepaliDatePicker {
     this.viewDate = { year: 2081, month: 1 };
     this.viewMode = "days";
     this.isOpen = false;
+    this.switchRequest = null;
+    this.renderRequest = null;
 
     this.init();
     NepaliDatePicker.instances.set(element, this);
@@ -448,46 +451,65 @@ export class NepaliDatePicker {
   switchMode(mode) {
     if (this.options.mode === mode) return;
 
+    // pending switch
+    if (this.switchRequest) {
+      cancelAnimationFrame(this.switchRequest);
+    }
+
+    this.switchRequest = requestAnimationFrame(() => {
+      this._performSwitchMode(mode);
+      this.switchRequest = null;
+    });
+  }
+
+  _performSwitchMode(mode) {
+    if (this.options.mode === mode) return;
+
     this.options.mode = mode;
     this.picker.querySelectorAll(".npd-mode-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     });
 
-    if (this.selectedDate) {
-      if (mode === "AD") {
-        const [y, m] = this.selectedDate.toGregorian();
-        this.viewDate = { year: y, month: m };
-      } else {
-        this.viewDate = {
-          year: this.selectedDate.year,
-          month: this.selectedDate.month,
-        };
-      }
-    } else {
-      // If no date is selected, convert the current view date
-      try {
+    try {
+      if (this.selectedDate) {
         if (mode === "AD") {
-          // BS -> AD: Use Day 15 to avoid backward drift (Day 1 usually maps to previous month)
-          const bsDate = new NepaliDate(
-            this.viewDate.year,
-            this.viewDate.month,
-            15,
-          );
-          const [y, m] = bsDate.toGregorian();
+          const [y, m] = this.selectedDate.toGregorian();
           this.viewDate = { year: y, month: m };
         } else {
-          // AD -> BS: Use Day 15
-          const bsDate = NepaliDate.fromGregorian(
-            this.viewDate.year,
-            this.viewDate.month,
-            15,
-          );
-          this.viewDate = { year: bsDate.year, month: bsDate.month };
+          this.viewDate = {
+            year: this.selectedDate.year,
+            month: this.selectedDate.month,
+          };
         }
-      } catch (e) {
-        console.error("Failed to convert view date on mode switch:", e);
-        this.setDetailsFromToday();
+      } else {
+        // If no date is selected, convert the current view date
+        try {
+          if (mode === "AD") {
+            // BS -> AD: Use Day 15 to avoid backward drift (Day 1 usually maps to previous month)
+            const bsDate = new NepaliDate(
+              this.viewDate.year,
+              this.viewDate.month,
+              15,
+            );
+            const [y, m] = bsDate.toGregorian();
+            this.viewDate = { year: y, month: m };
+          } else {
+            // AD -> BS: Use Day 15
+            const bsDate = NepaliDate.fromGregorian(
+              this.viewDate.year,
+              this.viewDate.month,
+              15,
+            );
+            this.viewDate = { year: bsDate.year, month: bsDate.month };
+          }
+        } catch (e) {
+          console.error("Failed to convert view date on mode switch:", e);
+          this.setDetailsFromToday();
+        }
       }
+    } catch (err) {
+      console.error("Switch mode error:", err);
+      this.setDetailsFromToday();
     }
 
     this.render();
@@ -519,6 +541,17 @@ export class NepaliDatePicker {
   }
 
   render() {
+    if (this.renderRequest) {
+      cancelAnimationFrame(this.renderRequest);
+    }
+
+    this.renderRequest = requestAnimationFrame(() => {
+      this._performRender();
+      this.renderRequest = null;
+    });
+  }
+
+  _performRender() {
     this.picker
       .querySelectorAll(".npd-view")
       .forEach((v) => v.classList.remove("active"));
@@ -1179,15 +1212,31 @@ export class NepaliDatePicker {
       }
     }
 
-    this.input.dispatchEvent(new Event("change", { bubbles: true }));
-    this.input.dispatchEvent(new Event("input", { bubbles: true }));
+    this.input.dispatchEvent(
+      new CustomEvent("change", {
+        bubbles: true,
+        detail: { origin: "datepicker" },
+      }),
+    );
+    this.input.dispatchEvent(
+      new CustomEvent("input", {
+        bubbles: true,
+        detail: { origin: "datepicker" },
+      }),
+    );
   }
 
   getDaysInMonth(year, month) {
+    const key = `${year}-${month}`;
+    if (NepaliDatePicker.daysCache.has(key)) {
+      return NepaliDatePicker.daysCache.get(key);
+    }
+
     try {
       for (let d = 32; d >= 27; d--) {
         try {
           new NepaliDate(year, month, d);
+          NepaliDatePicker.daysCache.set(key, d);
           return d;
         } catch (e) {}
       }
