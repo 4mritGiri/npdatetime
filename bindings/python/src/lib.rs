@@ -5,7 +5,7 @@ use pyo3::exceptions::PyValueError;
 #[pyclass]
 #[derive(Clone)]
 struct NepaliDate {
-    inner: npdatetime::NepaliDate,
+    inner: npdatetime_core::NepaliDate,
 }
 
 #[pymethods]
@@ -27,7 +27,7 @@ impl NepaliDate {
     ///     2077-05-19
     #[new]
     fn new(year: i32, month: u8, day: u8) -> PyResult<Self> {
-        npdatetime::NepaliDate::new(year, month, day)
+        npdatetime_core::NepaliDate::new(year, month, day)
             .map(|inner| NepaliDate { inner })
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
@@ -62,7 +62,7 @@ impl NepaliDate {
     ///     2077-05-19
     #[staticmethod]
     fn from_gregorian(year: i32, month: u8, day: u8) -> PyResult<Self> {
-        npdatetime::NepaliDate::from_gregorian(year, month, day)
+        npdatetime_core::NepaliDate::from_gregorian(year, month, day)
             .map(|inner| NepaliDate { inner })
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
@@ -73,7 +73,7 @@ impl NepaliDate {
     ///     NepaliDate: Today's date in BS
     #[staticmethod]
     fn today() -> PyResult<Self> {
-        npdatetime::NepaliDate::today()
+        npdatetime_core::NepaliDate::today()
             .map(|inner| NepaliDate { inner })
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
@@ -115,7 +115,7 @@ impl NepaliDate {
     /// Create NepaliDate from an ordinal
     #[staticmethod]
     fn from_ordinal(ordinal: i32) -> PyResult<Self> {
-        npdatetime::NepaliDate::from_ordinal(ordinal)
+        npdatetime_core::NepaliDate::from_ordinal(ordinal)
             .map(|inner| NepaliDate { inner })
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
@@ -198,7 +198,7 @@ impl NepaliDate {
 
 /// NPDateTime - Fast Nepali (Bikram Sambat) datetime library
 #[pymodule]
-fn npdatetime(_py: Python, m: &PyModule) -> PyResult<()> {
+fn npdatetime_py(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NepaliDate>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())

@@ -53,7 +53,10 @@ mod tests {
     #[test]
     fn test_csv_data_loaded() {
         // Verify data is loaded (should have 126 years from 1975-2100)
-        assert!(!BS_MONTH_DATA.is_empty(), "BS_MONTH_DATA should not be empty");
+        assert!(
+            !BS_MONTH_DATA.is_empty(),
+            "BS_MONTH_DATA should not be empty"
+        );
         assert_eq!(BS_MONTH_DATA.len(), 126, "Expected 126 years of data");
     }
 
@@ -116,7 +119,7 @@ mod tests {
             for month in 1..=12 {
                 let days = get_days_in_month(year, month).unwrap();
                 assert!(
-                (29..=32).contains(&days),
+                    (29..=32).contains(&days),
                     "Year {} month {} has invalid day count: {}",
                     year,
                     month,

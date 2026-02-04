@@ -1,16 +1,14 @@
-#[cfg(feature = "astronomical")]
-use npdatetime::astronomical::BsDate;
-use npdatetime::prelude::*;
-
 fn main() {
     #[cfg(not(feature = "astronomical"))]
     {
         println!("Please run with --all-features to perform comparison.");
-        return;
     }
 
     #[cfg(feature = "astronomical")]
     {
+        use npdatetime::astronomical::BsDate;
+        use npdatetime::prelude::*;
+
         println!(
             "{:<15} | {:<15} | {:<15} | Status",
             "Gregorian", "NepaliDate", "BsDate"
