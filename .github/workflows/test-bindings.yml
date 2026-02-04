@@ -30,6 +30,7 @@ jobs:
         run: pip install maturin pytest
       
       - name: Build and install Python package
+        shell: bash
         run: |
           cd bindings/python
           maturin build --out dist
@@ -84,6 +85,7 @@ jobs:
           python3 build_assets.py || python build_assets.py
       
       - name: Install Django and package
+        shell: bash
         run: |
           pip install Django==${{ matrix.django-version }}
           # Build and install core npdatetime from local source

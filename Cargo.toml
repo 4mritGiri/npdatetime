@@ -33,7 +33,7 @@ thiserror = "1.0"
 lazy_static = "1.4"
 
 # For Python bindings (optional)
-pyo3 = { version = "0.20", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.21.0", features = ["extension-module"], optional = true }
 
 # For JavaScript/WASM bindings (optional)
 wasm-bindgen = { version = "0.2", optional = true }
