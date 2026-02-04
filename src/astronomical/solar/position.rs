@@ -32,11 +32,9 @@ impl SolarCalculator {
         let m = Self::mean_anomaly(jd) * DEG_TO_RAD;
 
         // Equation of center
-        let c = (1.914602 - 0.004817 * t - 0.000014 * t * t) * m.sin()
+        (1.914602 - 0.004817 * t - 0.000014 * t * t) * m.sin()
             + (0.019993 - 0.000101 * t) * (2.0 * m).sin()
-            + 0.000289 * (3.0 * m).sin();
-
-        c
+            + 0.000289 * (3.0 * m).sin()
     }
 
     /// Calculate Sun's true longitude

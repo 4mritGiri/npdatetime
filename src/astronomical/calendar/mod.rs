@@ -55,6 +55,12 @@ impl BsCalendar {
     }
 }
 
+impl Default for BsCalendar {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -42,7 +42,7 @@ impl BsDate {
     pub fn from_julian_day(jd: JulianDay) -> Result<Self> {
         // Convert to Nepal Local Time
         let npt_jd = utc_to_npt(jd);
-        let (g_year, g_month, g_day, _) = npt_jd.to_gregorian();
+        let (g_year, _g_month, _g_day, _) = npt_jd.to_gregorian();
 
         // Approximate BS year. Most of the year, BS = G + 57.
         // Baisakh usually starts in April (4).
@@ -53,7 +53,7 @@ impl BsDate {
         // Search for Mesh Sankranti in the current Gregorian year
         let mesh_sankranti =
             SankrantiFinder::find_sankranti(0, JulianDay::from_gregorian(g_year, 4, 1, 0.0))
-                .map_err(|e| NpdatetimeError::CalculationError(e))?;
+                .map_err(NpdatetimeError::CalculationError)?;
 
         let mut npt_mesh_jd = utc_to_npt(mesh_sankranti.julian_day);
 
@@ -63,7 +63,7 @@ impl BsDate {
                 0,
                 JulianDay::from_gregorian(g_year - 1, 4, 1, 0.0),
             )
-            .map_err(|e| NpdatetimeError::CalculationError(e))?;
+            .map_err(NpdatetimeError::CalculationError)?;
             npt_mesh_jd = utc_to_npt(prev_mesh.julian_day);
         }
 
@@ -72,7 +72,7 @@ impl BsDate {
 
         let info = cal
             .get_year_info(bs_year)
-            .map_err(|e| NpdatetimeError::CalculationError(e))?;
+            .map_err(NpdatetimeError::CalculationError)?;
 
         while bs_month <= 12 {
             let month_days = info.month_lengths[bs_month as usize - 1] as i64;
@@ -106,7 +106,7 @@ impl BsDate {
             0,
             JulianDay::from_gregorian(self.year - 57, 4, 1, 0.0),
         )
-        .map_err(|e| NpdatetimeError::CalculationError(e))?;
+        .map_err(NpdatetimeError::CalculationError)?;
 
         let npt_mesh_jd = utc_to_npt(mesh_sankranti.julian_day);
         let mut total_days = 0i64;
@@ -114,7 +114,7 @@ impl BsDate {
         let cal = BsCalendar::new();
         let info = cal
             .get_year_info(self.year)
-            .map_err(|e| NpdatetimeError::CalculationError(e))?;
+            .map_err(NpdatetimeError::CalculationError)?;
 
         for m in 1..self.month {
             total_days += info.month_lengths[m as usize - 1] as i64;

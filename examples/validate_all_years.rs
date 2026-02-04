@@ -4,7 +4,6 @@ fn main() -> Result<()> {
     #[cfg(not(feature = "astronomical"))]
     {
         println!("Please run with --all-features to perform comparison.");
-        return Ok(());
     }
 
     #[cfg(feature = "astronomical")]
@@ -17,7 +16,7 @@ fn main() -> Result<()> {
         for year in 1975..=2100 {
             let info = cal
                 .get_year_info(year)
-                .map_err(|e| NpdatetimeError::ParseError(e))?;
+                .map_err(NpdatetimeError::ParseError)?;
 
             for month in 1..=12 {
                 total_months += 1;

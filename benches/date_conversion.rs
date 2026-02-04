@@ -1,4 +1,4 @@
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use npdatetime::{NepaliDate, lookup};
 
 fn bench_days_in_month(c: &mut Criterion) {

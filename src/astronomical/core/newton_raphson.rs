@@ -101,7 +101,7 @@ impl NewtonRaphsonSolver {
             }
 
             // Newton-Raphson iteration
-            x = x - fx / dfx;
+            x -= fx / dfx;
 
             // Check if new x is valid
             if !x.is_finite() {

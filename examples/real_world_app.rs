@@ -34,8 +34,8 @@ fn main() -> Result<()> {
 
     #[cfg(feature = "astronomical")]
     {
-        use npdatetime::astronomical::BsCalendar;
-        let cal = BsCalendar::new();
+        use npdatetime::astronomical::AstronomicalCalendar;
+        let cal = AstronomicalCalendar::new();
         let days = cal.calculate_month_days(target_date.year, target_date.month);
         println!("This month has {} days (astronomical check)", days);
     }
