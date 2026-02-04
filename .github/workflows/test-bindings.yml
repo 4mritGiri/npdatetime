@@ -39,7 +39,7 @@ jobs:
       - name: Run tests
         run: |
           cd bindings/python
-          pytest tests/ -v
+          pytest test_npdatetime.py -v
         continue-on-error: true
 
   # Test Django package
