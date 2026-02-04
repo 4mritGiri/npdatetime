@@ -1,6 +1,6 @@
+use crate::astronomical::calendar::BsCalendar;
 use crate::astronomical::core::JulianDay;
 use crate::astronomical::core::time::utc_to_npt;
-use crate::astronomical::calendar::BsCalendar;
 use crate::core::error::{NpdatetimeError, Result};
 use std::fmt;
 
@@ -48,26 +48,32 @@ impl BsDate {
         // Baisakh usually starts in April (4).
         let mut bs_year = g_year + 57;
         let cal = BsCalendar::new();
-        
+
         use crate::astronomical::solar::sankranti::SankrantiFinder;
         // Search for Mesh Sankranti in the current Gregorian year
-        let mesh_sankranti = SankrantiFinder::find_sankranti(0, JulianDay::from_gregorian(g_year, 4, 1, 0.0))
-            .map_err(|e| NpdatetimeError::CalculationError(e))?;
-        
+        let mesh_sankranti =
+            SankrantiFinder::find_sankranti(0, JulianDay::from_gregorian(g_year, 4, 1, 0.0))
+                .map_err(|e| NpdatetimeError::CalculationError(e))?;
+
         let mut npt_mesh_jd = utc_to_npt(mesh_sankranti.julian_day);
-        
+
         if npt_jd.0.floor() < npt_mesh_jd.0.floor() {
             bs_year -= 1;
-            let prev_mesh = SankrantiFinder::find_sankranti(0, JulianDay::from_gregorian(g_year - 1, 4, 1, 0.0))
-                .map_err(|e| NpdatetimeError::CalculationError(e))?;
+            let prev_mesh = SankrantiFinder::find_sankranti(
+                0,
+                JulianDay::from_gregorian(g_year - 1, 4, 1, 0.0),
+            )
+            .map_err(|e| NpdatetimeError::CalculationError(e))?;
             npt_mesh_jd = utc_to_npt(prev_mesh.julian_day);
         }
 
         let mut remaining_days = (npt_jd.0.floor() - npt_mesh_jd.0.floor()) as i64;
         let mut bs_month = 1u8;
-        
-        let info = cal.get_year_info(bs_year).map_err(|e| NpdatetimeError::CalculationError(e))?;
-        
+
+        let info = cal
+            .get_year_info(bs_year)
+            .map_err(|e| NpdatetimeError::CalculationError(e))?;
+
         while bs_month <= 12 {
             let month_days = info.month_lengths[bs_month as usize - 1] as i64;
             if remaining_days >= month_days {
@@ -94,26 +100,31 @@ impl BsDate {
     /// Convert BS Date to Julian Day (approximate to start of day in NPT)
     pub fn to_julian_day(&self) -> Result<JulianDay> {
         use crate::astronomical::solar::sankranti::SankrantiFinder;
-        
+
         // CONSISTENCY: We use the same anchor logic as from_julian_day
-        let mesh_sankranti = SankrantiFinder::find_sankranti(0, JulianDay::from_gregorian(self.year - 57, 4, 1, 0.0))
-            .map_err(|e| NpdatetimeError::CalculationError(e))?;
-        
+        let mesh_sankranti = SankrantiFinder::find_sankranti(
+            0,
+            JulianDay::from_gregorian(self.year - 57, 4, 1, 0.0),
+        )
+        .map_err(|e| NpdatetimeError::CalculationError(e))?;
+
         let npt_mesh_jd = utc_to_npt(mesh_sankranti.julian_day);
         let mut total_days = 0i64;
-        
+
         let cal = BsCalendar::new();
-        let info = cal.get_year_info(self.year).map_err(|e| NpdatetimeError::CalculationError(e))?;
-        
+        let info = cal
+            .get_year_info(self.year)
+            .map_err(|e| NpdatetimeError::CalculationError(e))?;
+
         for m in 1..self.month {
             total_days += info.month_lengths[m as usize - 1] as i64;
         }
-        
+
         total_days += (self.day - 1) as i64;
-        
+
         // Start of the day in NPT
         let jd_npt = JulianDay(npt_mesh_jd.0.floor() + total_days as f64 + 0.5); // Use midday for better round-tripping
-        
+
         // Convert back to UTC
         use crate::astronomical::core::time::npt_to_utc;
         Ok(npt_to_utc(jd_npt))
@@ -156,7 +167,7 @@ mod tests {
         let round_trip = BsDate::from_julian_day(jd).unwrap();
         assert_eq!(original, round_trip);
     }
-    
+
     #[test]
     fn test_specific_date_2081_baisakh_1() {
         // 2081 Baisakh 1 is 2024-04-13

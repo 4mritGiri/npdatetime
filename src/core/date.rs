@@ -87,7 +87,7 @@ impl NepaliDate {
         // Let's keep it simple for now and move the data access to lib.rs or a dedicated lookup mod.
 
         #[cfg(feature = "lookup-tables")]
-        if year >= 1975 && year <= 2100 {
+        if (1975..=2100).contains(&year) {
             return crate::lookup::get_days_in_month(year, month);
         }
 

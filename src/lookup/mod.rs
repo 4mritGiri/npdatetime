@@ -134,7 +134,7 @@ mod tests {
                 .map(|m| get_days_in_month(year, m).unwrap() as u32)
                 .sum();
             assert!(
-                total >= 354 && total <= 385,
+                (354..=385).contains(&total),
                 "Year {} has invalid total days: {}",
                 year,
                 total

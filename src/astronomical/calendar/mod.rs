@@ -44,7 +44,7 @@ impl BsCalendar {
 
     /// Calculate month length astronomically
     pub fn calculate_month_days(&self, year: i32, month: u8) -> u8 {
-        if month < 1 || month > 12 {
+        if !(1..=12).contains(&month) {
             return 0;
         }
 

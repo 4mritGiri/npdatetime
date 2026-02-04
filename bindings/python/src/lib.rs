@@ -5,7 +5,7 @@ use pyo3::exceptions::PyValueError;
 #[pyclass]
 #[derive(Clone)]
 struct NepaliDate {
-    inner: npdatetime_core::NepaliDate,
+    inner: npdatetime::NepaliDate,
 }
 
 #[pymethods]
@@ -27,9 +27,9 @@ impl NepaliDate {
     ///     2077-05-19
     #[new]
     fn new(year: i32, month: u8, day: u8) -> PyResult<Self> {
-        npdatetime_core::NepaliDate::new(year, month, day)
+        npdatetime::NepaliDate::new(year, month, day)
             .map(|inner| NepaliDate { inner })
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Convert to Gregorian (AD) date
@@ -43,7 +43,7 @@ impl NepaliDate {
     ///     (2020, 9, 4)
     fn to_gregorian(&self) -> PyResult<(i32, u8, u8)> {
         self.inner.to_gregorian()
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Create NepaliDate from Gregorian (AD) date
@@ -62,9 +62,9 @@ impl NepaliDate {
     ///     2077-05-19
     #[staticmethod]
     fn from_gregorian(year: i32, month: u8, day: u8) -> PyResult<Self> {
-        npdatetime_core::NepaliDate::from_gregorian(year, month, day)
+        npdatetime::NepaliDate::from_gregorian(year, month, day)
             .map(|inner| NepaliDate { inner })
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Get today's Nepali date
@@ -73,9 +73,9 @@ impl NepaliDate {
     ///     NepaliDate: Today's date in BS
     #[staticmethod]
     fn today() -> PyResult<Self> {
-        npdatetime_core::NepaliDate::today()
+        npdatetime::NepaliDate::today()
             .map(|inner| NepaliDate { inner })
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Format the date as a string
@@ -104,7 +104,7 @@ impl NepaliDate {
     fn add_days(&self, days: i32) -> PyResult<Self> {
         self.inner.add_days(days)
             .map(|inner| NepaliDate { inner })
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Get the ordinal representation of the date (days since 1975-01-01 BS)
@@ -115,9 +115,9 @@ impl NepaliDate {
     /// Create NepaliDate from an ordinal
     #[staticmethod]
     fn from_ordinal(ordinal: i32) -> PyResult<Self> {
-        npdatetime_core::NepaliDate::from_ordinal(ordinal)
+        npdatetime::NepaliDate::from_ordinal(ordinal)
             .map(|inner| NepaliDate { inner })
-            .map_err(|e: npdatetime_core::NpdatetimeError| PyValueError::new_err(e.to_string()))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Get the Nepali Fiscal Year (e.g., "2080/81")

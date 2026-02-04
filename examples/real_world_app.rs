@@ -3,7 +3,7 @@ use std::io::{self, Write};
 
 fn main() -> Result<()> {
     println!("--- Nepali Date Converter ---");
-    
+
     let today = NepaliDate::today()?;
     println!("Current Date: {} ({})", today, today.format("%d %B %Y"));
     println!("In Devanagari: {}", today.format_unicode());
@@ -31,7 +31,7 @@ fn main() -> Result<()> {
     println!("\nResults for {}:", target_date);
     println!("Gregorian (AD): {}-{:02}-{:02}", y, m, d);
     println!("Weekday: {}", target_date.format("%A"));
-    
+
     #[cfg(feature = "astronomical")]
     {
         use npdatetime::astronomical::BsCalendar;

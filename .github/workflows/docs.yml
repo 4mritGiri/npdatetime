@@ -27,6 +27,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust documentation
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: 1
         run: |
           cargo doc --no-deps --all-features
           # Fix for GitHub Pages

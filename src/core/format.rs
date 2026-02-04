@@ -62,7 +62,13 @@ impl NepaliDate {
                             if let Ok((y, m, d)) = self.to_gregorian() {
                                 let weekday = calculate_weekday(y, m, d);
                                 const DEVANAGARI_WEEKDAYS: [&str; 7] = [
-                                    "आइतवार", "सोमवार", "मङ्गलवार", "बुधवार", "बिहीवार", "शुक्रवार", "शनिवार"
+                                    "आइतवार",
+                                    "सोमवार",
+                                    "मङ्गलवार",
+                                    "बुधवार",
+                                    "बिहीवार",
+                                    "शुक्रवार",
+                                    "शनिवार",
                                 ];
                                 result.push_str(DEVANAGARI_WEEKDAYS[weekday]);
                             }
@@ -121,11 +127,11 @@ impl NepaliDate {
         let days = Self::days_in_month(self.year, self.month).unwrap_or(30);
         for day in 1..=days {
             result.push_str(&format!("{:2} ", day));
-            if (day as usize + start_weekday) % 7 == 0 {
+            if (day as usize + start_weekday).is_multiple_of(7) {
                 result.push('\n');
             }
         }
-        if (days as usize + start_weekday) % 7 != 0 {
+        if !(days as usize + start_weekday).is_multiple_of(7) {
             result.push('\n');
         }
 
@@ -185,8 +191,6 @@ fn to_devanagari_number_padded(num: i32, width: usize) -> String {
         })
         .collect()
 }
-
-
 
 #[cfg(test)]
 mod tests {

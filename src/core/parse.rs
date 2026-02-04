@@ -1,5 +1,5 @@
 //! Date parsing utilities for Nepali dates
-//! 
+//!
 //! Provides strptime-like parsing for Nepali date strings.
 
 use crate::core::date::{NEPALI_MONTHS, NepaliDate};
@@ -7,7 +7,7 @@ use crate::core::error::{NpdatetimeError, Result};
 
 impl NepaliDate {
     /// Parses a date string into a NepaliDate using a format string
-    /// 
+    ///
     /// # Format Specifiers:
     /// - `%Y` - Four-digit year (e.g., 2077)
     /// - `%m` - Month as decimal (01-12)
@@ -57,7 +57,9 @@ impl NepaliDate {
                             }
                         }
                         if !found {
-                            return Err(NpdatetimeError::InvalidDate("Failed to parse month name".to_string()));
+                            return Err(NpdatetimeError::InvalidDate(
+                                "Failed to parse month name".to_string(),
+                            ));
                         }
                     }
                     Some('b') => {
@@ -72,26 +74,37 @@ impl NepaliDate {
                             }
                         }
                         if !found {
-                            return Err(NpdatetimeError::InvalidDate("Failed to parse abbreviated month name".to_string()));
+                            return Err(NpdatetimeError::InvalidDate(
+                                "Failed to parse abbreviated month name".to_string(),
+                            ));
                         }
                     }
                     Some('%') => {
                         if input_chars.next() != Some('%') {
-                            return Err(NpdatetimeError::InvalidDate("Literal % mismatch".to_string()));
+                            return Err(NpdatetimeError::InvalidDate(
+                                "Literal % mismatch".to_string(),
+                            ));
                         }
                     }
-                    _ => return Err(NpdatetimeError::InvalidDate("Invalid format specifier".to_string())),
+                    _ => {
+                        return Err(NpdatetimeError::InvalidDate(
+                            "Invalid format specifier".to_string(),
+                        ));
+                    }
                 }
-            } else {
-                if input_chars.next() != Some(f) {
-                    return Err(NpdatetimeError::InvalidDate(format!("Character mismatch: expected {}", f)));
-                }
+            } else if input_chars.next() != Some(f) {
+                return Err(NpdatetimeError::InvalidDate(format!(
+                    "Character mismatch: expected {}",
+                    f
+                )));
             }
         }
 
         match (year, month, day) {
             (Some(y), Some(m), Some(d)) => NepaliDate::new(y, m, d),
-            _ => Err(NpdatetimeError::InvalidDate("Missing year, month or day in format".to_string())),
+            _ => Err(NpdatetimeError::InvalidDate(
+                "Missing year, month or day in format".to_string(),
+            )),
         }
     }
 }
@@ -103,13 +116,19 @@ fn consume_digits(it: &mut std::iter::Peekable<std::str::Chars>, count: usize) -
             if c.is_ascii_digit() {
                 s.push(c);
             } else {
-                return Err(NpdatetimeError::InvalidDate(format!("Expected digit, got {}", c)));
+                return Err(NpdatetimeError::InvalidDate(format!(
+                    "Expected digit, got {}",
+                    c
+                )));
             }
         } else {
-            return Err(NpdatetimeError::InvalidDate("Unexpected end of input".to_string()));
+            return Err(NpdatetimeError::InvalidDate(
+                "Unexpected end of input".to_string(),
+            ));
         }
     }
-    s.parse::<u32>().map_err(|e| NpdatetimeError::InvalidDate(e.to_string()))
+    s.parse::<u32>()
+        .map_err(|e| NpdatetimeError::InvalidDate(e.to_string()))
 }
 
 fn peek_match(it: &mut std::iter::Peekable<std::str::Chars>, target: &str) -> bool {

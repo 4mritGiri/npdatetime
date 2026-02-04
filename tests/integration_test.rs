@@ -17,7 +17,7 @@ fn test_public_api_date_creation() {
 fn test_public_api_conversion() {
     let bs_date = NepaliDate::new(2077, 5, 19).unwrap();
     let (g_year, g_month, g_day) = bs_date.to_gregorian().unwrap();
-    
+
     // 2077-05-19 BS is 2020-09-04 AD
     assert_eq!(g_year, 2020);
     assert_eq!(g_month, 9);
