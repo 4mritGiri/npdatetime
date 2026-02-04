@@ -9,6 +9,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.20", features = ["extension-module"] }
-npdatetime = { path = "../.." }
+npdatetime_core = { package = "npdatetime", path = "../.." }
 
 [build-dependencies]
