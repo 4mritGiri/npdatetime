@@ -1,3 +1,4 @@
+# NPDateTime MkDocs Configuration
 site_name: NPDateTime
 site_description: High-performance Nepali (Bikram Sambat) datetime library
 site_url: https://4mritGiri.github.io/npdatetime-rust/
@@ -30,7 +31,7 @@ theme:
     - search.highlight
     - content.code.copy
     - content.code.annotate
- 
+
 plugins:
   - search
   - mermaid2
