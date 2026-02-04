@@ -26,10 +26,12 @@ impl NepaliDate {
     ///
     /// # Examples:
     /// ```
-    /// use npdatetime::NepaliDate;
+    /// # use npdatetime::NepaliDate;
+    /// # if cfg!(any(feature = "lookup-tables", feature = "astronomical")) {
     /// let date = NepaliDate::new(2077, 5, 19).unwrap();
     /// assert_eq!(date.format_date("%Y-%m-%d"), "2077-05-19");
     /// assert_eq!(date.format_date("%d %B %Y"), "19 Bhadra 2077");
+    /// # }
     /// ```
     pub fn format_date(&self, format_str: &str) -> String {
         let mut result = String::new();
@@ -95,9 +97,11 @@ impl NepaliDate {
     ///
     /// # Example:
     /// ```
-    /// use npdatetime::NepaliDate;
+    /// # use npdatetime::NepaliDate;
+    /// # if cfg!(any(feature = "lookup-tables", feature = "astronomical")) {
     /// let date = NepaliDate::new(2077, 1, 1).unwrap();
     /// println!("{}", date.format_unicode()); // "१ बैशाख २०७७"
+    /// # }
     /// ```
     pub fn format_unicode(&self) -> String {
         format!(
@@ -196,6 +200,7 @@ fn to_devanagari_number_padded(num: i32, width: usize) -> String {
 mod tests {
     use super::*;
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_format_year() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
@@ -203,6 +208,7 @@ mod tests {
         assert_eq!(date.format_date("%y"), "77");
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_format_month() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
@@ -211,6 +217,7 @@ mod tests {
         assert_eq!(date.format_date("%b"), "Bha");
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_format_day() {
         let date = NepaliDate::new(2077, 5, 9).unwrap();
@@ -218,6 +225,7 @@ mod tests {
         assert_eq!(date.format_date("%e"), " 9");
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_format_combined() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();

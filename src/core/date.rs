@@ -99,7 +99,7 @@ impl NepaliDate {
 
         #[allow(unreachable_code)]
         Err(NpdatetimeError::OutOfRange(format!(
-            "Year {} is out of supported range",
+            "Year {} is out of supported range (or no calendar provider feature enabled)",
             year
         )))
     }
@@ -405,6 +405,7 @@ pub fn unix_epoch_to_gregorian(days_since_epoch: u64) -> (i32, u8, u8) {
 mod tests {
     use super::*;
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_create_valid_date() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
@@ -419,6 +420,7 @@ mod tests {
         assert!(NepaliDate::new(2077, 0, 1).is_err());
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_conversion_to_gregorian() {
         let bs_date = NepaliDate::new(2000, 1, 1).unwrap();
@@ -426,6 +428,7 @@ mod tests {
         assert_eq!(ad_date, (1943, 4, 14));
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_conversion_from_gregorian() {
         let bs_date = NepaliDate::from_gregorian(1943, 4, 14).unwrap();
@@ -434,6 +437,7 @@ mod tests {
         assert_eq!(bs_date.day, 1);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_format() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
@@ -441,12 +445,14 @@ mod tests {
         assert_eq!(date.format("%d %B %Y"), "19 Bhadra 2077");
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_display() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
         assert_eq!(format!("{}", date), "2077-05-19");
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_add_days_within_month() {
         let date = NepaliDate::new(2077, 5, 10).unwrap();
@@ -456,6 +462,7 @@ mod tests {
         assert_eq!(new_date.day, 15);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_add_days_across_month() {
         // 2077 Bhadra (month 5) has 31 days
@@ -465,6 +472,7 @@ mod tests {
         assert_eq!(new_date.month, 6); // Should move to Ashwin
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_add_days_across_year() {
         // 2077 Chaitra (month 12) has 31 days
@@ -474,6 +482,7 @@ mod tests {
         assert_eq!(new_date.month, 1);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_add_negative_days() {
         let date = NepaliDate::new(2077, 5, 19).unwrap();
@@ -483,6 +492,7 @@ mod tests {
         assert_eq!(new_date.day, 14);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_add_days_round_trip() {
         let original = NepaliDate::new(2077, 5, 19).unwrap();

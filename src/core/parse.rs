@@ -17,11 +17,13 @@ impl NepaliDate {
     ///
     /// # Examples:
     /// ```
-    /// use npdatetime::NepaliDate;
+    /// # use npdatetime::NepaliDate;
+    /// # if cfg!(any(feature = "lookup-tables", feature = "astronomical")) {
     /// let date = NepaliDate::parse("2077-05-19", "%Y-%m-%d").unwrap();
     /// assert_eq!(date.year, 2077);
     /// assert_eq!(date.month, 5);
     /// assert_eq!(date.day, 19);
+    /// # }
     /// ```
     pub fn parse(input: &str, format: &str) -> Result<Self> {
         let mut year: Option<i32> = None;
@@ -151,6 +153,7 @@ fn consume_match(it: &mut std::iter::Peekable<std::str::Chars>, target: &str) {
 mod tests {
     use super::*;
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_parse_iso() {
         let date = NepaliDate::parse("2077-05-19", "%Y-%m-%d").unwrap();
@@ -159,6 +162,7 @@ mod tests {
         assert_eq!(date.day, 19);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_parse_month_name() {
         let date = NepaliDate::parse("19 Bhadra 2077", "%d %B %Y").unwrap();
@@ -167,6 +171,7 @@ mod tests {
         assert_eq!(date.day, 19);
     }
 
+    #[cfg(any(feature = "lookup-tables", feature = "astronomical"))]
     #[test]
     fn test_parse_abbrev_month() {
         let date = NepaliDate::parse("2077/Bha/19", "%Y/%b/%d").unwrap();
