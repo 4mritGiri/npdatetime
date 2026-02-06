@@ -1,6 +1,6 @@
 {
   "name": "miti",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Modern, production-ready Nepali Date Picker (Bikram Sambat) and Gregorian calendar library.",
   "type": "module",
   "main": "date_picker.js",
