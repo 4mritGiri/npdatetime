@@ -1,5 +1,5 @@
 {
-  "name": "miti",
+  "name": "npdatetime",
   "version": "0.1.8",
   "description": "Modern, production-ready Nepali Date Picker (Bikram Sambat) and Gregorian calendar library.",
   "type": "module",
