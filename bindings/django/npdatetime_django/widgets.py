@@ -125,9 +125,9 @@ class NepaliDatePickerWidget(Input):
         # Add placeholder if not set
         if 'placeholder' not in attrs:
             if self.mode == 'BS':
-                attrs['placeholder'] = 'Select Nepali Date' if self.language == 'en' else 'मिति छान्नुहोस्'
+                attrs['placeholder'] = 'मिति (YYYY-MM-DD)' if self.language == 'np' else 'YYYY-MM-DD'
             else:
-                attrs['placeholder'] = 'Select Date'
+                attrs['placeholder'] = 'YYYY-MM-DD'
         
         return attrs
 

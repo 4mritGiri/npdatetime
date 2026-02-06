@@ -32,6 +32,19 @@ jobs:
            with:
               python-version: "3.11"
 
+         - name: Install Rust toolchain
+           uses: dtolnay/rust-toolchain@stable
+
+         - name: Install wasm-pack
+           uses: jetli/wasm-pack-action@v0.4.0
+           with:
+              version: 'latest'
+
+         - name: Setup Node.js
+           uses: actions/setup-node@v4
+           with:
+              node-version: "20"
+
          - name: Extract version from tag
            id: version
            run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
@@ -40,12 +53,19 @@ jobs:
          - name: Update version in files
            run: python update_version.py ${{ steps.version.outputs.VERSION }}
 
+         - name: Build WASM and assets
+           run: |
+              cd bindings/javascript
+              wasm-pack build --target web --release
+              cd ../django
+              python build_assets.py
+
          - name: Commit and push changes
            run: |
               git config --global user.name "github-actions[bot]"
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git add .
-              git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }} [skip ci]" || echo "No changes to commit"
+              git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }} and build assets [skip ci]" || echo "No changes to commit"
               git push origin master
            env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

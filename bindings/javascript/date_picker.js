@@ -64,8 +64,12 @@ export class NepaliDatePicker {
     NepaliDatePicker.instances.set(element, this);
 
     // Apply theme
+    const theme =
+      this.options.theme === "auto"
+        ? document.documentElement.dataset.theme || "auto"
+        : this.options.theme;
     if (this.picker) {
-      this.picker.dataset.theme = this.options.theme;
+      this.picker.dataset.theme = theme;
     }
   }
 
@@ -91,8 +95,12 @@ export class NepaliDatePicker {
     this.input.classList.add("npd-input");
 
     if (!this.input.placeholder) {
-      this.input.placeholder =
-        this.options.mode === "BS" ? "Select Nepali Date" : "Select Date";
+      if (this.options.mode === "BS") {
+        this.input.placeholder =
+          this.options.language === "np" ? "मिति (YYYY-MM-DD)" : "YYYY-MM-DD";
+      } else {
+        this.input.placeholder = "Select Date (YYYY-MM-DD)";
+      }
     }
   }
 
@@ -1359,10 +1367,42 @@ export class NepaliDatePicker {
     }
   }
 
+  static setupThemeObserver() {
+    if (this.observerSetup) return;
+    this.observerSetup = true;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-theme"
+        ) {
+          const newTheme = document.documentElement.dataset.theme || "auto";
+          NepaliDatePicker.instances.forEach((instance) => {
+            if (instance.options.theme === "auto") {
+              instance.applyTheme(newTheme);
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+  }
+
+  applyTheme(theme) {
+    if (!this.picker) return;
+    this.picker.dataset.theme = theme;
+  }
+
   static init(
     selector = 'input[type="npdate"], input[data-npdate]',
     options = {},
   ) {
+    this.setupThemeObserver();
     const inputs = document.querySelectorAll(selector);
     inputs.forEach((input) => {
       if (!NepaliDatePicker.instances.has(input)) {

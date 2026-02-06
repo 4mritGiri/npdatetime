@@ -1,0 +1,22 @@
+<div class="npd-inline-picker-wrapper">
+  <input
+    type="text"
+    name="{{ field_name }}"
+    value="{{ value }}"
+    class="npd-input"
+    data-mode="{{ mode }}"
+    data-language="{{ language }}"
+    data-theme="{{ theme }}"
+    id="id_{{ field_name }}"
+  />
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var input = document.getElementById("id_{{ field_name }}");
+      var options = {{ options_json|safe }};
+      if (window.NepaliDatePicker) {
+          new NepaliDatePicker(input, options);
+      }
+  });
+</script>
