@@ -62,6 +62,11 @@ export class NepaliDatePicker {
 
     this.init();
     NepaliDatePicker.instances.set(element, this);
+
+    // Apply theme
+    if (this.picker) {
+      this.picker.dataset.theme = this.options.theme;
+    }
   }
 
   async init() {
@@ -141,7 +146,7 @@ export class NepaliDatePicker {
           <button type="button" class="npd-btn npd-tomorrow">Tomorrow</button>
         </div>
 
-        <div class="npd-time-picker">
+        <div class="npd-time-picker" ${this.options.includeTime ? "" : 'style="display: none;"'}>
           <div class="npd-time-field">
             <label>Time</label>
             <div class="npd-time-inputs">
@@ -1202,15 +1207,17 @@ export class NepaliDatePicker {
 
       if (this.options.mode === "BS") {
         let value = this.selectedDate.format(this.options.format);
-        // Always append time for now if not present, because our format engine is simple
-        // and user expects time if they see the picker
-        if (!value.match(/\d{2}:\d{2}/)) {
+        if (this.options.includeTime && !value.match(/\d{2}:\d{2}/)) {
           value += ` ${timeStr}`;
         }
         this.input.value = value;
       } else {
         const [y, m, d] = this.selectedDate.toGregorian();
-        this.input.value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${timeStr}`;
+        let value = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        if (this.options.includeTime) {
+          value += ` ${timeStr}`;
+        }
+        this.input.value = value;
       }
     }
 
@@ -1376,6 +1383,3 @@ if (typeof document !== "undefined") {
 }
 
 export default NepaliDatePicker;
-
-
-

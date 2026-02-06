@@ -74,11 +74,14 @@ class NepaliDatePickerWidget(Input):
         widget_attrs['data-mode'] = self.mode
         widget_attrs['data-language'] = self.language
         widget_attrs['data-theme'] = self.theme
+        if self.include_time:
+            widget_attrs['data-include-time'] = 'true'
         
         if not widget_attrs.get('class'):
             widget_attrs['class'] = 'npd-input'
         else:
-            widget_attrs['class'] += ' npd-input'
+            if 'npd-input' not in widget_attrs['class']:
+                widget_attrs['class'] += ' npd-input'
         
         # Build picker options as JSON
         picker_options = {
@@ -88,10 +91,8 @@ class NepaliDatePickerWidget(Input):
             'theme': self.theme,
             'showTodayButton': self.show_today_button,
             'showClearButton': self.show_clear_button,
+            'includeTime': self.include_time,
         }
-        
-        if self.include_time:
-            picker_options['includeTime'] = True
         
         if self.min_date:
             picker_options['minDate'] = self.min_date
@@ -115,6 +116,8 @@ class NepaliDatePickerWidget(Input):
         attrs['data-mode'] = self.mode
         attrs['data-language'] = self.language
         attrs['data-theme'] = self.theme
+        if self.include_time:
+            attrs['data-include-time'] = 'true'
         
         # Set autocomplete off for date pickers
         attrs['autocomplete'] = 'off'

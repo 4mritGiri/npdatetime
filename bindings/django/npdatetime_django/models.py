@@ -113,6 +113,11 @@ class NepaliDateField(models.CharField):
         return super().formfield(**defaults)
 
 
+# Aliases for shorter usage
+NpDateField = NepaliDateField
+NpDate = NepaliDateField
+
+
 class NepaliDateTimeField(models.CharField):
     """
     A model field for storing Nepali dates with time.
@@ -196,3 +201,8 @@ class NepaliDateTimeField(models.CharField):
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)
+
+
+# Aliases for shorter usage
+NpDateTimeField = NepaliDateTimeField
+NpDateTime = NepaliDateTimeField

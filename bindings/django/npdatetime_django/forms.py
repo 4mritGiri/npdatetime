@@ -93,6 +93,11 @@ class NepaliDateField(forms.CharField):
             return NepaliDate.from_gregorian(year, month, day)
 
 
+# Aliases for shorter usage
+NpDateField = NepaliDateField
+NpDate = NepaliDateField
+
+
 class NepaliDateTimeField(forms.CharField):
     """
     A form field for Nepali dates with time.
@@ -168,6 +173,11 @@ class NepaliDateTimeField(forms.CharField):
                 )
         
         return value
+
+
+# Aliases for shorter usage
+NpDateTimeField = NepaliDateTimeField
+NpDateTime = NepaliDateTimeField
 
 
 class NepaliDateRangeField(forms.CharField):
