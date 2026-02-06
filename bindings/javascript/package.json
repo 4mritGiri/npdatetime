@@ -14,13 +14,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target web --out-dir pkg --scope 4mritgiri ../../",
+    "build": "wasm-pack build --target web --out-name npdatetime --out-dir pkg --scope 4mritgiri ../../",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/4mritGiri/npdatetime-rust.git"
+    "url": "https://github.com/4mritGiri/npdatetime.git"
   },
   "keywords": [
     "nepali",
@@ -34,7 +34,7 @@
   "author": "Amrit Giri",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/4mritGiri/npdatetime-rust/issues"
+    "url": "https://github.com/4mritGiri/npdatetime/issues"
   },
-  "homepage": "https://github.com/4mritGiri/npdatetime-rust"
+  "homepage": "https://github.com/4mritGiri/npdatetime"
 }

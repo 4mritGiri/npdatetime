@@ -2,7 +2,7 @@
 
 **Nepali Date Field and Date Picker Widget for Django**
 
-A Django package that provides custom model fields, form fields, and a modern date picker widget for working with Nepali (Bikram Sambat) dates. Powered by the high-performance [npdatetime-rust](https://github.com/4mritGiri/npdatetime-rust) library.
+A Django package that provides custom model fields, form fields, and a modern date picker widget for working with Nepali (Bikram Sambat) dates. Powered by the high-performance [npdatetime](https://github.com/4mritGiri/npdatetime) library.
 
 ## Features
 
@@ -361,8 +361,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Credits
 
 Built on top of:
-- [npdatetime-rust](https://github.com/4mritGiri/npdatetime-rust) - High-performance Nepali datetime library
+- [npdatetime(Rust)](https://github.com/4mritGiri/npdatetime) - High-performance Nepali datetime library (Rust)
 
 ## Support
 
-For bugs and feature requests, please open an issue on [GitHub](https://github.com/4mritGiri/npdatetime-rust/issues).
+For bugs and feature requests, please open an issue on [GitHub](https://github.com/4mritGiri/npdatetime/issues).

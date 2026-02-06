@@ -17,7 +17,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Amrit Giri',
     author_email='amritgiri.dev@gmail.com',
-    url='https://github.com/4mritGiri/npdatetime-rust',
+    url='https://github.com/4mritGiri/npdatetime',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -48,8 +48,8 @@ setup(
     python_requires='>=3.8',
     keywords='django nepali bikram sambat date picker calendar',
     project_urls={
-        'Bug Reports': 'https://github.com/4mritGiri/npdatetime-rust/issues',
-        'Source': 'https://github.com/4mritGiri/npdatetime-rust',
-        'Documentation': 'https://github.com/4mritGiri/npdatetime-rust/tree/main/bindings/django',
+        'Bug Reports': 'https://github.com/4mritGiri/npdatetime/issues',
+        'Source': 'https://github.com/4mritGiri/npdatetime',
+        'Documentation': 'https://github.com/4mritGiri/npdatetime/tree/main/bindings/django',
     },
 )

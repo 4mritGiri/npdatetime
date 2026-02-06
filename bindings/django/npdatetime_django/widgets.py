@@ -9,7 +9,7 @@ class NepaliDatePickerWidget(Input):
     """
     A widget that renders a Nepali date picker.
     
-    This widget uses the JavaScript date picker from npdatetime-rust
+    This widget uses the JavaScript date picker from npdatetime(Rust)
     to provide a rich, interactive date selection experience.
     
     Args:

@@ -26,5 +26,5 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/4mritGiri/npdatetime-rust"
-Repository = "https://github.com/4mritGiri/npdatetime-rust"
+Homepage = "https://github.com/4mritGiri/npdatetime"
+Repository = "https://github.com/4mritGiri/npdatetime"

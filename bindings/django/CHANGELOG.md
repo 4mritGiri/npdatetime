@@ -49,5 +49,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multiple theme support (auto, light, dark)
 - Comprehensive documentation and examples
 
-[Unreleased]: https://github.com/4mritGiri/npdatetime-rust/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/4mritGiri/npdatetime-rust/releases/tag/v0.1.0
+[Unreleased]: https://github.com/4mritGiri/npdatetime/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/4mritGiri/npdatetime/releases/tag/v0.1.0

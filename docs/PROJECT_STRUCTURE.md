@@ -5,7 +5,7 @@ Combining lookup tables (fast, accurate) with astronomical calculations (future-
 ## 📁 Complete Directory Structure
 
 ```
-npdatetime-rust/
+npdatetime/
 ├── Cargo.toml                    # Fixed configuration
 ├── build.rs                      # Compile-time CSV → Rust conversion
 ├── README.md

@@ -41,10 +41,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/4mritGiri/npdatetime-rust"
-Documentation = "https://github.com/4mritGiri/npdatetime-rust/tree/main/bindings/django"
-Repository = "https://github.com/4mritGiri/npdatetime-rust.git"
-"Bug Tracker" = "https://github.com/4mritGiri/npdatetime-rust/issues"
+Homepage = "https://github.com/4mritGiri/npdatetime"
+Documentation = "https://github.com/4mritGiri/npdatetime/tree/main/bindings/django"
+Repository = "https://github.com/4mritGiri/npdatetime.git"
+"Bug Tracker" = "https://github.com/4mritGiri/npdatetime/issues"
 
 [tool.setuptools]
 packages = ["npdatetime_django"]

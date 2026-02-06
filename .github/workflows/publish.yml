@@ -56,7 +56,7 @@ jobs:
          - name: Build WASM and assets
            run: |
               cd bindings/javascript
-              wasm-pack build --target web --release --scope 4mritgiri
+              wasm-pack build --target web --release --out-name npdatetime --scope 4mritgiri
               npm pkg --prefix pkg set name=@4mritgiri/npdatetime
               cd ../django
               python build_assets.py
@@ -158,7 +158,7 @@ jobs:
          - name: Build WASM package
            run: |
               cd bindings/javascript
-              wasm-pack build --target web --release --scope 4mritgiri
+              wasm-pack build --target web --release --out-name npdatetime --scope 4mritgiri
               npm pkg --prefix pkg set name=@4mritgiri/npdatetime
  
          - name: Publish to NPM

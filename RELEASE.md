@@ -4,7 +4,7 @@
 
 ### Add GitHub Secrets
 
-Go to: `https://github.com/4mritgiri/npdatetime-rust/settings/secrets/actions`
+Go to: `https://github.com/4mritgiri/npdatetime/settings/secrets/actions`
 
 Add these 3 secrets:
 
@@ -85,7 +85,7 @@ GitHub Actions will automatically:
 5. ✅ Publish to PyPI (Django package)
 6. ✅ Create GitHub Release
 
-Monitor at: `https://github.com/4mritgiri/npdatetime-rust/actions`
+Monitor at: `https://github.com/4mritgiri/npdatetime/actions`
 
 ## Quick Commands Reference
 

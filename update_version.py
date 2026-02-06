@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to update version across all packages in the npdatetime-rust project.
+Script to update version across all packages in the npdatetime project.
 
 Usage:
     python update_version.py <version>

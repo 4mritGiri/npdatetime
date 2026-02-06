@@ -44,5 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BS ↔ AD conversion: 6-8 microseconds
 - Format operations: 98-640 nanoseconds
 
-[Unreleased]: https://github.com/4mritGiri/npdatetime-rust/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/4mritGiri/npdatetime-rust/releases/tag/v0.1.0
+[Unreleased]: https://github.com/4mritGiri/npdatetime/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/4mritGiri/npdatetime/releases/tag/v0.1.0

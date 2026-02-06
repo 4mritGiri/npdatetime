@@ -7,7 +7,7 @@
 The Django package lives in `bindings/django/` but depends on assets from `bindings/javascript/`:
 
 ```
-npdatetime-rust/
+npdatetime/
 ├── bindings/
 │   ├── javascript/              # Source of truth for UI
 │   │   ├── date_picker.js      # Main date picker

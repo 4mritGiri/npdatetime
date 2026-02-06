@@ -1,9 +1,9 @@
 # NPDateTime MkDocs Configuration
 site_name: NPDateTime
 site_description: High-performance Nepali (Bikram Sambat) datetime library
-site_url: https://4mritGiri.github.io/npdatetime-rust/
-repo_url: https://github.com/4mritGiri/npdatetime-rust
-repo_name: 4mritGiri/npdatetime-rust
+site_url: https://4mritGiri.github.io/npdatetime/
+repo_url: https://github.com/4mritGiri/npdatetime
+repo_name: 4mritGiri/npdatetime
 edit_uri: edit/master/docs/
 
 theme:

@@ -5,7 +5,7 @@ edition = "2024"
 authors = ["Amrit Giri <amritgiri.dev@gmail.com>"]
 description = "Astronomical calculator for Bikram Sambat calendar based on solar and lunar positions. High-performance Nepali (Bikram Sambat) datetime library with multi-language bindings"
 license = "MIT"
-repository = "https://github.com/amritgiri/npdatetime-rust"
+repository = "https://github.com/4mritGiri/npdatetime"
 keywords = ["astronomy", "calendar", "bikram-sambat", "nepali", "datetime"]
 categories = ["date-and-time", "localization", "science"]
 

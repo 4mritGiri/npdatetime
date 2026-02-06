@@ -276,8 +276,8 @@ function DateInput() {
 ├── date_picker.js        # Main library
 ├── date_picker.css       # Styles
 ├── pkg/                  # WASM bindings
-│   ├── npdatetime_wasm.js
-│   ├── npdatetime_wasm_bg.wasm
+│   ├── npdatetime.js
+│   ├── npdatetime_bg.wasm
 │   └── ...
 ├── demo/
 │   └── demo.html        # Demo page
@@ -330,14 +330,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built with [npdatetime-rust](https://github.com/your-repo/npdatetime-rust)
+- Built with [npdatetime](https://github.com/4mritGiri/npdatetime)
 - Inspired by modern date picker libraries
 
 ## 📞 Support
 
-- 🐛 [Report Bug](https://github.com/your-repo/issues)
-- 💡 [Request Feature](https://github.com/your-repo/issues)
-- 📧 Email: your-email@example.com
+- 🐛 [Report Bug](https://github.com/4mritGiri/npdatetime/issues)
+- 💡 [Request Feature](https://github.com/4mritGiri/npdatetime/issues)
+- 📧 Email: amritgiri.dev@gmail.com
 
 ## 🗺️ Roadmap
 
