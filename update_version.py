@@ -24,7 +24,7 @@ def update_file(file_path: Path, pattern: str, replacement: str, description: st
         return False
     
     content = file_path.read_text()
-    new_content = re.sub(pattern, replacement, content)
+    new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
     
     if content != new_content:
         file_path.write_text(new_content)
