@@ -5,7 +5,22 @@ All notable changes to django-npdatetime will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.6] - 2026-02-06
+
+### Added
+- **Fiscal Year Support**:
+  - New template filters: `fiscal_year` and `fiscal_quarter`.
+  - Direct access to fiscal properties on model instances (e.g., `obj.date_field.fiscal_year`).
+- **Dynamic Theme Synchronization**:
+  - The date picker now automatically syncs with `html[data-theme]` when set to `auto`.
+  - Added explicit light/dark theme overrides.
+- **Improved Template Tags**:
+  - Fixed `{% load nepali_date %}` by moving logic to a dedicated module.
+  - Added new `{% nepali_date_picker %}` inclusion tag for inline usage.
+  - Added missing `inline_picker.html` template.
+- **Date Picker Refinements**:
+  - Improved placeholders with format hints (e.g., "YYYY-MM-DD").
+  - Restored localized numeral support in the UI while keeping standard input format.
 
 ## [0.1.0] - 2026-02-04
 

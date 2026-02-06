@@ -6,7 +6,9 @@ A Django package that provides custom model fields, form fields, and a modern da
 
 ## Features
 
-✨ **Custom Model Fields** - `NepaliDateField` and `NepaliDateTimeField` for storing Nepali dates in your database
+✨ **Custom Model Fields** - `NepaliDateField` and `NepaliDateTimeField` with direct access to fiscal year/quarter properties
+...
+✨ **Fiscal Year Support** - Built-in support for Nepali Fiscal Years (e.g., 2080/81) and quarters
 
 🎨 **Beautiful Date Picker Widget** - Modern, responsive date picker with both BS and AD modes
 
@@ -91,8 +93,10 @@ class PersonForm(forms.Form):
 
 <p>Birth Date (BS): {{ person.birth_date_bs }}</p>
 <p>Birth Date (AD): {{ person.birth_date_bs|to_gregorian_date }}</p>
+<p>Fiscal Year: {{ person.birth_date_bs.fiscal_year }}</p>
 <p>Today in BS: {% nepali_date_today %}</p>
 <p>Month: {{ 1|nepali_month_name:"np" }}</p>
+<p>Inline Picker: {% nepali_date_picker "event_date" theme="dark" %}</p>
 ```
 
 ## Usage Guide
@@ -215,6 +219,13 @@ Load the template tag library:
 {{ 2081|to_nepali_number }}  {# २०८१ #}
 ```
 
+#### Fiscal Year and Quarter
+
+```django
+{{ "2081-01-15"|fiscal_year }}     {# 2080/81 #}
+{{ "2081-01-15"|fiscal_quarter }}  {# 3 #}
+```
+
 #### Get Today's Date
 
 ```django
@@ -230,7 +241,7 @@ The `NepaliDatePickerWidget` accepts the following options:
 |--------|------|---------|-------------|
 | `mode` | str | `'BS'` | Calendar mode: `'BS'` or `'AD'` |
 | `language` | str | `'en'` | Interface language: `'en'` or `'np'` |
-| `theme` | str | `'auto'` | Color theme: `'auto'`, `'light'`, or `'dark'` |
+| `theme` | str | `'auto'` | Color theme: `'auto'`, `'light'`, or `'dark'`. `'auto'` follows `html[data-theme]`. |
 | `format` | str | `'%Y-%m-%d'` | Date format string |
 | `include_time` | bool | `False` | Include time picker |
 | `show_today_button` | bool | `True` | Show "Today" button |

@@ -65,6 +65,7 @@ class PersonForm(forms.ModelForm):
 
 <h2>{{ person.name }}</h2>
 <p>जन्म मिति: {{ person.birth_date_bs|format_nepali_date:"%Y/%m/%d" }}</p>
+<p>Fiscal Year: {{ person.birth_date_bs.fiscal_year }}</p>
 <p>Date of Birth: {{ person.birth_date_bs|to_gregorian_date:"%B %d, %Y" }}</p>
 ```
 
@@ -86,7 +87,7 @@ class PersonAdmin(admin.ModelAdmin):
 NepaliDatePickerWidget(
     mode='BS',                    # 'BS' or 'AD'
     language='en',                # 'en' or 'np'
-    theme='auto',                 # 'auto', 'light', or 'dark'
+    theme='auto',                 # 'auto' (follows html[data-theme]), 'light', or 'dark'
     include_time=False,           # Include time picker
     show_today_button=True,       # Show today button
     show_clear_button=True,       # Show clear button
@@ -114,6 +115,10 @@ NepaliDatePickerWidget(
 
 <!-- Today's date in BS -->
 {% nepali_date_today %}
+
+<!-- Fiscal Year and Quarter -->
+{{ date|fiscal_year }}     {# 2080/81 #}
+{{ date|fiscal_quarter }}  {# 3 #}
 ```
 
 That's it! You're ready to use Nepali dates in your Django application! 🎉
