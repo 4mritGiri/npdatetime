@@ -15,16 +15,16 @@ permissions:
    id-token: write # Required for OIDC publishing if used
 
 jobs:
-   # Job 0: Sync version and push back to main
+   # Job 0: Sync version and push back to master
    sync-version-to-main:
-      name: 🔄 Sync Version to Main
+      name: 🔄 Sync Version to Master
       runs-on: ubuntu-latest
       if: startsWith(github.ref, 'refs/tags/v')
       steps:
          - name: Checkout code
            uses: actions/checkout@v4
            with:
-              ref: main
+              ref: master
               token: ${{ secrets.GITHUB_TOKEN }}
 
          - name: Set up Python
@@ -46,7 +46,7 @@ jobs:
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git add .
               git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }} [skip ci]" || echo "No changes to commit"
-              git push origin main
+              git push origin master
            env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
