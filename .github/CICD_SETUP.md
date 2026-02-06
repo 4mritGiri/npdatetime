@@ -128,7 +128,7 @@ Before creating a release tag:
 |---------|----------|------|---------------|
 | Rust | crates.io | `npdatetime` | https://docs.rs/npdatetime |
 | Python | PyPI | `npdatetime` | https://pypi.org/project/npdatetime |
-| JavaScript/WASM | npm | `npdatetime-wasm` | https://npmjs.com/package/npdatetime-wasm |
+| JavaScript/WASM | npm | `npdatetime` | https://npmjs.com/package/npdatetime |
 | Django | PyPI | `django-npdatetime` | https://pypi.org/project/django-npdatetime |
 
 ## 🔍 Monitoring Workflows
@@ -142,7 +142,7 @@ https://github.com/4mritGiri/npdatetime-rust/actions
 - Crates.io: https://crates.io/crates/npdatetime
 - PyPI (Python): https://pypi.org/project/npdatetime
 - PyPI (Django): https://pypi.org/project/django-npdatetime
-- npm: https://npmjs.com/package/npdatetime-wasm
+- npm: https://npmjs.com/package/npdatetime
 
 ## 🐛 Troubleshooting
 

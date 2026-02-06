@@ -1,5 +1,5 @@
 [package]
-name = "npdatetime-wasm"
+name = "npdatetime"
 version = "0.1.9"
 edition = "2021"
 
@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = "0.2"
 js-sys = "0.3"
-npdatetime = { path = "../..", features = ["serde", "astronomical"] }
+npdatetime = { path = "../..", features = ["serde", "astronomical", "lookup-tables", "wasm"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
 console_error_panic_hook = { version = "0.1", optional = true }
