@@ -11,20 +11,59 @@ except ImportError:
     NPDATETIME_AVAILABLE = False
 
 
+class NepaliDateWrapper(str):
+    """
+    A string wrapper that provides easy access to Nepali date properties.
+    """
+    def __new__(cls, value):
+        if value is None:
+            return None
+        return super().__new__(cls, value)
+
+    def __init__(self, value):
+        self._date_obj = None
+        if not NPDATETIME_AVAILABLE or not value:
+            return
+
+        try:
+            # Handle YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
+            date_part = str(value).split(' ')[0]
+            year, month, day = map(int, date_part.split('-'))
+            self._date_obj = NepaliDate(year, month, day)
+        except Exception:
+            pass
+
+    @property
+    def fiscal_year(self):
+        return self._date_obj.fiscal_year if self._date_obj else None
+
+    @property
+    def fiscal_quarter(self):
+        return self._date_obj.fiscal_quarter if self._date_obj else None
+
+    @property
+    def year(self):
+        return self._date_obj.year if self._date_obj else None
+
+    @property
+    def month(self):
+        return self._date_obj.month if self._date_obj else None
+
+    @property
+    def day(self):
+        return self._date_obj.day if self._date_obj else None
+
+    @property
+    def date_obj(self):
+        return self._date_obj
+
+
 class NepaliDateField(models.CharField):
     """
     A model field for storing Nepali (Bikram Sambat) dates.
     
     Stores dates in YYYY-MM-DD format internally.
     Can be used to create, validate, and convert Nepali dates.
-    
-    Example:
-        class Person(models.Model):
-            name = models.CharField(max_length=100)
-            birth_date_bs = NepaliDateField()
-            
-        person = Person(name="Ram", birth_date_bs="2081-01-15")
-        person.save()
     """
     
     description = "Nepali Date (Bikram Sambat) field"
@@ -60,43 +99,30 @@ class NepaliDateField(models.CharField):
         if isinstance(value, str):
             # Validate format
             if not re.match(r'^\d{4}-\d{2}-\d{2}$', value):
-                raise ValidationError(
-                    '%(value)s is not a valid Nepali date format. Use YYYY-MM-DD.',
-                    code='invalid',
-                    params={'value': value},
-                )
+                return value
             
-            # Validate the actual date if npdatetime is available
-            if NPDATETIME_AVAILABLE:
-                try:
-                    year, month, day = map(int, value.split('-'))
-                    NepaliDate(year, month, day)  # Validate
-                except Exception as e:
-                    raise ValidationError(
-                        '%(value)s is not a valid Nepali date: %(error)s',
-                        code='invalid',
-                        params={'value': value, 'error': str(e)},
-                    )
-            
-            return value
+            return NepaliDateWrapper(value)
         
         if NPDATETIME_AVAILABLE and isinstance(value, NepaliDate):
-            return f"{value.year}-{value.month:02d}-{value.day:02d}"
+            return NepaliDateWrapper(f"{value.year}-{value.month:02d}-{value.day:02d}")
         
-        return str(value)
+        return NepaliDateWrapper(str(value))
     
     def from_db_value(self, value, expression, connection):
         """
         Convert database value to Python value.
         """
-        return self.to_python(value)
+        if value is None:
+            return value
+        return NepaliDateWrapper(value)
     
     def get_prep_value(self, value):
         """
         Convert Python value to database value.
         """
-        value = super().get_prep_value(value)
-        return self.to_python(value)
+        if value is None or value == '':
+            return None
+        return str(value)
     
     def formfield(self, **kwargs):
         """
@@ -123,14 +149,6 @@ class NepaliDateTimeField(models.CharField):
     A model field for storing Nepali dates with time.
     
     Stores datetime in YYYY-MM-DD HH:MM:SS format internally.
-    
-    Example:
-        class Event(models.Model):
-            name = models.CharField(max_length=100)
-            event_datetime_bs = NepaliDateTimeField()
-            
-        event = Event(name="Concert", event_datetime_bs="2081-01-15 14:30:00")
-        event.save()
     """
     
     description = "Nepali DateTime (Bikram Sambat) field"
@@ -160,35 +178,21 @@ class NepaliDateTimeField(models.CharField):
         if isinstance(value, str):
             # Validate format
             if not re.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', value):
-                raise ValidationError(
-                    '%(value)s is not a valid Nepali datetime format. Use YYYY-MM-DD HH:MM:SS.',
-                    code='invalid',
-                    params={'value': value},
-                )
+                return value
             
-            # Validate the date part if npdatetime is available
-            if NPDATETIME_AVAILABLE:
-                try:
-                    date_part = value.split(' ')[0]
-                    year, month, day = map(int, date_part.split('-'))
-                    NepaliDate(year, month, day)  # Validate
-                except Exception as e:
-                    raise ValidationError(
-                        '%(value)s contains an invalid Nepali date: %(error)s',
-                        code='invalid',
-                        params={'value': value, 'error': str(e)},
-                    )
-            
-            return value
+            return NepaliDateWrapper(value)
         
-        return str(value)
+        return NepaliDateWrapper(str(value))
     
     def from_db_value(self, value, expression, connection):
-        return self.to_python(value)
+        if value is None:
+            return value
+        return NepaliDateWrapper(value)
     
     def get_prep_value(self, value):
-        value = super().get_prep_value(value)
-        return self.to_python(value)
+        if value is None or value == '':
+            return None
+        return str(value)
     
     def formfield(self, **kwargs):
         """Return a form field instance for this model field."""

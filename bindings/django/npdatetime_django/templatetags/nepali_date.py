@@ -129,6 +129,55 @@ def to_nepali_number(value):
     return result
 
 
+@register.filter
+def fiscal_year(value):
+    """
+    Get the Nepali Fiscal Year.
+    """
+    if not value or not NPDATETIME_AVAILABLE:
+        return ''
+    
+    try:
+        if isinstance(value, str):
+            year, month, day = map(int, value.split('-')[:3])
+            date = NepaliDate(year, month, day)
+        elif isinstance(value, datetime.date):
+            date = NepaliDate.from_gregorian(value.year, value.month, value.day)
+        elif hasattr(value, 'year') and hasattr(value, 'month') and hasattr(value, 'day'):
+            # Potentially already a NepaliDate instance
+            date = value
+        else:
+            return ''
+            
+        return date.fiscal_year
+    except Exception:
+        return ''
+
+
+@register.filter
+def fiscal_quarter(value):
+    """
+    Get the Nepali Fiscal Quarter (1-4).
+    """
+    if not value or not NPDATETIME_AVAILABLE:
+        return ''
+    
+    try:
+        if isinstance(value, str):
+            year, month, day = map(int, value.split('-')[:3])
+            date = NepaliDate(year, month, day)
+        elif isinstance(value, datetime.date):
+            date = NepaliDate.from_gregorian(value.year, value.month, value.day)
+        elif hasattr(value, 'year') and hasattr(value, 'month') and hasattr(value, 'day'):
+            date = value
+        else:
+            return ''
+            
+        return date.fiscal_quarter
+    except Exception:
+        return ''
+
+
 @register.simple_tag
 def nepali_date_today(format_str='%Y-%m-%d'):
     """
