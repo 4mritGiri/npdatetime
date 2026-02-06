@@ -1,0 +1,29 @@
+{
+  "name": "4mritgiri/npdatetime-php",
+  "description": "PHP extension for Nepali (Bikram Sambat) date conversion and manipulation",
+  "type": "library",
+  "keywords": [
+    "nepali",
+    "bikram-sambat",
+    "calendar",
+    "date",
+    "conversion",
+    "php-extension"
+  ],
+  "homepage": "https://github.com/4mritGiri/npdatetime",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Amrit Giri",
+      "email": "amritgiri.dev@gmail.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/4mritGiri/npdatetime/issues",
+    "source": "https://github.com/4mritGiri/npdatetime"
+  },
+  "require": {
+    "php": ">=8.0"
+  },
+  "readme": "README.md"
+}

@@ -286,10 +286,54 @@ jobs:
               password: ${{ secrets.PYPI_TOKEN }}
               skip-existing: true
 
-   # Job 5: Create GitHub Release
+   # Job 5: Build PHP Extension
+   publish-php:
+      name: 📦 Build PHP Extension
+      needs: sync-version-to-main
+      runs-on: ${{ matrix.os }}
+      strategy:
+         matrix:
+            os: [ubuntu-latest, macos-latest]
+            php-version: ['8.0', '8.1', '8.2', '8.3']
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v4
+
+         - name: Set up PHP
+           uses: shivammathur/setup-php@v2
+           with:
+              php-version: ${{ matrix.php-version }}
+              extensions: none
+              tools: none
+
+         - name: Install Rust toolchain
+           uses: dtolnay/rust-toolchain@stable
+
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
+
+         - name: Build PHP extension
+           run: |
+              cd bindings/php
+              cargo build --release
+
+         - name: Upload PHP extension artifact
+           uses: actions/upload-artifact@v4
+           with:
+              name: php-extension-${{ matrix.os }}-php${{ matrix.php-version }}
+              path: |
+                 bindings/php/target/release/libnpdatetime_php.*
+                 bindings/php/target/release/npdatetime_php.*
+
+   # Job 6: Create GitHub Release
    create-release:
       name: 🎉 Create GitHub Release
-      needs: [publish-rust, publish-wasm, publish-python-wheels, publish-django]
+      needs: [publish-rust, publish-wasm, publish-python-wheels, publish-django, publish-php]
       runs-on: ubuntu-latest
       if: startsWith(github.ref, 'refs/tags/')
       steps:
@@ -309,10 +353,11 @@ jobs:
                  ## 🎉 Release v${{ steps.version.outputs.VERSION }}
 
                  ### Published Packages:
-                 - 🦀 Rust: [`npdatetime`](https://crates.io/crates/npdatetime) v${{ steps.version.outputs.VERSION }}
-                 - 🐍 Python: [`npdatetime`](https://pypi.org/project/npdatetime/) v${{ steps.version.outputs.VERSION }}
-                 - 🌐 JavaScript: [`@4mritgiri/npdatetime`](https://www.npmjs.com/package/@4mritgiri/npdatetime) v${{ steps.version.outputs.VERSION }}
-                 - 🎯 Django: [`django-npdatetime`](https://pypi.org/project/django-npdatetime/) v${{ steps.version.outputs.VERSION }}
+                  - 🦀 Rust: [`npdatetime`](https://crates.io/crates/npdatetime) v${{ steps.version.outputs.VERSION }}
+                  - 🐍 Python: [`npdatetime`](https://pypi.org/project/npdatetime/) v${{ steps.version.outputs.VERSION }}
+                  - 🌐 JavaScript: [`@4mritgiri/npdatetime`](https://www.npmjs.com/package/@4mritgiri/npdatetime) v${{ steps.version.outputs.VERSION }}
+                  - 🎯 Django: [`django-npdatetime`](https://pypi.org/project/django-npdatetime/) v${{ steps.version.outputs.VERSION }}
+                  - 🐘 PHP: Extension binaries available in release assets
 
                  See [CHANGELOG.md](CHANGELOG.md) for details.
               draft: false
