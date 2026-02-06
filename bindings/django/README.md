@@ -112,7 +112,7 @@ from npdatetime_django.models import NepaliDateField
 
 class Event(models.Model):
     event_name = models.CharField(max_length=200)
-    event_date_bs = NepaliDateField()
+    event_date_bs = NepaliDateField(mode='BS', language='np')  # Configurable!
 ```
 
 #### NepaliDateTimeField

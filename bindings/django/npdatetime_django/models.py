@@ -68,7 +68,9 @@ class NepaliDateField(models.CharField):
     
     description = "Nepali Date (Bikram Sambat) field"
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, mode='BS', language='en', **kwargs):
+        self.mode = mode
+        self.language = language
         # Force max_length to 10 for YYYY-MM-DD format
         kwargs['max_length'] = 10
         super().__init__(*args, **kwargs)
@@ -87,6 +89,10 @@ class NepaliDateField(models.CharField):
         name, path, args, kwargs = super().deconstruct()
         # Remove max_length as we set it automatically
         kwargs.pop('max_length', None)
+        if self.mode != 'BS':
+            kwargs['mode'] = self.mode
+        if self.language != 'en':
+            kwargs['language'] = self.language
         return name, path, args, kwargs
     
     def to_python(self, value):
@@ -131,9 +137,23 @@ class NepaliDateField(models.CharField):
         from .forms import NepaliDateField as NepaliDateFormField
         from .widgets import NepaliDatePickerWidget
         
+        # If the widget is being overridden by Django Admin (vTextField), 
+        # we want to restore ours.
+        if 'widget' in kwargs:
+            widget = kwargs['widget']
+            # Check if it's the admin's default CharField widget
+            if hasattr(widget, '__name__') and widget.__name__ == 'AdminCharFieldWidget':
+                kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language)
+            elif not isinstance(widget, NepaliDatePickerWidget) and not (isinstance(widget, type) and issubclass(widget, NepaliDatePickerWidget)):
+                 # If it's not a NepaliDatePickerWidget, we still want to use ours 
+                 # but maybe merge some attrs? For now, just force ours.
+                 kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language)
+        
         defaults = {
             'form_class': NepaliDateFormField,
-            'widget': NepaliDatePickerWidget,
+            'widget': NepaliDatePickerWidget(mode=self.mode, language=self.language),
+            'mode': self.mode,
+            'language': self.language,
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)
@@ -153,7 +173,9 @@ class NepaliDateTimeField(models.CharField):
     
     description = "Nepali DateTime (Bikram Sambat) field"
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, mode='BS', language='en', **kwargs):
+        self.mode = mode
+        self.language = language
         # Force max_length to 19 for YYYY-MM-DD HH:MM:SS format
         kwargs['max_length'] = 19
         super().__init__(*args, **kwargs)
@@ -168,6 +190,10 @@ class NepaliDateTimeField(models.CharField):
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         kwargs.pop('max_length', None)
+        if self.mode != 'BS':
+            kwargs['mode'] = self.mode
+        if self.language != 'en':
+            kwargs['language'] = self.language
         return name, path, args, kwargs
     
     def to_python(self, value):
@@ -199,9 +225,16 @@ class NepaliDateTimeField(models.CharField):
         from .forms import NepaliDateTimeField as NepaliDateTimeFormField
         from .widgets import NepaliDatePickerWidget
         
+        if 'widget' in kwargs:
+            widget = kwargs['widget']
+            if hasattr(widget, '__name__') and widget.__name__ == 'AdminCharFieldWidget':
+                kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language, include_time=True)
+        
         defaults = {
             'form_class': NepaliDateTimeFormField,
-            'widget': NepaliDatePickerWidget(include_time=True),
+            'widget': NepaliDatePickerWidget(mode=self.mode, language=self.language, include_time=True),
+            'mode': self.mode,
+            'language': self.language,
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)
