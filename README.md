@@ -8,7 +8,7 @@ High-performance Nepali (Bikram Sambat) datetime library for Rust and beyond.
 
 NPDateTime is a modern, fast, and accurate library for working with the Bikram Sambat (BS) calendar. It uniquely combines the speed of lookup tables with the precision of astronomical calculations.
 
-**This version achieves 100% feature parity with the original Python [npdatetime](https://github.com/4mritGiri/npdatetime) library, while adding an advanced high-precision astronomical engine.**
+**This version achieves 100% feature parity with the original Python [npdatetime.old](https://github.com/4mritGiri/npdatetime.old) library, while adding an advanced high-precision astronomical engine.**
 
 ## 🌟 Key Design Decisions
 
