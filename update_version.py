@@ -10,6 +10,11 @@ Usage:
 import sys
 import re
 from pathlib import Path
+import io
+
+# Force UTF-8 encoding for stdout to avoid issues on Windows CI
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def update_file(file_path: Path, pattern: str, replacement: str, description: str):
