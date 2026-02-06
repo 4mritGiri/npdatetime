@@ -3,7 +3,7 @@
 A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian calendars. Beautiful, accessible, and easy to use.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)]()
 
 ## ✨ Features
 
@@ -28,6 +28,17 @@ A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian 
  
 ```bash
 npm install @4mritgiri/npdatetime
+```
+
+#### Via CDN
+
+You can use the library directly via CDN without installing:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/date_picker.css">
+<script type="module">
+  import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/date_picker.js';
+</script>
 ```
  
 #### Manual Installation
@@ -346,7 +357,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] More themes
 - [ ] Mobile-optimized touch interactions
 - [x] NPM package
-- [ ] CDN hosting
+- [x] CDN hosting
 
 ---
 
