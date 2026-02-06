@@ -1,6 +1,6 @@
 [package]
 name = "npdatetime"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2024"
 authors = ["Amrit Giri <amritgiri.dev@gmail.com>"]
 description = "Astronomical calculator for Bikram Sambat calendar based on solar and lunar positions. High-performance Nepali (Bikram Sambat) datetime library with multi-language bindings"
