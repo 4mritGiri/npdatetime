@@ -114,8 +114,7 @@ jobs:
            run: cargo build --release
 
          - name: Publish to crates.io
-           run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
-           continue-on-error: true # Don't fail if already published
+           run: cargo publish --token ${{ secrets.CARGO_TOKEN }} --allow-dirty
 
    # Job 2: Build and Publish WASM to NPM
    publish-wasm:
@@ -161,10 +160,9 @@ jobs:
          - name: Publish to NPM
            run: |
               cd bindings/javascript/pkg
-              npm publish --access public
+              npm publish --access public || echo "Publish failed, might already exist or auth issue"
            env:
               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-           continue-on-error: true
 
          - name: Upload WASM package artifact
            uses: actions/upload-artifact@v4

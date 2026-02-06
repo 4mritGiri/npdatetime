@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.6] - 2026-02-06
+
+### Added
+- **Fiscal Year Support**: Integrated fiscal year and quarter logic into Django model fields and template tags.
+- **Dynamic Themes**: Added live theme synchronization for the date picker based on `html[data-theme]`.
+- **Digit Translation**: Restored localized numeral support for the date picker UI.
+- **Version Automation**: Improved CI/CD pipeline to automate version bumps and asset building across Rust, Python, WASM, and Django packages.
 
 ## [1.0.0] - 2026-01-18
 

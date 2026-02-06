@@ -66,6 +66,12 @@ def update_version(version: str):
         
         # JavaScript/WASM
         (
+            root / "bindings/javascript/Cargo.toml",
+            r'^version = ".*"',
+            f'version = "{version}"',
+            "JavaScript Cargo.toml"
+        ),
+        (
             root / "bindings/javascript/package.json",
             r'"version": ".*"',
             f'"version": "{version}"',
