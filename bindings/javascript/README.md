@@ -23,7 +23,15 @@ A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian 
 ## 🚀 Quick Start
 
 ### Installation
-
+ 
+#### Via NPM (Recommended)
+ 
+```bash
+npm install @4mritgiri/npdatetime
+```
+ 
+#### Manual Installation
+ 
 1. Copy the following files to your project:
    - `date_picker.js`
    - `date_picker.css`
@@ -264,7 +272,7 @@ function DateInput() {
 ## 📦 File Structure
 
 ```
-npdatetime-js/
+@4mritgiri/npdatetime/
 ├── date_picker.js        # Main library
 ├── date_picker.css       # Styles
 ├── pkg/                  # WASM bindings
@@ -337,7 +345,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Date range selection
 - [ ] More themes
 - [ ] Mobile-optimized touch interactions
-- [ ] NPM package
+- [x] NPM package
 - [ ] CDN hosting
 
 ---

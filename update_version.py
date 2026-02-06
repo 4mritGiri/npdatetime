@@ -69,7 +69,7 @@ def update_version(version: str):
             root / "bindings/javascript/Cargo.toml",
             r'^version = ".*"',
             f'version = "{version}"',
-            "JavaScript Cargo.toml"
+            "JavaScript/WASM Cargo.toml"
         ),
         (
             root / "bindings/javascript/package.json",

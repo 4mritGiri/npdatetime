@@ -108,7 +108,7 @@ git push && git push --tags
 open https://crates.io/crates/npdatetime
 open https://pypi.org/project/npdatetime
 open https://pypi.org/project/django-npdatetime
-open https://npmjs.com/package/npdatetime-wasm
+open https://npmjs.com/package/@4mritgiri/npdatetime
 ```
 
 ## Troubleshooting

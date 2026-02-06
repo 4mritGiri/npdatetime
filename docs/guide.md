@@ -106,7 +106,7 @@ println!("Tithi: {} ({})", tithi.name(), tithi.paksha);
 
 NPDateTime is designed to be used everywhere:
 - **Python**: `pip install npdatetime`
-- **JavaScript/WASM**: `npm install npdatetime-wasm`
+- **JavaScript/WASM**: `npm install @4mritgiri/npdatetime`
 - **Java/Stubs**: Available in `bindings/java`
 
 ## 📊 Performance Tips

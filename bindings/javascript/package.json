@@ -3,6 +3,9 @@
   "version": "0.1.9",
   "description": "Modern, production-ready Nepali Date Picker (Bikram Sambat) and Gregorian calendar library.",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "date_picker.js",
   "files": [
     "date_picker.js",
@@ -11,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target web --out-dir pkg ../../",
+    "build": "wasm-pack build --target web --out-dir pkg --scope 4mritgiri ../../",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

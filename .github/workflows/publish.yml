@@ -56,8 +56,9 @@ jobs:
          - name: Build WASM and assets
            run: |
               cd bindings/javascript
-              wasm-pack build --target web --release
-              cd ../django
+              wasm-pack build --target web --release --scope 4mritgiri
+              cd pkg && npm pkg set name=@4mritgiri/npdatetime
+              cd ../../bindings/django
               python build_assets.py
 
          - name: Commit and push changes
@@ -157,8 +158,9 @@ jobs:
          - name: Build WASM package
            run: |
               cd bindings/javascript
-              wasm-pack build --target web --release
-
+              wasm-pack build --target web --release --scope 4mritgiri
+              cd pkg && npm pkg set name=@4mritgiri/npdatetime
+ 
          - name: Publish to NPM
            run: |
               cd bindings/javascript/pkg
@@ -309,7 +311,7 @@ jobs:
                  ### Published Packages:
                  - 🦀 Rust: [`npdatetime`](https://crates.io/crates/npdatetime) v${{ steps.version.outputs.VERSION }}
                  - 🐍 Python: [`npdatetime`](https://pypi.org/project/npdatetime/) v${{ steps.version.outputs.VERSION }}
-                 - 🌐 JavaScript: [`npdatetime-wasm`](https://www.npmjs.com/package/npdatetime-wasm) v${{ steps.version.outputs.VERSION }}
+                 - 🌐 JavaScript: [`@4mritgiri/npdatetime`](https://www.npmjs.com/package/@4mritgiri/npdatetime) v${{ steps.version.outputs.VERSION }}
                  - 🎯 Django: [`django-npdatetime`](https://pypi.org/project/django-npdatetime/) v${{ steps.version.outputs.VERSION }}
 
                  See [CHANGELOG.md](CHANGELOG.md) for details.

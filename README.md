@@ -99,11 +99,11 @@ print(f"{year}-{month:02d}-{day:02d}")  # 2020-09-04
 
 ### JavaScript/WASM
 ```bash
-npm install npdatetime-wasm
+npm install @4mritgiri/npdatetime
 ```
 
 ```javascript
-import init, { NepaliDate } from 'npdatetime-wasm';
+import init, { NepaliDate } from '@4mritgiri/npdatetime';
 await init();
 
 const date = new NepaliDate(2077, 5, 19);
