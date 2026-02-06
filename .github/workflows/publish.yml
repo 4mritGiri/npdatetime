@@ -163,7 +163,7 @@ jobs:
  
          - name: Publish to NPM
            run: |
-              cd bindings/javascript/pkg
+              cd bindings/javascript
               npm publish --access public || echo "Publish failed, might already exist or auth issue"
            env:
               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

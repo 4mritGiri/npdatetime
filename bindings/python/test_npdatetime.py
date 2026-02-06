@@ -42,6 +42,17 @@ def test_comparison():
     assert date2 > date1
     assert date1 == NepaliDate(2077, 5, 19)
 
+def test_today_conversion():
+    from npdatetime import NepaliDate
+    from datetime import date
+    
+    today_ad = date.today()
+    nepali_date = NepaliDate.from_gregorian(today_ad.year, today_ad.month, today_ad.day)
+    
+    # Also verify matches .today()
+    assert nepali_date == NepaliDate.today()
+    print(f"Today: AD {today_ad} = BS {nepali_date}")
+
 if __name__ == "__main__":
     test_create_date()
     test_to_gregorian()
@@ -49,4 +60,6 @@ if __name__ == "__main__":
     test_format()
     test_add_days()
     test_comparison()
+    test_comparison()
+    test_today_conversion()
     print("All Python tests passed!")

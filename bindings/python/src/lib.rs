@@ -198,7 +198,7 @@ impl NepaliDate {
 
 /// NPDateTime - Fast Nepali (Bikram Sambat) datetime library
 #[pymodule]
-fn npdatetime_py(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn npdatetime(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NepaliDate>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
