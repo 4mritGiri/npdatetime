@@ -5,7 +5,7 @@ A Django package that provides Nepali (Bikram Sambat) date field and
 a modern, feature-rich date picker widget powered by npdatetime.
 """
 
-__version__ = '0.1.10'
+__version__ = '0.2.0'
 __author__ = 'Amrit Giri'
 __email__ = 'amritgiri.dev@gmail.com'
 

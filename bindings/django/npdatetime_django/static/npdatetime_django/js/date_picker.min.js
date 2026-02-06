@@ -1,4 +1,4 @@
-import init, { NepaliDate } from "./pkg/npdatetime_wasm.js";
+import init, { NepaliDate } from "./pkg/npdatetime.js";
 
 export class NepaliDatePicker {
   static initialized = false;
