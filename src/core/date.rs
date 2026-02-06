@@ -13,29 +13,12 @@ pub const NEPALI_MONTHS: [&str; 12] = [
 
 /// Month names in Nepali (Devanagari)
 pub const NEPALI_MONTHS_UNICODE: [&str; 12] = [
-    "बैशाख",
-    "जेष्ठ",
-    "आषाढ",
-    "श्रावण",
-    "भाद्र",
-    "आश्विन",
-    "कार्तिक",
-    "मंसिर",
-    "पौष",
-    "माघ",
-    "फाल्गुन",
-    "चैत्र",
+    "बैशाख", "जेष्ठ", "आषाढ", "श्रावण", "भाद्र", "आश्विन", "कार्तिक", "मंसिर", "पौष", "माघ", "फाल्गुन", "चैत्र",
 ];
 
 /// Weekday names in Nepali
 pub const NEPALI_WEEKDAYS: [&str; 7] = [
-    "Aaitabaar",
-    "Sombaar",
-    "Mangalbaar",
-    "Budhabaar",
-    "Bihibaar",
-    "Shukrabaar",
-    "Shanibaar",
+    "Aaitabaar", "Sombaar", "Mangalbaar", "Budhabaar", "Bihibaar", "Shukrabaar", "Shanibaar",
 ];
 
 #[cfg(feature = "serde")]
