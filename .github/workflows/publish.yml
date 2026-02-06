@@ -15,13 +15,62 @@ permissions:
    id-token: write # Required for OIDC publishing if used
 
 jobs:
+   # Job 0: Sync version and push back to main
+   sync-version-to-main:
+      name: 🔄 Sync Version to Main
+      runs-on: ubuntu-latest
+      if: startsWith(github.ref, 'refs/tags/v')
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v4
+           with:
+              ref: main
+              token: ${{ secrets.GITHUB_TOKEN }}
+
+         - name: Set up Python
+           uses: actions/setup-python@v5
+           with:
+              python-version: "3.11"
+
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
+
+         - name: Commit and push changes
+           run: |
+              git config --global user.name "github-actions[bot]"
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git add .
+              git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }} [skip ci]" || echo "No changes to commit"
+              git push origin main
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
    # Job 1: Publish Rust Crate to crates.io
    publish-rust:
       name: 📦 Publish Rust Crate
+      needs: sync-version-to-main
       runs-on: ubuntu-latest
       steps:
          - name: Checkout code
            uses: actions/checkout@v4
+
+         - name: Set up Python
+           uses: actions/setup-python@v5
+           with:
+              python-version: "3.11"
+
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
 
          - name: Install Rust toolchain
            uses: dtolnay/rust-toolchain@stable
@@ -51,10 +100,24 @@ jobs:
    # Job 2: Build and Publish WASM to NPM
    publish-wasm:
       name: 📦 Publish WASM/JavaScript to NPM
+      needs: sync-version-to-main
       runs-on: ubuntu-latest
       steps:
          - name: Checkout code
            uses: actions/checkout@v4
+
+         - name: Set up Python
+           uses: actions/setup-python@v5
+           with:
+              python-version: "3.11"
+
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
 
          - name: Install Rust toolchain
            uses: dtolnay/rust-toolchain@stable
@@ -90,6 +153,7 @@ jobs:
    # Job 3: Publish Python Package to PyPI
    publish-python:
       name: 📦 Publish Python Package
+      needs: sync-version-to-main
       runs-on: ${{ matrix.os }}
       strategy:
          matrix:
@@ -103,6 +167,14 @@ jobs:
            uses: actions/setup-python@v5
            with:
               python-version: ${{ matrix.python-version }}
+
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
 
          - name: Install Rust toolchain
            uses: dtolnay/rust-toolchain@stable
@@ -154,6 +226,14 @@ jobs:
            with:
               python-version: "3.11"
 
+         - name: Extract version from tag
+           id: version
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
+
+         - name: Update version in files
+           run: python update_version.py ${{ steps.version.outputs.VERSION }}
+
          - name: Install dependencies
            run: |
               python -m pip install --upgrade pip
@@ -194,7 +274,8 @@ jobs:
 
          - name: Extract version from tag
            id: version
-           run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+           run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+           shell: bash
 
          - name: Create Release
            uses: softprops/action-gh-release@v2

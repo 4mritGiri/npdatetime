@@ -16,7 +16,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Amrit Giri',
-    author_email='4mritgiri@gmail.com',
+    author_email='amritgiri.dev@gmail.com',
     url='https://github.com/4mritGiri/npdatetime-rust',
     packages=find_packages(),
     include_package_data=True,
