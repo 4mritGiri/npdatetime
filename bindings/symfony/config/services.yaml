@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Npdatetime\Bundle\Service\:
+        resource: '../src/Service/*'
+        public: true
+
+    Npdatetime\Bundle\Service\NepaliDateService:
+        public: true
