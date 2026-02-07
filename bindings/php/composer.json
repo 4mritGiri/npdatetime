@@ -1,5 +1,5 @@
 {
-  "name": "4mritgiri/npdatetime-php",
+  "name": "4mritgiri/npdatetime",
   "description": "PHP extension for Nepali (Bikram Sambat) date conversion and manipulation",
   "type": "library",
   "keywords": [

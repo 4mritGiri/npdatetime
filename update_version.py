@@ -97,6 +97,14 @@ def update_version(version: str):
             f"__version__ = '{version}'",
             "Django __init__.py"
         ),
+        
+        # PHP extension
+        (
+            root / "bindings/php/Cargo.toml",
+            r'^version = ".*"',
+            f'version = "{version}"',
+            "PHP Cargo.toml"
+        ),
     ]
     
     success_count = 0

@@ -317,6 +317,10 @@ jobs:
          - name: Update version in files
            run: python update_version.py ${{ steps.version.outputs.VERSION }}
 
+         - name: Set RUSTFLAGS for macOS
+           if: runner.os == 'macOS'
+           run: echo "RUSTFLAGS=-C link-arg=-undefined -C link-arg=dynamic_lookup" >> $GITHUB_ENV
+
          - name: Build PHP extension
            run: |
               cd bindings/php
