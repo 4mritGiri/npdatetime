@@ -1,6 +1,6 @@
 {
   "name": "@4mritgiri/npdatetime",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Modern, production-ready Nepali Date Picker (Bikram Sambat) and Gregorian calendar library.",
   "type": "module",
   "publishConfig": {
