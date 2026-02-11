@@ -37,7 +37,7 @@ Packagist will show you a webhook URL. To configure automatic updates:
 
 ## How It Works
 
-- **Automatic Updates**: When you push a new git tag (e.g., `v0.2.1`), GitHub notifies Packagist
+- **Automatic Updates**: When you push a new git tag (e.g., `v0.2.2`), GitHub notifies Packagist
 - **Version Detection**: Packagist reads your `composer.json` and git tags
 - **No Manual Publishing**: Unlike PyPI/npm, no GitHub Actions workflow needed!
 
@@ -47,8 +47,8 @@ Packagist will show you a webhook URL. To configure automatic updates:
 2. Commit changes
 3. Create and push a git tag:
    ```bash
-   git tag v0.2.1
-   git push origin v0.2.1
+   git tag v0.2.2
+   git push origin v0.2.2
    ```
 4. Packagist automatically detects the new version (within minutes)
 
@@ -71,5 +71,5 @@ composer require 4mritgiri/npdatetime-bundle
 
 - **Package Name**: Must match `name` in `composer.json` (`4mritgiri/npdatetime-bundle`)
 - **Type**: Set to `symfony-bundle` for proper Flex integration
-- **Minimum Stability**: Packagist respects semver tags (v1.0.0, v0.2.1, etc.)
+- **Minimum Stability**: Packagist respects semver tags (v1.0.0, v0.2.2, etc.)
 - **No Tokens Required**: Packagist pulls from public GitHub - no authentication needed
