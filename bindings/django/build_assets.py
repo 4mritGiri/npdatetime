@@ -26,19 +26,19 @@ def main():
     
     # Copy JavaScript files
     print("   Copying JavaScript files...")
-    js_file = js_source / "date_picker.js"
+    js_file = js_source / "picker.js"
     if js_file.exists():
-        shutil.copy2(js_file, django_static / "js" / "date_picker.min.js")
-        print(f"   ✓ {js_file.name} → date_picker.min.js")
+        shutil.copy2(js_file, django_static / "js" / "picker.min.js")
+        print(f"   ✓ {js_file.name} → picker.min.js")
     else:
         print(f"   ⚠ Warning: {js_file} not found")
     
     # Copy CSS files
     print("   Copying CSS files...")
-    css_file = js_source / "date_picker.css"
+    css_file = js_source / "picker.css"
     if css_file.exists():
-        shutil.copy2(css_file, django_static / "css" / "date_picker.css")
-        print(f"   ✓ {css_file.name} → date_picker.css")
+        shutil.copy2(css_file, django_static / "css" / "picker.css")
+        print(f"   ✓ {css_file.name} → picker.css")
     else:
         print(f"   ⚠ Warning: {css_file} not found")
     
@@ -56,8 +56,8 @@ def main():
     
     print("\n✅ Assets built successfully!")
     print("\n📝 Summary:")
-    print("   - date_picker.js → date_picker.min.js")
-    print("   - date_picker.css → date_picker.css")
+    print("   - picker.js → picker.min.js")
+    print("   - picker.css → picker.css")
     print("   - pkg/ → js/pkg/")
     print("\n💡 Tip: Run 'python build_assets.py' whenever you update the JavaScript/CSS files")
 

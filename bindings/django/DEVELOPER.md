@@ -10,8 +10,8 @@ The Django package lives in `bindings/django/` but depends on assets from `bindi
 npdatetime/
 ├── bindings/
 │   ├── javascript/              # Source of truth for UI
-│   │   ├── date_picker.js      # Main date picker
-│   │   ├── date_picker.css     # Styles
+│   │   ├── picker.js      # Main date picker
+│   │   ├── picker.css     # Styles
 │   │   └── pkg/                # WASM bindings
 │   │
 │   └── django/                 # Django package
@@ -19,10 +19,10 @@ npdatetime/
 │       ├── npdatetime_django/
 │       │   └── static/npdatetime_django/
 │       │       ├── js/
-│       │       │   ├── date_picker.min.js  # Copied from ../javascript/
+│       │       │   ├── picker.min.js  # Copied from ../javascript/
 │       │       │   └── pkg/                # Copied from ../javascript/
 │       │       └── css/
-│       │           └── date_picker.css     # Copied from ../javascript/
+│       │           └── picker.css     # Copied from ../javascript/
 ```
 
 ## Important: Single Source of Truth
@@ -34,8 +34,8 @@ These files are **copied** from `bindings/javascript/`. If you edit them directl
 ### Workflow When Updating JavaScript/CSS
 
 1. **Edit the source files** in `bindings/javascript/`:
-   - `date_picker.js`
-   - `date_picker.css`
+   - `picker.js`
+   - `picker.css`
 
 2. **Run the build script** to sync to Django:
    ```bash
@@ -53,8 +53,8 @@ These files are **copied** from `bindings/javascript/`. If you edit them directl
 
 4. **Commit both locations** if needed:
    ```bash
-   git add bindings/javascript/date_picker.js
-   git add bindings/django/npdatetime_django/static/npdatetime_django/js/date_picker.min.js
+   git add bindings/javascript/picker.js
+   git add bindings/django/npdatetime_django/static/npdatetime_django/js/picker.min.js
    git commit -m "Update date picker UI"
    ```
 
@@ -63,8 +63,8 @@ These files are **copied** from `bindings/javascript/`. If you edit them directl
 ### What It Does
 
 The `build_assets.py` script:
-- Copies `date_picker.js` → `static/npdatetime_django/js/date_picker.min.js`
-- Copies `date_picker.css` → `static/npdatetime_django/css/date_picker.css`
+- Copies `picker.js` → `static/npdatetime_django/js/picker.min.js`
+- Copies `picker.css` → `static/npdatetime_django/css/picker.css`
 - Copies `pkg/` directory → `static/npdatetime_django/js/pkg/`
 
 ### When to Run It
@@ -156,7 +156,7 @@ twine upload dist/*
 ### Update JavaScript Only
 
 ```bash
-# 1. Edit bindings/javascript/date_picker.js
+# 1. Edit bindings/javascript/picker.js
 # 2. Run build script
 cd bindings/django
 python3 build_assets.py
@@ -177,7 +177,7 @@ python3 build_assets.py
 ### Update CSS Styles
 
 ```bash
-# 1. Edit bindings/javascript/date_picker.css
+# 1. Edit bindings/javascript/picker.css
 # 2. Run build script
 cd bindings/django
 python3 build_assets.py

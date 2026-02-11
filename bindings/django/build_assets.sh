@@ -17,11 +17,11 @@ mkdir -p "$DJANGO_STATIC/css"
 
 # Copy JavaScript files
 echo "   Copying JavaScript files..."
-cp "$JS_SOURCE/date_picker.js" "$DJANGO_STATIC/js/date_picker.min.js"
+cp "$JS_SOURCE/picker.js" "$DJANGO_STATIC/js/picker.min.js"
 
 # Copy CSS files
 echo "   Copying CSS files..."
-cp "$JS_SOURCE/date_picker.css" "$DJANGO_STATIC/css/date_picker.css"
+cp "$JS_SOURCE/picker.css" "$DJANGO_STATIC/css/picker.css"
 
 # Copy WASM package
 echo "   Copying WASM bindings..."
@@ -35,8 +35,8 @@ fi
 echo "✅ Assets built successfully!"
 echo ""
 echo "📝 Summary:"
-echo "   - date_picker.js → date_picker.min.js"
-echo "   - date_picker.css → date_picker.css"
+echo "   - picker.js → picker.min.js"
+echo "   - picker.css → picker.css"
 echo "   - pkg/ → js/pkg/"
 echo ""
 echo "💡 Tip: Run './build_assets.sh' whenever you update the JavaScript/CSS files"

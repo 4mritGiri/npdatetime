@@ -35,14 +35,14 @@ class NepaliDatePickerWidget(Input):
     """
     
     input_type = 'text'
-    template_name = 'npdatetime_django/widgets/date_picker.html'
+    template_name = 'npdatetime_django/widgets/picker.html'
     
     class Media:
         css = {
-            'all': ('npdatetime_django/css/date_picker.css',)
+            'all': ('npdatetime_django/css/picker.css',)
         }
         js = (
-            'npdatetime_django/js/date_picker.min.js',
+            'npdatetime_django/js/picker.min.js',
         )
     
     def __init__(self, attrs=None, mode='BS', language='en', include_time=False,

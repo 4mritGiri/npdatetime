@@ -35,25 +35,25 @@ npm install @4mritgiri/npdatetime
 You can use the library directly via CDN without installing:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/date_picker.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.css">
 <script type="module">
-  import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/date_picker.js';
+  import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.js';
 </script>
 ```
  
 #### Manual Installation
  
 1. Copy the following files to your project:
-   - `date_picker.js`
-   - `date_picker.css`
+   - `picker.js`
+   - `picker.css`
    - `pkg/` directory (WASM files)
 
 2. Include in your HTML:
 
 ```html
-<link rel="stylesheet" href="date_picker.css">
+<link rel="stylesheet" href="picker.css">
 <script type="module">
-  import NepaliDatePicker from './date_picker.js';
+  import NepaliDatePicker from './picker.js';
 </script>
 ```
 
@@ -79,7 +79,7 @@ The library will automatically initialize all inputs on page load!
 #### Manual Initialization
 
 ```javascript
-import NepaliDatePicker from './date_picker.js';
+import NepaliDatePicker from './picker.js';
 
 // Create instance
 const picker = new NepaliDatePicker('#my-input', {
@@ -238,7 +238,7 @@ const picker = new NepaliDatePicker('#date-input', {
 
 ```jsx
 import { useEffect, useRef } from 'react';
-import NepaliDatePicker from './date_picker.js';
+import NepaliDatePicker from './picker.js';
 
 function DateInput() {
   const inputRef = useRef(null);
@@ -284,8 +284,8 @@ function DateInput() {
 
 ```
 @4mritgiri/npdatetime/
-├── date_picker.js        # Main library
-├── date_picker.css       # Styles
+├── picker.js        # Main library
+├── picker.css       # Styles
 ├── pkg/                  # WASM bindings
 │   ├── npdatetime.js
 │   ├── npdatetime_bg.wasm

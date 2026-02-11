@@ -1,5 +1,7 @@
 {% load static %}
 
+<link rel="stylesheet" href="{% static 'npdatetime_django/css/picker.css' %}">
+
 <input 
    type="{{ widget.type }}" 
    name="{{ widget.name }}"
@@ -10,7 +12,7 @@
 >
 
 <script type="module">
-  import { NepaliDatePicker } from '{% static "npdatetime_django/js/date_picker.min.js" %}';
+  import { NepaliDatePicker } from '{% static "npdatetime_django/js/picker.min.js" %}';
   
   document.addEventListener('DOMContentLoaded', function() {
     const input = document.querySelector('input[name="{{ widget.name }}"]');

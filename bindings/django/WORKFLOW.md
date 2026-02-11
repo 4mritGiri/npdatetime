@@ -3,10 +3,10 @@
 ## The Key Point
 
 **JavaScript/CSS files have ONE source location:**
-- ✅ Source: `bindings/javascript/date_picker.js` 
-- ✅ Source: `bindings/javascript/date_picker.css`
-- ❌ Copy: `bindings/django/npdatetime_django/static/.../date_picker.min.js`
-- ❌ Copy: `bindings/django/npdatetime_django/static/.../date_picker.css`
+- ✅ Source: `bindings/javascript/picker.js` 
+- ✅ Source: `bindings/javascript/picker.css`
+- ❌ Copy: `bindings/django/npdatetime_django/static/.../picker.min.js`
+- ❌ Copy: `bindings/django/npdatetime_django/static/.../picker.css`
 
 ## Your Workflow
 
@@ -14,8 +14,8 @@
 
 ```bash
 # 1. Edit the source files
-vim bindings/javascript/date_picker.js
-vim bindings/javascript/date_picker.css
+vim bindings/javascript/picker.js
+vim bindings/javascript/picker.css
 
 # 2. Sync to Django package
 cd bindings/django
@@ -25,7 +25,7 @@ python3 build_assets.py
 # Changes are automatically reflected
 
 # 4. Commit (if satisfied)
-git add bindings/javascript/date_picker.js
+git add bindings/javascript/picker.js
 git add bindings/django/npdatetime_django/static/...
 git commit -m "Update date picker"
 ```
@@ -34,8 +34,8 @@ git commit -m "Update date picker"
 
 ```python
 # Copies these files:
-../javascript/date_picker.js    → static/.../js/date_picker.min.js
-../javascript/date_picker.css   → static/.../css/date_picker.css
+../javascript/picker.js    → static/.../js/picker.min.js
+../javascript/picker.css   → static/.../css/picker.css
 ../javascript/pkg/*             → static/.../js/pkg/*
 ```
 
@@ -50,8 +50,8 @@ git commit -m "Update date picker"
 
 | Task | Command |
 |------|---------|
-| Update JavaScript | Edit `bindings/javascript/date_picker.js` |
-| Update CSS | Edit `bindings/javascript/date_picker.css` |
+| Update JavaScript | Edit `bindings/javascript/picker.js` |
+| Update CSS | Edit `bindings/javascript/picker.css` |
 | Sync to Django | `python3 build_assets.py` |
 | Install for dev | `pip install -e .` |
 | Build package | `python setup.py sdist bdist_wheel` |

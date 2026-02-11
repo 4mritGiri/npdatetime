@@ -34,8 +34,8 @@ python build_assets.py
 ```
 
 This copies:
-- `date_picker.js` → `static/npdatetime_django/js/date_picker.min.js`
-- `date_picker.css` → `static/npdatetime_django/css/date_picker.css`
+- `picker.js` → `static/npdatetime_django/js/picker.min.js`
+- `picker.css` → `static/npdatetime_django/css/picker.css`
 - `pkg/` → `static/npdatetime_django/js/pkg/`
 
 ## Installation

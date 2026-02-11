@@ -6,10 +6,10 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "date_picker.js",
+  "main": "picker.js",
   "files": [
-    "date_picker.js",
-    "date_picker.css",
+    "picker.js",
+    "picker.css",
     "pkg/",
     "README.md"
   ],
