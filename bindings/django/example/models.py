@@ -1,6 +1,6 @@
 """Example models using Nepali date fields"""
 from django.db import models
-from npdatetime_django.models import NepaliDateField, NepaliDateTimeField
+from npdt.models import NepaliDateField, NepaliDateTimeField
 
 
 class Person(models.Model):

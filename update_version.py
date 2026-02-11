@@ -92,7 +92,7 @@ def update_version(version: str):
             "Django pyproject.toml"
         ),
         (
-            root / "bindings/django/npdatetime_django/__init__.py",
+            root / "bindings/django/npdt/__init__.py",
             r"__version__ = '.*'",
             f"__version__ = '{version}'",
             "Django __init__.py"

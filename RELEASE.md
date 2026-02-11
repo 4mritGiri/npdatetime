@@ -57,7 +57,7 @@ cargo test --all-features
 cd bindings/python && maturin develop && pytest
 
 # Test Django
-cd bindings/django && pip install -e . && python -c "import npdatetime_django"
+cd bindings/django && pip install -e . && python -c "import npdt"
 ```
 
 ### Step 5: Commit, Tag, and Push
@@ -107,7 +107,7 @@ git push && git push --tags
 # Check published packages
 open https://crates.io/crates/npdatetime
 open https://pypi.org/project/npdatetime
-open https://pypi.org/project/django-npdatetime
+open https://pypi.org/project/django-npdt
 open https://npmjs.com/package/@4mritgiri/npdatetime
 ```
 

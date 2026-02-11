@@ -113,7 +113,7 @@ Before creating a release tag:
 - [ ] Update version in `bindings/javascript/package.json`
 - [ ] Update version in `bindings/django/setup.py`
 - [ ] Update version in `bindings/django/pyproject.toml`
-- [ ] Update version in `bindings/django/npdatetime_django/__init__.py`
+- [ ] Update version in `bindings/django/npdt/__init__.py`
 - [ ] Update `CHANGELOG.md`
 - [ ] Update `bindings/django/CHANGELOG.md`
 - [ ] Run `cd bindings/django && python3 build_assets.py`
@@ -129,7 +129,7 @@ Before creating a release tag:
 | Rust | crates.io | `npdatetime` | https://docs.rs/npdatetime |
 | Python | PyPI | `npdatetime` | https://pypi.org/project/npdatetime |
 | JavaScript/WASM | npm | `npdatetime` | https://npmjs.com/package/npdatetime |
-| Django | PyPI | `django-npdatetime` | https://pypi.org/project/django-npdatetime |
+| Django | PyPI | `django-npdt` | https://pypi.org/project/django-npdt |
 
 ## 🔍 Monitoring Workflows
 
@@ -141,7 +141,7 @@ https://github.com/4mritGiri/npdatetime-rust/actions
 ### Check Package Status
 - Crates.io: https://crates.io/crates/npdatetime
 - PyPI (Python): https://pypi.org/project/npdatetime
-- PyPI (Django): https://pypi.org/project/django-npdatetime
+- PyPI (Django): https://pypi.org/project/django-npdt
 - npm: https://npmjs.com/package/npdatetime
 
 ## 🐛 Troubleshooting

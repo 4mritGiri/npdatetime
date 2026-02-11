@@ -202,7 +202,7 @@ def nepali_date_today(format_str='%Y-%m-%d'):
         return ''
 
 
-@register.inclusion_tag('npdatetime_django/widgets/inline_picker.html')
+@register.inclusion_tag('npdt/widgets/inline_picker.html')
 def nepali_date_picker(field_name, value='', mode='BS', language='en', theme='auto', **kwargs):
     """
     Include a Nepali date picker inline in templates.

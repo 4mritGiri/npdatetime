@@ -1,6 +1,6 @@
 # Example Usage
 
-This directory contains example code demonstrating how to use `django-npdatetime` in your Django projects.
+This directory contains example code demonstrating how to use `django-npdt` in your Django projects.
 
 ## Files
 
@@ -16,7 +16,7 @@ This directory contains example code demonstrating how to use `django-npdatetime
 
 ```python
 from django.db import models
-from npdatetime_django.models import NepaliDateField
+from npdt.models import NepaliDateField
 
 class Person(models.Model):
     name = models.CharField(max_length=100)
@@ -27,7 +27,7 @@ class Person(models.Model):
 
 ```python
 from django import forms
-from npdatetime_django.widgets import NepaliDatePickerWidget
+from npdt.widgets import NepaliDatePickerWidget
 
 class PersonForm(forms.ModelForm):
     class Meta:
@@ -53,16 +53,16 @@ class PersonForm(forms.ModelForm):
 
 ## Running the Example
 
-1. Install django-npdatetime:
+1. Install django-npdt:
    ```bash
-   pip install django-npdatetime
+   pip install django-npdt
    ```
 
 2. Add to your INSTALLED_APPS:
    ```python
    INSTALLED_APPS = [
        ...
-       'npdatetime_django',
+       'npdt',
        ...
    ]
    ```

@@ -18,7 +18,7 @@ def main():
     # Define paths
     script_dir = Path(__file__).parent
     js_source = script_dir.parent / "javascript"
-    django_static = script_dir / "npdatetime_django" / "static" / "npdatetime_django"
+    django_static = script_dir / "npdt" / "static" / "npdt"
     
     # Create directories if they don't exist
     (django_static / "js").mkdir(parents=True, exist_ok=True)

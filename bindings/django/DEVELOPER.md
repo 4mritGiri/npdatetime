@@ -16,8 +16,8 @@ npdatetime/
 │   │
 │   └── django/                 # Django package
 │       ├── build_assets.py     # Asset sync script ⭐
-│       ├── npdatetime_django/
-│       │   └── static/npdatetime_django/
+│       ├── npdt/
+│       │   └── static/npdt/
 │       │       ├── js/
 │       │       │   ├── picker.min.js  # Copied from ../javascript/
 │       │       │   └── pkg/                # Copied from ../javascript/
@@ -27,7 +27,7 @@ npdatetime/
 
 ## Important: Single Source of Truth
 
-**DO NOT edit files in `npdatetime_django/static/` directly!**
+**DO NOT edit files in `npdt/static/` directly!**
 
 These files are **copied** from `bindings/javascript/`. If you edit them directly, your changes will be overwritten.
 
@@ -54,7 +54,7 @@ These files are **copied** from `bindings/javascript/`. If you edit them directl
 4. **Commit both locations** if needed:
    ```bash
    git add bindings/javascript/picker.js
-   git add bindings/django/npdatetime_django/static/npdatetime_django/js/picker.min.js
+   git add bindings/django/npdt/static/npdt/js/picker.min.js
    git commit -m "Update date picker UI"
    ```
 
@@ -63,9 +63,9 @@ These files are **copied** from `bindings/javascript/`. If you edit them directl
 ### What It Does
 
 The `build_assets.py` script:
-- Copies `picker.js` → `static/npdatetime_django/js/picker.min.js`
-- Copies `picker.css` → `static/npdatetime_django/css/picker.css`
-- Copies `pkg/` directory → `static/npdatetime_django/js/pkg/`
+- Copies `picker.js` → `static/npdt/js/picker.min.js`
+- Copies `picker.css` → `static/npdt/css/picker.css`
+- Copies `pkg/` directory → `static/npdt/js/pkg/`
 
 ### When to Run It
 
@@ -105,7 +105,7 @@ cd testproject
 # Add to settings.py
 INSTALLED_APPS = [
     ...
-    'npdatetime_django',
+    'npdt',
 ]
 
 # Create test app
@@ -123,7 +123,7 @@ Create test models, forms, and views using the package components.
 Update version in:
 - `setup.py`
 - `pyproject.toml`
-- `npdatetime_django/__init__.py`
+- `npdt/__init__.py`
 - `CHANGELOG.md`
 
 ### 2. Build Assets
@@ -204,18 +204,18 @@ Before publishing a new version:
 ## File Organization
 
 ### Python Files (Edit Freely)
-- `npdatetime_django/__init__.py`
-- `npdatetime_django/models.py`
-- `npdatetime_django/forms.py`
-- `npdatetime_django/widgets.py`
-- `npdatetime_django/utils.py`
-- `npdatetime_django/templatetags/nepali_date.py`
+- `npdt/__init__.py`
+- `npdt/models.py`
+- `npdt/forms.py`
+- `npdt/widgets.py`
+- `npdt/utils.py`
+- `npdt/templatetags/nepali_date.py`
 
 ### Template Files (Edit Freely)
-- `npdatetime_django/templates/`
+- `npdt/templates/`
 
 ### Static Files (DO NOT EDIT - Run build script)
-- `npdatetime_django/static/` ← Copied from `../javascript/`
+- `npdt/static/` ← Copied from `../javascript/`
 
 ### Configuration Files (Edit When Needed)
 - `setup.py` - Package metadata
@@ -227,7 +227,7 @@ Before publishing a new version:
 ### Static Files Not Loading
 
 1. Check that `build_assets.py` ran successfully
-2. Verify files exist in `static/npdatetime_django/`
+2. Verify files exist in `static/npdt/`
 3. Run `python manage.py collectstatic` in test project
 4. Check browser console for 404 errors
 

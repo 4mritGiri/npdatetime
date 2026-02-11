@@ -9,7 +9,7 @@ __version__ = '0.2.2'
 __author__ = 'Amrit Giri'
 __email__ = 'amritgiri.dev@gmail.com'
 
-default_app_config = 'npdatetime_django.apps.NpdatetimeDjangoConfig'
+default_app_config = 'npdt.apps.NpdatetimeDjangoConfig'
 
 from .models import NepaliDateField
 from .forms import NepaliDateField as NepaliDateFormField

@@ -1,3 +1,3 @@
 """
-Example Django project demonstrating django-npdatetime usage
+Example Django project demonstrating django-npdt usage
 """

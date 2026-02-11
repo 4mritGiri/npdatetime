@@ -34,14 +34,16 @@ python build_assets.py
 ```
 
 This copies:
-- `picker.js` → `static/npdatetime_django/js/picker.min.js`
-- `picker.css` → `static/npdatetime_django/css/picker.css`
-- `pkg/` → `static/npdatetime_django/js/pkg/`
+- `picker.js` → `static/npdt/js/picker.min.js`
+- `picker.css` → `static/npdt/css/picker.css`
+- `pkg/` → `static/npdt/js/pkg/`
 
 ## Installation
 
 ```bash
-pip install django-npdatetime
+pip install django-npdt
+# or with uv
+uv add django-npdt
 ```
 
 ## Quick Start
@@ -52,7 +54,7 @@ pip install django-npdatetime
 # settings.py
 INSTALLED_APPS = [
     ...
-    'npdatetime_django',
+    'npdt',
     ...
 ]
 ```
@@ -61,7 +63,7 @@ INSTALLED_APPS = [
 
 ```python
 from django.db import models
-from npdatetime_django import NepaliDateField
+from npdt import NepaliDateField
 
 class Person(models.Model):
     name = models.CharField(max_length=100)
@@ -75,7 +77,7 @@ class Person(models.Model):
 
 ```python
 from django import forms
-from npdatetime_django import NepaliDateField, NepaliDatePickerWidget
+from npdt import NepaliDateField, NepaliDatePickerWidget
 
 class PersonForm(forms.Form):
     name = forms.CharField(max_length=100)
@@ -108,7 +110,7 @@ class PersonForm(forms.Form):
 Stores Nepali dates in `YYYY-MM-DD` format.
 
 ```python
-from npdatetime_django.models import NepaliDateField
+from npdt.models import NepaliDateField
 
 class Event(models.Model):
     event_name = models.CharField(max_length=200)
@@ -120,7 +122,7 @@ class Event(models.Model):
 Stores Nepali dates with time in `YYYY-MM-DD HH:MM:SS` format.
 
 ```python
-from npdatetime_django.models import NepaliDateTimeField
+from npdt.models import NepaliDateTimeField
 
 class Meeting(models.Model):
     title = models.CharField(max_length=200)
@@ -132,7 +134,7 @@ class Meeting(models.Model):
 #### Basic Date Picker
 
 ```python
-from npdatetime_django.forms import NepaliDateField
+from npdt.forms import NepaliDateField
 
 class PersonForm(forms.Form):
     birth_date = NepaliDateField(
@@ -144,7 +146,7 @@ class PersonForm(forms.Form):
 #### Advanced Configuration
 
 ```python
-from npdatetime_django.widgets import NepaliDatePickerWidget
+from npdt.widgets import NepaliDatePickerWidget
 
 class EventForm(forms.Form):
     event_date = forms.CharField(
@@ -163,7 +165,7 @@ class EventForm(forms.Form):
 #### Date Range Picker
 
 ```python
-from npdatetime_django.forms import NepaliDateRangeField
+from npdt.forms import NepaliDateRangeField
 
 class ReportForm(forms.Form):
     report_period = NepaliDateRangeField(
@@ -269,7 +271,7 @@ class PersonAdmin(admin.ModelAdmin):
 
 ```python
 from django.db import models
-from npdatetime_django.models import NepaliDateField, NepaliDateTimeField
+from npdt.models import NepaliDateField, NepaliDateTimeField
 
 class Employee(models.Model):
     name = models.CharField(max_length=100)

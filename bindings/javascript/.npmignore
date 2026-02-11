@@ -1,0 +1,12 @@
+# NPM Ignore configuration
+# When this file exists, npm ignores .gitignore files
+
+# But we want to include these files in the package:
+# picker.js
+# picker.css
+# README.md
+# pkg/ (and all its contents)
+
+# Explicitly include the Critical WASM directory
+!pkg/
+!pkg/*

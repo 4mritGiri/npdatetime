@@ -33,8 +33,8 @@ cd ../..
 echo "   Updating Django package..."
 sed -i.bak "s/version='.*'/version='$VERSION'/" bindings/django/setup.py
 sed -i.bak "s/version = \".*\"/version = \"$VERSION\"/" bindings/django/pyproject.toml
-sed -i.bak "s/__version__ = '.*'/__version__ = '$VERSION'/" bindings/django/npdatetime_django/__init__.py
-rm bindings/django/setup.py.bak bindings/django/pyproject.toml.bak bindings/django/npdatetime_django/__init__.py.bak
+sed -i.bak "s/__version__ = '.*'/__version__ = '$VERSION'/" bindings/django/npdt/__init__.py
+rm bindings/django/setup.py.bak bindings/django/pyproject.toml.bak bindings/django/npdt/__init__.py.bak
 
 echo "✅ Version updated to $VERSION in all packages!"
 echo ""

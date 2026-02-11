@@ -35,14 +35,14 @@ class NepaliDatePickerWidget(Input):
     """
     
     input_type = 'text'
-    template_name = 'npdatetime_django/widgets/picker.html'
+    template_name = 'npdt/widgets/picker.html'
     
     class Media:
         css = {
-            'all': ('npdatetime_django/css/picker.css',)
+            'all': ('npdt/css/picker.css',)
         }
         js = (
-            'npdatetime_django/js/picker.min.js',
+            'npdt/js/picker.min.js',
         )
     
     def __init__(self, attrs=None, mode='BS', language='en', include_time=False,
@@ -143,7 +143,7 @@ class NepaliDateRangeWidget(forms.MultiWidget):
             )
     """
     
-    template_name = 'npdatetime_django/widgets/date_range.html'
+    template_name = 'npdt/widgets/date_range.html'
     
     def __init__(self, attrs=None, mode='BS', language='en', **kwargs):
         widgets = [

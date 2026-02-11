@@ -1,11 +1,11 @@
-"""Django app configuration for npdatetime_django"""
+"""Django app configuration for npdt"""
 from django.apps import AppConfig
 
 
 class NpdatetimeDjangoConfig(AppConfig):
-    """Configuration for the npdatetime_django app"""
+    """Configuration for the npdt app"""
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'npdatetime_django'
+    name = 'npdt'
     verbose_name = 'Nepali DateTime for Django'
     
     def ready(self):

@@ -6,6 +6,8 @@ Fast Nepali (Bikram Sambat) datetime library for Python, powered by Rust.
 
 ```bash
 pip install npdatetime
+# or with uv
+uv add npdatetime
 ```
 
 ## Quick Start

@@ -3,7 +3,9 @@
 ## Installation
 
 ```bash
-pip install django-npdatetime
+pip install django-npdt
+# or with uv
+uv add django-npdt
 ```
 
 ## Setup (3 steps)
@@ -14,7 +16,7 @@ pip install django-npdatetime
 # settings.py
 INSTALLED_APPS = [
     ...
-    'npdatetime_django',
+    'npdt',
     ...
 ]
 ```
@@ -24,7 +26,7 @@ INSTALLED_APPS = [
 ```python
 # models.py
 from django.db import models
-from npdatetime_django.models import NepaliDateField
+from npdt.models import NepaliDateField
 
 class Person(models.Model):
     name = models.CharField(max_length=100)
@@ -44,7 +46,7 @@ python manage.py migrate
 
 ```python
 from django import forms
-from npdatetime_django.widgets import NepaliDatePickerWidget
+from npdt.widgets import NepaliDatePickerWidget
 
 class PersonForm(forms.ModelForm):
     class Meta:

@@ -9,7 +9,7 @@ echo "📦 Building Django package assets..."
 
 # Define paths
 JS_SOURCE="../javascript"
-DJANGO_STATIC="npdatetime_django/static/npdatetime_django"
+DJANGO_STATIC="npdt/static/npdt"
 
 # Create directories if they don't exist
 mkdir -p "$DJANGO_STATIC/js"

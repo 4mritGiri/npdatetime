@@ -139,7 +139,7 @@ jobs:
          - name: Run Django checks
            run: |
               cd bindings/django
-              python -c "import npdatetime_django; print('✓ Package imported successfully')"
-              python -c "from npdatetime_django import NepaliDateField; print('✓ Model fields imported')"
-              python -c "from npdatetime_django.widgets import NepaliDatePickerWidget; print('✓ Widgets imported')"
-              python -c "from npdatetime_django.templatetags import nepali_date; print('✓ Template tags imported')"
+              python -c "import npdt; print('✓ Package imported successfully')"
+              python -c "from npdt import NepaliDateField; print('✓ Model fields imported')"
+              python -c "from npdt.widgets import NepaliDatePickerWidget; print('✓ Widgets imported')"
+              python -c "from npdt.templatetags import nepali_date; print('✓ Template tags imported')"

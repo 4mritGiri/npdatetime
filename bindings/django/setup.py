@@ -10,7 +10,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='django-npdatetime',
+    name='django-npdt',
     version='0.2.2',
     description='Nepali Date Field and Date Picker Widget for Django',
     long_description=long_description,

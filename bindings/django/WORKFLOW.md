@@ -5,8 +5,8 @@
 **JavaScript/CSS files have ONE source location:**
 - ✅ Source: `bindings/javascript/picker.js` 
 - ✅ Source: `bindings/javascript/picker.css`
-- ❌ Copy: `bindings/django/npdatetime_django/static/.../picker.min.js`
-- ❌ Copy: `bindings/django/npdatetime_django/static/.../picker.css`
+- ❌ Copy: `bindings/django/npdt/static/.../picker.min.js`
+- ❌ Copy: `bindings/django/npdt/static/.../picker.css`
 
 ## Your Workflow
 
@@ -26,7 +26,7 @@ python3 build_assets.py
 
 # 4. Commit (if satisfied)
 git add bindings/javascript/picker.js
-git add bindings/django/npdatetime_django/static/...
+git add bindings/django/npdt/static/...
 git commit -m "Update date picker"
 ```
 

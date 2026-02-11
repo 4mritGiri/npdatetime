@@ -1,7 +1,7 @@
 """Example forms using Nepali date picker widget"""
 from django import forms
-from npdatetime_django.forms import NepaliDateField, NepaliDateRangeField
-from npdatetime_django.widgets import NepaliDatePickerWidget
+from npdt.forms import NepaliDateField, NepaliDateRangeField
+from npdt.widgets import NepaliDatePickerWidget
 from .models import Person, Event
 
 
