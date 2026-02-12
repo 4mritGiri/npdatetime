@@ -14,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target web --out-name npdatetime_wasm --out-dir pkg --scope 4mritgiri ../../",
+    "build": "wasm-pack build --target web --out-name npdatetime_wasm --out-dir pkg --scope 4mritgiri ../../ && rm pkg/.gitignore",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

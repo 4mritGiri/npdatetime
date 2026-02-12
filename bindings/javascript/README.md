@@ -16,6 +16,9 @@ A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian 
 - ♿ **Accessible** - Full keyboard navigation & ARIA support
 - 📱 **Responsive** - Modal "bottom sheet" layout for mobile devices
 - 📍 **Smart Positioning** - Follows input on scroll and window resize
+- 📍 **Smart Input** - Auto-formatting `YYYY-MM-DD` masking and validation
+- 🔢 **Keyboard Navigation** - Increment/decrement date segments with Arrow keys
+- 🔒 **Strict Validation** - Prevents invalid characters and format errors
 - 🟥 **Holiday Highlighting** - Saturdays (BS) and Sundays (AD) in red
 - 🌙 **Dark Mode** - Automatic system theme integration
 - 🚀 **Zero Dependencies** - Pure JavaScript and high-performance WASM
@@ -36,9 +39,15 @@ npm install @4mritgiri/npdatetime
 You can use the library directly via CDN without installing:
 
 ```html
+<!-- CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.css">
+
+<!-- JS Module -->
 <script type="module">
   import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.js';
+  
+  // Auto-initialize inputs
+  NepaliDatePicker.init();
 </script>
 ```
  
@@ -237,9 +246,12 @@ const picker = new NepaliDatePicker('#date-input', {
 
 ### React Integration
 
+**Note:** The picker automatically handles input masking and validation. Use the `onChange` callback to get the selected `NepaliDate` object.
+
 ```jsx
 import { useEffect, useRef } from 'react';
-import NepaliDatePicker from './picker.js';
+import NepaliDatePicker from '@4mritgiri/npdatetime'; // or './picker.js'
+import '@4mritgiri/npdatetime/picker.css'; // or './picker.css'
 
 function DateInput() {
   const inputRef = useRef(null);
@@ -260,9 +272,33 @@ function DateInput() {
     };
   }, []);
 
-  return <input ref={inputRef} type="text" />;
+  return <input ref={inputRef} type="text" placeholder="YYYY-MM-DD" />;
 }
 ```
+
+### Vanilla JS (No Build Tools)
+
+If you are not using a bundler (like Webpack or Vite), you can use valid ES Modules directly in the browser:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./picker.css">
+</head>
+<body>
+    <input type="text" id="my-date">
+
+    <script type="module">
+        import NepaliDatePicker from './picker.js';
+
+        const picker = new NepaliDatePicker('#my-date');
+    </script>
+</body>
+</html>
+```
+*Ensure `picker.js`, `picker.css`, and the `pkg/` folder are in the same directory.*
 
 ## ⌨️ Keyboard Navigation
 

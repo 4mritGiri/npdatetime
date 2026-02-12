@@ -64,3 +64,4 @@ coverage/
 .env.*
 !.env.example
 *.secrets
+local_test/

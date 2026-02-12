@@ -24,7 +24,7 @@ export class NepaliDatePicker {
         options.language ||
         "en"
       ).toLowerCase(),
-      format: options.format || "%Y-%m-%d",
+      format: element.getAttribute("format") || options.format || "%Y-%m-%d",
       minDate: options.minDate || null,
       maxDate: options.maxDate || null,
       disabledDates: options.disabledDates || [],
@@ -63,14 +63,11 @@ export class NepaliDatePicker {
     this.init();
     NepaliDatePicker.instances.set(element, this);
 
-    // Apply theme
-    const theme =
-      this.options.theme === "auto"
-        ? document.documentElement.dataset.theme || "auto"
-        : this.options.theme;
-    if (this.picker) {
-      this.picker.dataset.theme = theme;
-    }
+    // Initial Theme Sync
+    this.syncTheme();
+    // Watch for theme changes on input?
+    // For now just allow dynamic updates if setDetailsFromToday or open is called?
+    // Let's add simple sync in open() too.
   }
 
   async init() {
@@ -94,14 +91,49 @@ export class NepaliDatePicker {
     this.input.setAttribute("data-npd-id", this.id);
     this.input.classList.add("npd-input");
 
-    if (!this.input.placeholder) {
-      if (this.options.mode === "BS") {
-        this.input.placeholder =
-          this.options.language === "np" ? "मिति (YYYY-MM-DD)" : "YYYY-MM-DD";
-      } else {
-        this.input.placeholder = "Select Date (YYYY-MM-DD)";
-      }
+    // Wrap input and add icon if not already wrapped
+    if (!this.input.parentNode.classList.contains("npd-input-wrapper")) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "npd-input-wrapper";
+      this.input.parentNode.insertBefore(wrapper, this.input);
+      wrapper.appendChild(this.input);
+
+      const iconBtn = document.createElement("button");
+      iconBtn.type = "button";
+      iconBtn.className = "npd-icon-btn";
+      iconBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      `;
+      wrapper.appendChild(iconBtn);
+      this.iconBtn = iconBtn;
+    } else {
+      // existing wrapper? grab the btn
+      this.iconBtn = this.input.parentNode.querySelector(".npd-icon-btn");
     }
+
+    if (!this.input.placeholder) {
+      this.input.placeholder =
+        this.humanizeFormat(this.options.format) || "YYYY-MM-DD";
+    }
+
+    // Set max length
+    this.input.maxLength = 10;
+  }
+
+  humanizeFormat(fmt) {
+    if (!fmt) return "";
+    return fmt
+      .replace(/%Y/g, "YYYY")
+      .replace(/%y/g, "YY")
+      .replace(/%m/g, "MM")
+      .replace(/%d/g, "DD")
+      .replace(/%b/g, "Month")
+      .replace(/%B/g, "Month");
   }
 
   createPicker() {
@@ -211,11 +243,22 @@ export class NepaliDatePicker {
   }
 
   attachEvents() {
-    this.input.addEventListener("focus", () => this.open());
-    this.input.addEventListener("click", () => this.open());
+    // Open only on icon click
+    if (this.iconBtn) {
+      this.iconBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent bubbling causing immediate close
+        this.toggle();
+      });
+    }
+
+    // Input interactions
     this.input.addEventListener("keydown", (e) => this.handleInputKeydown(e));
     this.input.addEventListener("input", (e) => this.handleInputChange(e));
     this.input.addEventListener("blur", () => this.handleInputBlur());
+
+    // Prevent default click opening on input
+    // But we might want to track cursor position on click for "segment selection" simulation
+    this.input.addEventListener("click", (e) => this.handleInputClick(e));
 
     this.picker
       .querySelector(".npd-title")
@@ -287,12 +330,213 @@ export class NepaliDatePicker {
     );
   }
 
+  toggle() {
+    if (this.isOpen) this.close();
+    else this.open();
+  }
+
+  handleInputClick(e) {
+    const val = this.input.value;
+    if (!val) return;
+
+    const cursor = this.input.selectionStart;
+    const format = this.options.format.toLowerCase();
+
+    // Determine separators
+    // Standard: YYYY-MM-DD
+    // Format-aware logic could be complex, let's assume standard ISO or simple variations
+    // If matches YYYY-MM-DD
+    let segmentStart = 0;
+    let segmentEnd = val.length;
+
+    // Simple heuristic for YYYY-MM-DD or DD-MM-YYYY
+    // We look for separators around the cursor
+    const separators = ["-", "/", "."];
+
+    // Find range of numbers around cursor
+    // This is a simplified "expand selection"
+    let start = cursor;
+    let end = cursor;
+
+    while (start > 0 && !separators.includes(val[start - 1])) start--;
+    while (end < val.length && !separators.includes(val[end])) end++;
+
+    if (start !== end) {
+      this.input.setSelectionRange(start, end);
+    }
+  }
+
   handleInputKeydown(e) {
     if (e.key === "Escape") {
       this.close();
-    } else if (e.key === "Enter") {
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault(); // Don't submit form if any
+      this.open(); // Or allow manual parse?
+      return;
+    }
+
+    // Allow navigation and modification keys
+    const allowedKeys = [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+      "-",
+      "/",
+      ".", // Allow all common separators
+    ];
+    if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+        e.preventDefault();
+        this.manipulateDate(e.key);
+      }
+      return;
+    }
+
+    // Block non-numeric
+    if (!/^[0-9]$/.test(e.key)) {
       e.preventDefault();
-      this.open();
+      return;
+    }
+
+    // Optional: Max length check or Format enforcement could go here
+    // But letting them type numbers and dashes is reasonably safe with validation on blur/change
+  }
+
+  manipulateDate(key) {
+    // 1. Identify current segment
+    const cursor = this.input.selectionStart;
+    const val = this.input.value;
+
+    // Simple logic assuming YYYY-MM-DD
+    // Year: 0-4, Month: 5-7, Day: 8-10
+    let segment = ""; // 'year', 'month', 'day'
+    if (cursor <= 4) segment = "year";
+    else if (cursor >= 5 && cursor <= 7) segment = "month";
+    else if (cursor >= 8) segment = "day";
+
+    // 2. Handle Left/Right (Jump segments)
+    if (key === "ArrowLeft") {
+      if (segment === "day")
+        this.selectSegment(5, 7); // month
+      else if (segment === "month")
+        this.selectSegment(0, 4); // year
+      else if (segment === "year") this.selectSegment(8, 10); // Loop to day
+    } else if (key === "ArrowRight") {
+      if (segment === "year")
+        this.selectSegment(5, 7); // month
+      else if (segment === "month")
+        this.selectSegment(8, 10); // day
+      else if (segment === "day") this.selectSegment(0, 4); // Loop to year
+    }
+
+    // 3. Handle Up/Down (Increment/Decrement)
+    if (key === "ArrowUp" || key === "ArrowDown") {
+      this.adjustSegment(segment, key === "ArrowUp" ? 1 : -1);
+    }
+  }
+
+  selectSegment(start, end) {
+    this.input.setSelectionRange(start, end);
+  }
+
+  adjustSegment(segment, amount) {
+    if (!this.selectedDate) {
+      // If empty, initialize with Today
+      const today = NepaliDate.today();
+      if (this.options.mode === "BS") {
+        this.selectedDate = today;
+      } else {
+        const [y, m, d] = today.toGregorian();
+        this.selectedDate = NepaliDate.fromGregorian(y, m, d);
+      }
+      this.viewDate = {
+        year: this.selectedDate.year,
+        month: this.selectedDate.month,
+      };
+      this.updateInput();
+
+      // Loop back to handle the adjustment immediately? Or just stop here?
+      // User pressed Up/Down on empty. They might expect it to start at Today, OR Today + 1.
+      // Let's just start at Today.
+
+      requestAnimationFrame(() => {
+        if (segment === "year") this.selectSegment(0, 4);
+        else if (segment === "month") this.selectSegment(5, 7);
+        else if (segment === "day") this.selectSegment(8, 10);
+      });
+      return;
+    }
+
+    // We operate on selectedDate then update string
+    // Note: selectedDate is a NepaliDate class or JS Date
+
+    // Clone date first (conceptually)
+    let newYear = this.selectedDate.year;
+    let newMonth = this.selectedDate.month;
+    let newDay = this.selectedDate.day;
+
+    if (segment === "year") newYear += amount;
+    if (segment === "month") {
+      newMonth += amount;
+      if (newMonth > 12) {
+        newMonth = 1;
+        newYear++;
+      }
+      if (newMonth < 1) {
+        newMonth = 12;
+        newYear--;
+      }
+    }
+    if (segment === "day") {
+      newDay += amount;
+      // Validate days in month...
+      // For simplicity now, let's just create new Object and let it overflow IF library supports
+      // Library might panic on invalid day.
+      // Safer: clamp or use library addDays?
+      // Assuming library constructor handles valid dates only?
+      // Let's rely on constructor/helpers.
+    }
+
+    try {
+      // Create new date instance
+      let newDate;
+      if (this.options.mode === "BS") {
+        // Basic day clamp for BS
+        const maxDays = this.getDaysInMonth(newYear, newMonth);
+        if (newDay > maxDays) newDay = 1; // Loop or clamp? User requests "right move on dd again right move on year"
+        if (newDay < 1) newDay = maxDays;
+
+        newDate = new NepaliDate(newYear, newMonth, newDay);
+      } else {
+        // JS Date automatically handles overflow
+        const d = new Date(newYear, newMonth - 1, newDay);
+        newDate = NepaliDate.fromGregorian(
+          d.getFullYear(),
+          d.getMonth() + 1,
+          d.getDate(),
+        );
+      }
+
+      this.selectedDate = newDate;
+      this.viewDate = { year: newDate.year, month: newDate.month };
+      this.updateInput();
+
+      // Keep selection on invalidation
+      requestAnimationFrame(() => {
+        if (segment === "year") this.selectSegment(0, 4);
+        else if (segment === "month") this.selectSegment(5, 7);
+        else if (segment === "day") this.selectSegment(8, 10);
+      });
+    } catch (e) {
+      console.error("Adjustment failed", e);
     }
   }
 
@@ -300,7 +544,37 @@ export class NepaliDatePicker {
     // Prevent infinite loop if the event was triggered by our own updateInput
     if (e.isTrusted === false && e.detail?.origin === "datepicker") return;
 
-    const value = e.target.value.trim();
+    // Auto-Formatting Logic (Masking)
+    if (
+      e.inputType !== "deleteContentBackward" &&
+      e.inputType !== "deleteContentForward"
+    ) {
+      let val = this.input.value;
+      const format = this.options.format || "YYYY-MM-DD";
+      // Simple heuristic for YYYY-MM-DD
+      // We can make this strictly follow the format string if needed but let's start with standard
+      // If length matches separator positions
+
+      // Check if just typed a number where a separator should be
+      // For YYYY-MM-DD: Separators at index 4 and 7 (0-indexed: 0123-56-89)
+      // If len is 4, we don't add yet? Usually add after 4th char is typed?
+      // No, usually when user types 5th char.
+      // If current val is '2081' and user types '1' -> '20811' -> '2081-1'
+
+      if (val.length === 5 && /^\d+$/.test(val)) {
+        this.input.value = val.slice(0, 4) + "-" + val.slice(4);
+      } else if (val.length === 8 && /^\d{4}-\d{3}$/.test(val)) {
+        // 2081-011 -> 2081-01-1
+        this.input.value = val.slice(0, 7) + "-" + val.slice(7);
+      }
+
+      // Also ensure max length?
+      if (this.input.value.length > 10) {
+        this.input.value = this.input.value.slice(0, 10);
+      }
+    }
+
+    const value = this.input.value.trim();
     if (!value) {
       this.selectedDate = null;
       this.render();
@@ -412,8 +686,26 @@ export class NepaliDatePicker {
     }
   }
 
+  syncTheme() {
+    // Priority: 1. Input data-theme, 2. Options theme, 3. Auto fallback
+    let theme = this.input.dataset.theme || this.options.theme;
+
+    // If effective theme is 'auto', try to resolve from document root
+    if (theme === "auto") {
+      theme = document.documentElement.dataset.theme || "auto";
+    }
+
+    if (this.picker) this.picker.dataset.theme = theme;
+    // ensure input also has it set if it was missing/derived
+    if (this.input && !this.input.dataset.theme) {
+      this.input.dataset.theme = theme;
+    }
+  }
+
   open() {
     if (this.isOpen) return;
+
+    this.syncTheme(); // Ensure theme is synced before opening
 
     this.isOpen = true;
     this.picker.classList.add("active");
