@@ -4,6 +4,7 @@ A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-0.2.0-green.svg)]()
+[![](https://data.jsdelivr.com/v1/package/npm/@4mritgiri/npdatetime/badge)](https://www.jsdelivr.com/package/npm/@4mritgiri/npdatetime)
 
 ## ✨ Features
 
