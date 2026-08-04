@@ -4,6 +4,13 @@ export class NepaliDatePicker {
   static initialized = false;
   static instances = new Map();
   static daysCache = new Map();
+  static weekdayCache = new Map();
+
+  static _free(obj) {
+    if (obj && typeof obj.free === "function") {
+      try { obj.free(); } catch (e) {}
+    }
+  }
 
   constructor(element, options = {}) {
     if (typeof element === "string") {
@@ -28,6 +35,11 @@ export class NepaliDatePicker {
       minDate: options.minDate || null,
       maxDate: options.maxDate || null,
       disabledDates: options.disabledDates || [],
+      disabledDays: options.disabledDays || [],
+      disablePastDates: options.disablePastDates || false,
+      disableWeekends: options.disableWeekends || false,
+      holidayNames: options.holidayNames || {},
+      onDateDisabled: options.onDateDisabled || "prevent",
       theme: element.dataset.theme || options.theme || "auto",
       position: options.position || "auto",
       closeOnSelect: options.closeOnSelect !== false,
@@ -38,6 +50,25 @@ export class NepaliDatePicker {
       onClose: options.onClose || null,
       ...options,
     };
+
+    // Normalize disabledDates to a Set for O(1) lookup
+    this._disabledDatesSet = new Set(this.options.disabledDates);
+
+    // Normalize disabledDays — expand "1-5" range notation to [1,2,3,4,5]
+    this._disabledDaysSet = new Set();
+    if (this.options.disabledDays) {
+      for (const item of this.options.disabledDays) {
+        if (typeof item === "string" && item.includes("-")) {
+          const [start, end] = item.split("-").map(Number);
+          if (!isNaN(start) && !isNaN(end)) {
+            for (let i = start; i <= end; i++) this._disabledDaysSet.add(i);
+          }
+        } else {
+          const n = Number(item);
+          if (!isNaN(n)) this._disabledDaysSet.add(n);
+        }
+      }
+    }
 
     this.selectedDate = null;
     this.rangeStart = null;
@@ -59,6 +90,8 @@ export class NepaliDatePicker {
     this.isOpen = false;
     this.switchRequest = null;
     this.renderRequest = null;
+    this._todayBs = null; // Cached BS date for today: {year, month, day}
+    this._todayStr = null; // Cached today string: "YYYY-MM-DD"
 
     this.init();
     NepaliDatePicker.instances.set(element, this);
@@ -150,6 +183,14 @@ export class NepaliDatePicker {
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
+        <div class="npd-mode-toggle">
+          <button type="button" class="npd-mode-btn ${this.options.mode === "BS" ? "active" : ""}" data-mode="BS">
+            <span>BS</span>
+          </button>
+          <button type="button" class="npd-mode-btn ${this.options.mode === "AD" ? "active" : ""}" data-mode="AD">
+            <span>AD</span>
+          </button>
+        </div>
         <div class="npd-nav">
           <button type="button" class="npd-nav-btn npd-prev" aria-label="Previous">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -163,22 +204,14 @@ export class NepaliDatePicker {
           </button>
         </div>
       </div>
-      
+
       <div class="npd-body">
         <div class="npd-view npd-view-days"></div>
         <div class="npd-view npd-view-months"></div>
         <div class="npd-view npd-view-years"></div>
       </div>
-      
+
       <div class="npd-footer">
-        <div class="npd-mode-toggle">
-          <button type="button" class="npd-mode-btn ${this.options.mode === "BS" ? "active" : ""}" data-mode="BS">
-            <span>BS</span>
-          </button>
-          <button type="button" class="npd-mode-btn ${this.options.mode === "AD" ? "active" : ""}" data-mode="AD">
-            <span>AD</span>
-          </button>
-        </div>
         <div class="npd-actions">
           ${this.options.showClearButton ? '<button type="button" class="npd-btn npd-clear">Clear</button>' : ""}
           <button type="button" class="npd-btn npd-yesterday">Yesterday</button>
@@ -455,6 +488,7 @@ export class NepaliDatePicker {
         this.selectedDate = today;
       } else {
         const [y, m, d] = today.toGregorian();
+        NepaliDatePicker._free(today);
         this.selectedDate = NepaliDate.fromGregorian(y, m, d);
       }
       this.viewDate = {
@@ -525,6 +559,7 @@ export class NepaliDatePicker {
         );
       }
 
+      NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
       this.viewDate = { year: newDate.year, month: newDate.month };
       this.updateInput();
@@ -616,6 +651,7 @@ export class NepaliDatePicker {
         newDate = NepaliDate.fromGregorian(year, month, day);
       }
 
+      NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
       this.viewDate = {
         year: this.selectedDate.year,
@@ -658,6 +694,7 @@ export class NepaliDatePicker {
         };
       }
 
+      NepaliDatePicker._free(this.selectedDate);
       if (this.options.mode === "BS") {
         this.selectedDate = new NepaliDate(year, month, day);
       } else {
@@ -681,6 +718,7 @@ export class NepaliDatePicker {
         const [y, m] = today.toGregorian();
         this.viewDate = { year: y, month: m };
       }
+      NepaliDatePicker._free(today);
     } catch (e) {
       console.error("Failed to set default today date:", e);
     }
@@ -690,9 +728,19 @@ export class NepaliDatePicker {
     // Priority: 1. Input data-theme, 2. Options theme, 3. Auto fallback
     let theme = this.input.dataset.theme || this.options.theme;
 
-    // If effective theme is 'auto', try to resolve from document root
+    // If admin theme, detect if we're inside Django admin
+    if (theme === "admin") {
+      const inAdmin = document.querySelector('#changelist-filter, .admin, #content-main, fieldset.module') !== null
+                   || document.body.classList.contains('admin')
+                   || window.location.pathname.startsWith('/admin/');
+      if (!inAdmin) {
+        theme = "auto"; // Fallback if not in admin
+      }
+    }
+
+    // If effective theme is 'auto', default to light
     if (theme === "auto") {
-      theme = document.documentElement.dataset.theme || "auto";
+      theme = document.documentElement.dataset.theme || "light";
     }
 
     if (this.picker) this.picker.dataset.theme = theme;
@@ -705,6 +753,8 @@ export class NepaliDatePicker {
   open() {
     if (this.isOpen) return;
 
+    this._todayBs = null; // Refresh cached today date
+    this._todayStr = null; // Refresh cached today string
     this.syncTheme(); // Ensure theme is synced before opening
 
     this.isOpen = true;
@@ -799,6 +849,7 @@ export class NepaliDatePicker {
               15,
             );
             const [y, m] = bsDate.toGregorian();
+            NepaliDatePicker._free(bsDate);
             this.viewDate = { year: y, month: m };
           } else {
             // AD -> BS: Use Day 15
@@ -808,6 +859,7 @@ export class NepaliDatePicker {
               15,
             );
             this.viewDate = { year: bsDate.year, month: bsDate.month };
+            NepaliDatePicker._free(bsDate);
           }
         } catch (e) {
           console.error("Failed to convert view date on mode switch:", e);
@@ -953,13 +1005,7 @@ export class NepaliDatePicker {
     });
 
     if (this.options.mode === "BS") {
-      const firstDate = new NepaliDate(
-        this.viewDate.year,
-        this.viewDate.month,
-        1,
-      );
-      const [gy, gm, gd] = firstDate.toGregorian();
-      const startWeekday = new Date(gy, gm - 1, gd).getDay();
+      const startWeekday = this._getStartWeekdayBS(this.viewDate.year, this.viewDate.month);
       const daysInMonth = this.getDaysInMonth(
         this.viewDate.year,
         this.viewDate.month,
@@ -1002,9 +1048,20 @@ export class NepaliDatePicker {
         html += `<div role="button" tabindex="0" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${dayText}</div>`;
       }
 
-      const todayBS = NepaliDate.today();
-      const isCurrentYear = this.viewDate.year === todayBS.year;
-      const isCurrentMonth = this.viewDate.month === todayBS.month;
+      const todayBS = this._getTodayBS();
+      const isCurrentYear = todayBS && this.viewDate.year === todayBS.year;
+      const isCurrentMonth = todayBS && this.viewDate.month === todayBS.month;
+
+      // Pre-compute range dates as plain values to avoid WASM alloc in loop
+      let rangeStartBs = null, rangeEndBs = null;
+      if (this.options.isRange) {
+        if (this.rangeStart) {
+          rangeStartBs = { year: this.rangeStart.year, month: this.rangeStart.month, day: this.rangeStart.day };
+        }
+        if (this.rangeEnd) {
+          rangeEndBs = { year: this.rangeEnd.year, month: this.rangeEnd.month, day: this.rangeEnd.day };
+        }
+      }
 
       for (let day = 1; day <= daysInMonth; day++) {
         let isSelected = false;
@@ -1012,16 +1069,21 @@ export class NepaliDatePicker {
         let isRangeEnd = false;
         let isInRange = false;
 
-        const currentDayDate = new NepaliDate(
-          this.viewDate.year,
-          this.viewDate.month,
-          day,
-        );
-
+        // Use plain JS comparisons — no WASM alloc per day
         if (this.options.isRange) {
-          isRangeStart = this.isSameDate(currentDayDate, this.rangeStart);
-          isRangeEnd = this.isSameDate(currentDayDate, this.rangeEnd);
-          isInRange = this.isDateInRange(currentDayDate);
+          const currentBs = { year: this.viewDate.year, month: this.viewDate.month, day: day };
+          if (rangeStartBs) {
+            isRangeStart = currentBs.year === rangeStartBs.year && currentBs.month === rangeStartBs.month && currentBs.day === rangeStartBs.day;
+          }
+          if (rangeEndBs) {
+            isRangeEnd = currentBs.year === rangeEndBs.year && currentBs.month === rangeEndBs.month && currentBs.day === rangeEndBs.day;
+          }
+          if (rangeStartBs && rangeEndBs) {
+            const cur = currentBs.year * 10000 + currentBs.month * 100 + currentBs.day;
+            const s = rangeStartBs.year * 10000 + rangeStartBs.month * 100 + rangeStartBs.day;
+            const e = rangeEndBs.year * 10000 + rangeEndBs.month * 100 + rangeEndBs.day;
+            isInRange = cur > s && cur < e;
+          }
           isSelected = isRangeStart || isRangeEnd;
         } else {
           isSelected =
@@ -1030,37 +1092,30 @@ export class NepaliDatePicker {
             this.selectedDate?.day === day;
         }
 
-        const isToday = isCurrentYear && isCurrentMonth && day === todayBS.day;
+        const isToday = isCurrentYear && isCurrentMonth && todayBS && day === todayBS.day;
 
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 6; // Saturday in Nepal
 
+        const fullDate = `${this.viewDate.year}-${String(this.viewDate.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
 
-        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}`;
+        // Check if this date is disabled
+        const isDisabled = this.isDateDisabled(fullDate, currentWeekday);
+
+        // Add holiday name to tooltip if available
+        let details = fullDate;
+        const holidayName = this.options.holidayNames[fullDate];
+        if (holidayName) details += `\n${holidayName}`;
+
+        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""} ${isDisabled ? "disabled" : ""}`;
         if (this.options.isRange) {
           if (isRangeStart) classes += " range-start";
           if (isRangeEnd) classes += " range-end";
           if (isInRange) classes += " in-range";
           if (isRangeStart && !this.rangeEnd) classes += " range-only";
-        }
-
-        const fullDate =
-          this.options.mode == "BS"
-            ? `${currentDayDate.year}-${String(currentDayDate.month).padStart(2, "0")}-${String(currentDayDate.day).padStart(2, "0")}`
-            : `${currentDayDate.year}-${String(currentDayDate.month).padStart(2, "0")}-${String(currentDayDate.day).padStart(2, "0")}`;
-
-        let details = fullDate;
-        try {
-          if (typeof currentDayDate.tithi === "function") {
-            const tithi = currentDayDate.tithi();
-            if (tithi) {
-              details += `\n${tithi}`;
-            }
-          }
-        } catch (e) {
-          // Tithi calculation failed or feature disabled
         }
 
         html += `<div role="button" tabindex="0" class="${classes}" data-day="${day}" data-month-offset="0" data-details="${details}">${dayText}</div>`;
@@ -1092,6 +1147,7 @@ export class NepaliDatePicker {
         0,
       ).getDate();
 
+      // Previous month overflow
       for (let i = startWeekday - 1; i >= 0; i--) {
         const cellIndex = startWeekday - 1 - i;
         const isHoliday = cellIndex % 7 === 0; // Sunday logic for AD
@@ -1099,13 +1155,26 @@ export class NepaliDatePicker {
         html += `<div role="button" tabindex="0" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${day}</div>`;
       }
 
-      const [selY, selM, selD] = this.selectedDate
-        ? this.selectedDate.toGregorian()
-        : [null, null, null];
-
       const today = new Date();
       const isCurrentYear = this.viewDate.year === today.getFullYear();
       const isCurrentMonth = this.viewDate.month === today.getMonth() + 1;
+
+      // Pre-compute selected date as plain values to avoid WASM alloc in loop
+      let selAdY = null, selAdM = null, selAdD = null;
+      let rangeStartAd = null, rangeEndAd = null;
+      if (this.selectedDate) {
+        [selAdY, selAdM, selAdD] = this.selectedDate.toGregorian();
+      }
+      if (this.options.isRange) {
+        if (this.rangeStart) {
+          const [y, m, d] = this.rangeStart.toGregorian();
+          rangeStartAd = { year: y, month: m, day: d };
+        }
+        if (this.rangeEnd) {
+          const [y, m, d] = this.rangeEnd.toGregorian();
+          rangeEndAd = { year: y, month: m, day: d };
+        }
+      }
 
       for (let day = 1; day <= daysInMonth; day++) {
         let isSelected = false;
@@ -1113,33 +1182,27 @@ export class NepaliDatePicker {
         let isRangeEnd = false;
         let isInRange = false;
 
-        // Construct comparable object for AD (using existing helper logic or simple object)
-        // Since we store rangeStart/End as NepaliDate objects or wrappers?
-        // Wait, rangeStart is a NepaliDate object from selectDate.
-        // But in AD mode, selectDate creates a NepaliDate wrapper around the AD date via .fromGregorian().
-        // So comparison logic `isSameDate` works if `currentDayDate` is also a NepaliDate.
-
-        const currentAdDate = new Date(
-          this.viewDate.year,
-          this.viewDate.month - 1,
-          day,
-        );
-        const currentDayDate = NepaliDate.fromGregorian(
-          currentAdDate.getFullYear(),
-          currentAdDate.getMonth() + 1,
-          currentAdDate.getDate(),
-        );
-
+        // Use plain JS comparisons — no WASM alloc
         if (this.options.isRange) {
-          isRangeStart = this.isSameDate(currentDayDate, this.rangeStart);
-          isRangeEnd = this.isSameDate(currentDayDate, this.rangeEnd);
-          isInRange = this.isDateInRange(currentDayDate);
+          const currentAd = { year: this.viewDate.year, month: this.viewDate.month, day: day };
+          if (rangeStartAd) {
+            isRangeStart = currentAd.year === rangeStartAd.year && currentAd.month === rangeStartAd.month && currentAd.day === rangeStartAd.day;
+          }
+          if (rangeEndAd) {
+            isRangeEnd = currentAd.year === rangeEndAd.year && currentAd.month === rangeEndAd.month && currentAd.day === rangeEndAd.day;
+          }
+          if (rangeStartAd && rangeEndAd) {
+            const cur = currentAd.year * 10000 + currentAd.month * 100 + currentAd.day;
+            const s = rangeStartAd.year * 10000 + rangeStartAd.month * 100 + rangeStartAd.day;
+            const e = rangeEndAd.year * 10000 + rangeEndAd.month * 100 + rangeEndAd.day;
+            isInRange = cur > s && cur < e;
+          }
           isSelected = isRangeStart || isRangeEnd;
         } else {
           isSelected =
-            selY === this.viewDate.year &&
-            selM === this.viewDate.month &&
-            selD === day;
+            selAdY === this.viewDate.year &&
+            selAdM === this.viewDate.month &&
+            selAdD === day;
         }
 
         const isToday =
@@ -1148,14 +1211,21 @@ export class NepaliDatePicker {
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 0; // Sunday for AD
 
-        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""}`;
+        const fullDate = `${this.viewDate.year}-${String(this.viewDate.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const isDisabled = this.isDateDisabled(fullDate, currentWeekday);
+
+        let details = fullDate;
+        const holidayName = this.options.holidayNames[fullDate];
+        if (holidayName) details += `\n${holidayName}`;
+
+        let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""} ${isDisabled ? "disabled" : ""}`;
         if (this.options.isRange) {
           if (isRangeStart) classes += " range-start";
           if (isRangeEnd) classes += " range-end";
           if (isInRange) classes += " in-range";
         }
 
-        html += `<div role="button" tabindex="0" class="${classes}" data-day="${day}" data-month-offset="0">${day}</div>`;
+        html += `<div role="button" tabindex="0" class="${classes}" data-day="${day}" data-month-offset="0" data-details="${details}">${day}</div>`;
       }
 
       // Next month overflow
@@ -1384,8 +1454,60 @@ export class NepaliDatePicker {
     );
   }
 
+  isDateDisabled(dateStr, weekday) {
+    if (!dateStr) return false;
+
+    // 1. Explicit disabledDates list
+    if (this._disabledDatesSet.has(dateStr)) return true;
+
+    // 2. Min/Max date bounds
+    if (this.options.minDate && dateStr < this.options.minDate) return true;
+    if (this.options.maxDate && dateStr > this.options.maxDate) return true;
+
+    // 3. Disabled weekdays (0=Sun, 1=Mon, ..., 6=Sat)
+    if (this._disabledDaysSet.size > 0) {
+      if (this._disabledDaysSet.has(weekday)) return true;
+    }
+
+    // 4. Disable weekends
+    if (this.options.disableWeekends) {
+      if (this.options.mode === "BS" && weekday === 6) return true;
+      if (this.options.mode === "AD" && weekday === 0) return true;
+    }
+
+    // 5. Disable past dates
+    if (this.options.disablePastDates) {
+      if (!this._todayStr) {
+        this._getTodayBS(); // Populates _todayStr
+      }
+      if (this._todayStr && dateStr < this._todayStr) return true;
+    }
+
+    return false;
+  }
+
   selectDate(day) {
     try {
+      // Compute weekday from grid position — avoids WASM alloc just for weekday lookup
+      let startWeekday;
+      if (this.options.mode === "BS") {
+        startWeekday = this._getStartWeekdayBS(this.viewDate.year, this.viewDate.month);
+      } else {
+        startWeekday = new Date(this.viewDate.year, this.viewDate.month - 1, 1).getDay();
+      }
+      const weekday = (startWeekday + day - 1) % 7;
+
+      // Build date string without WASM alloc
+      const dateStr = `${this.viewDate.year}-${String(this.viewDate.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+      if (this.isDateDisabled(dateStr, weekday)) {
+        if (this.options.onDateDisabled === "warn") {
+          console.warn(`NepaliDatePicker: Date ${dateStr} is disabled but was selected (onDateDisabled="warn").`);
+        } else {
+          return;
+        }
+      }
+
       let selected;
       if (this.options.mode === "BS") {
         selected = new NepaliDate(this.viewDate.year, this.viewDate.month, day);
@@ -1399,6 +1521,8 @@ export class NepaliDatePicker {
 
       if (this.options.isRange) {
         if (!this.rangeStart || (this.rangeStart && this.rangeEnd)) {
+          NepaliDatePicker._free(this.rangeStart);
+          NepaliDatePicker._free(this.rangeEnd);
           this.rangeStart = selected;
           this.rangeEnd = null;
         } else {
@@ -1426,6 +1550,7 @@ export class NepaliDatePicker {
           );
         }
       } else {
+        NepaliDatePicker._free(this.selectedDate);
         this.selectedDate = selected;
         this.updateInput();
         if (this.options.closeOnSelect) {
@@ -1444,6 +1569,7 @@ export class NepaliDatePicker {
   }
 
   selectToday() {
+    NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = NepaliDate.today();
     this.viewDate = {
       year: this.selectedDate.year,
@@ -1459,7 +1585,9 @@ export class NepaliDatePicker {
 
   selectYesterday() {
     const today = NepaliDate.today();
+    NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(-1);
+    NepaliDatePicker._free(today);
     this.viewDate = {
       year: this.selectedDate.year,
       month: this.selectedDate.month,
@@ -1474,7 +1602,9 @@ export class NepaliDatePicker {
 
   selectTomorrow() {
     const today = NepaliDate.today();
+    NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(1);
+    NepaliDatePicker._free(today);
     this.viewDate = {
       year: this.selectedDate.year,
       month: this.selectedDate.month,
@@ -1488,6 +1618,7 @@ export class NepaliDatePicker {
   }
 
   clear() {
+    NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = null;
     this.input.value = "";
     this.close();
@@ -1559,6 +1690,37 @@ export class NepaliDatePicker {
     );
   }
 
+  _getStartWeekdayBS(year, month) {
+    const key = `${year}-${month}`;
+    if (NepaliDatePicker.weekdayCache.has(key)) {
+      return NepaliDatePicker.weekdayCache.get(key);
+    }
+    try {
+      const firstDate = new NepaliDate(year, month, 1);
+      const [gy, gm, gd] = firstDate.toGregorian();
+      NepaliDatePicker._free(firstDate);
+      const weekday = new Date(gy, gm - 1, gd).getDay();
+      NepaliDatePicker.weekdayCache.set(key, weekday);
+      return weekday;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  _getTodayBS() {
+    if (this._todayBs) return this._todayBs;
+    try {
+      const today = NepaliDate.today();
+      this._todayBs = { year: today.year, month: today.month, day: today.day };
+      this._todayStr = `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
+      NepaliDatePicker._free(today);
+    } catch (e) {
+      this._todayBs = null;
+      this._todayStr = null;
+    }
+    return this._todayBs;
+  }
+
   getDaysInMonth(year, month) {
     const key = `${year}-${month}`;
     if (NepaliDatePicker.daysCache.has(key)) {
@@ -1568,7 +1730,8 @@ export class NepaliDatePicker {
     try {
       for (let d = 32; d >= 27; d--) {
         try {
-          new NepaliDate(year, month, d);
+          const nd = new NepaliDate(year, month, d);
+          NepaliDatePicker._free(nd);
           NepaliDatePicker.daysCache.set(key, d);
           return d;
         } catch (e) {}
@@ -1584,6 +1747,12 @@ export class NepaliDatePicker {
 
   destroy() {
     this.close();
+    NepaliDatePicker._free(this.selectedDate);
+    NepaliDatePicker._free(this.rangeStart);
+    NepaliDatePicker._free(this.rangeEnd);
+    this.selectedDate = null;
+    this.rangeStart = null;
+    this.rangeEnd = null;
     this.picker.remove();
     this.input.classList.remove("npd-input");
     this.input.removeAttribute("data-npd-id");
@@ -1670,6 +1839,7 @@ export class NepaliDatePicker {
         newDate = NepaliDate.fromGregorian(year, month, day);
       }
 
+      NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
       this.viewDate = {
         year: this.selectedDate.year,
@@ -1693,7 +1863,7 @@ export class NepaliDatePicker {
           mutation.type === "attributes" &&
           mutation.attributeName === "data-theme"
         ) {
-          const newTheme = document.documentElement.dataset.theme || "auto";
+          const newTheme = document.documentElement.dataset.theme || "light";
           NepaliDatePicker.instances.forEach((instance) => {
             if (instance.options.theme === "auto") {
               instance.applyTheme(newTheme);

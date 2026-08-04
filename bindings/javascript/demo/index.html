@@ -3,188 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nepali Date Picker - Modern & Production Ready</title>
+    <title>Nepali Date Picker - Demo</title>
     <link rel="stylesheet" href="../picker.css" />
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
+      * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-          sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f5f5f5;
         min-height: 100vh;
         padding: 2rem;
       }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .hero {
-        text-align: center;
-        color: white;
-        margin-bottom: 3rem;
-      }
-
-      .hero h1 {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
-      }
-
-      .hero p {
-        font-size: 1.25rem;
-        opacity: 0.9;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        margin: 0.5rem 0.25rem;
-        backdrop-filter: blur(10px);
-      }
-
+      .container { max-width: 1100px; margin: 0 auto; }
+      .hero { text-align: center; color: #333; margin-bottom: 2rem; }
+      .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+      .hero p { font-size: 1rem; color: #666; }
       .demo-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-      }
-
-      .demo-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      }
-
-      .demo-card h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #1f2937;
-      }
-
-      .demo-card p {
-        color: #6b7280;
-        margin-bottom: 1.5rem;
-        font-size: 0.875rem;
-      }
-
-      .form-group {
-        margin-bottom: 1.5rem;
-      }
-
-      label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #374151;
-        font-size: 0.875rem;
-      }
-
-      .code-block {
-        background: #1f2937;
-        color: #e5e7eb;
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        font-family: "Monaco", "Courier New", monospace;
-        font-size: 0.875rem;
-        overflow-x: auto;
-        margin: 1.5rem 0;
-      }
-
-      .code-block code {
-        color: #60a5fa;
-      }
-
-      .features {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 2rem;
       }
-
-      .features h2 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: #1f2937;
+      .demo-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #e0e0e0;
       }
-
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .feature {
-        display: flex;
-        gap: 1rem;
-      }
-
-      .feature-icon {
-        width: 2.5rem;
-        height: 2.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-      }
-
-      .feature-content h4 {
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: #1f2937;
-      }
-
-      .feature-content p {
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-
+      .demo-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; color: #333; }
+      .demo-card p { color: #888; margin-bottom: 1rem; font-size: 0.8rem; }
+      .form-group { margin-bottom: 1rem; }
+      label { display: block; font-weight: 500; margin-bottom: 0.25rem; color: #555; font-size: 0.8rem; }
       .output {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: #f9fafb;
-        border-radius: 0.5rem;
-        border-left: 4px solid #3b82f6;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: #f9f9f9;
+        border-radius: 4px;
+        border-left: 3px solid #417690;
+        font-size: 0.8rem;
       }
-
-      .output strong {
-        color: #1f2937;
+      .output strong { color: #333; }
+      .output span { color: #417690; font-family: monospace; }
+      .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        background: #e1f0f7;
+        color: #417690;
+        border-radius: 3px;
+        font-size: 0.7rem;
         font-weight: 600;
-      }
-
-      .output span {
-        color: #3b82f6;
-        font-family: monospace;
-      }
-
-      @media (max-width: 768px) {
-        .hero h1 {
-          font-size: 2rem;
-        }
-
-        .demo-grid {
-          grid-template-columns: 1fr;
-        }
+        margin-right: 4px;
       }
     </style>
   </head>
@@ -192,286 +59,142 @@
     <div class="container">
       <div class="hero">
         <h1>🗓️ Nepali Date Picker</h1>
-        <p>Modern, Beautiful & Production Ready</p>
-        <div>
-          <span class="badge">Bikram Sambat</span>
-          <span class="badge">Gregorian</span>
-          <span class="badge">Multi-language</span>
-          <span class="badge">Accessible</span>
-          <span class="badge">Zero Dependencies</span>
-        </div>
-      </div>
-
-      <div class="features">
-        <h2>✨ Features</h2>
-        <div class="features-grid">
-          <div class="feature">
-            <div class="feature-icon">🎨</div>
-            <div class="feature-content">
-              <h4>Modern Design</h4>
-              <p>Beautiful glassmorphism UI with smooth animations</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🌐</div>
-            <div class="feature-content">
-              <h4>Multi-language</h4>
-              <p>English & Nepali (Devanagari) support</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">📅</div>
-            <div class="feature-content">
-              <h4>Dual Calendar</h4>
-              <p>Switch between BS and AD seamlessly</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🕒</div>
-            <div class="feature-content">
-              <h4>Time Picker</h4>
-              <p>Integrated hour and minute selection</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">⚡</div>
-            <div class="feature-content">
-              <h4>Quick Actions</h4>
-              <p>"Today", "Yesterday", and "Tomorrow" shortcuts</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">📍</div>
-            <div class="feature-content">
-              <h4>Smart Position</h4>
-              <p>Fluid positioning on scroll and resize</p>
-            </div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">📱</div>
-            <div class="feature-content">
-              <h4>Mobile Optimized</h4>
-              <p>Responsive bottom-sheet layout for mobile</p>
-            </div>
-          </div>
-        </div>
+        <p>Enterprise-grade, dynamic, Django-admin-ready</p>
       </div>
 
       <div class="demo-grid">
+        <!-- Basic BS -->
         <div class="demo-card">
-          <h3>Basic Usage</h3>
-          <p>Simple Nepali date input with BS mode</p>
+          <h3>Basic (BS)</h3>
+          <p>Simple Bikram Sambat date input</p>
           <div class="form-group">
-            <label for="basic-date">Select Date (BS)</label>
-            <input
-              type="npdate"
-              id="basic-date"
-              data-mode="BS"
-              data-language="en"
-            />
+            <label for="basic-date">Select Date</label>
+            <input type="npdate" id="basic-date" data-mode="BS" data-language="en" />
           </div>
-          <div class="output">
-            <strong>Selected:</strong> <span id="basic-output">None</span>
-          </div>
+          <div class="output"><strong>Selected:</strong> <span id="basic-output">None</span></div>
         </div>
 
+        <!-- Nepali Language -->
         <div class="demo-card">
-          <h3>Nepali Language</h3>
-          <p>Date picker with Devanagari numerals</p>
+          <h3>नेपाली भाषा</h3>
+          <p>Devanagari numerals and month names</p>
           <div class="form-group">
             <label for="nepali-date">मिति चयन गर्नुहोस्</label>
-            <input
-              type="npdate"
-              id="nepali-date"
-              data-mode="BS"
-              data-language="np"
-            />
+            <input type="npdate" id="nepali-date" data-mode="BS" data-language="np" />
           </div>
-          <div class="output">
-            <strong>Selected:</strong> <span id="nepali-output">None</span>
-          </div>
+          <div class="output"><strong>Selected:</strong> <span id="nepali-output">None</span></div>
         </div>
 
+        <!-- AD Mode -->
         <div class="demo-card">
-          <h3>Gregorian Mode (AD)</h3>
+          <h3>Gregorian (AD)</h3>
           <p>Standard Gregorian calendar</p>
           <div class="form-group">
-            <label for="ad-date">Select Date (AD)</label>
-            <input
-              type="npdate"
-              id="ad-date"
-              data-mode="AD"
-              data-language="en"
-            />
+            <label for="ad-date">Select Date</label>
+            <input type="npdate" id="ad-date" data-mode="AD" data-language="en" />
           </div>
-          <div class="output">
-            <strong>Selected:</strong> <span id="ad-output">None</span>
-          </div>
+          <div class="output"><strong>Selected:</strong> <span id="ad-output">None</span></div>
         </div>
 
+        <!-- Future Only -->
+        <div class="demo-card">
+          <h3>Future Dates Only</h3>
+          <p><span class="tag">disablePastDates</span> Past dates are disabled</p>
+          <div class="form-group">
+            <label for="future-date">Appointment Date</label>
+            <input type="text" id="future-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="future-output">None</span></div>
+        </div>
+
+        <!-- No Weekends -->
+        <div class="demo-card">
+          <h3>No Weekends</h3>
+          <p><span class="tag">disableWeekends</span> Saturdays disabled</p>
+          <div class="form-group">
+            <label for="noweekend-date">Working Date</label>
+            <input type="text" id="noweekend-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="noweekend-output">None</span></div>
+        </div>
+
+        <!-- No Holidays -->
+        <div class="demo-card">
+          <h3>No Holidays</h3>
+          <p><span class="tag">disableHolidays</span> <span class="tag">showHolidays</span> Nepal public holidays disabled + shown in tooltip</p>
+          <div class="form-group">
+            <label for="noholiday-date">Submission Date</label>
+            <input type="text" id="noholiday-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="noholiday-output">None</span></div>
+        </div>
+
+        <!-- Custom Disabled Days -->
+        <div class="demo-card">
+          <h3>Custom Disabled Days</h3>
+          <p><span class="tag">disabledDays: 1-5</span> Only weekends selectable (Mon-Fri disabled)</p>
+          <div class="form-group">
+            <label for="customdays-date">Weekend Only</label>
+            <input type="text" id="customdays-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="customdays-output">None</span></div>
+        </div>
+
+        <!-- Strict Business Day -->
+        <div class="demo-card">
+          <h3>Business Days Only</h3>
+          <p><span class="tag">disablePastDates</span> <span class="tag">disableWeekends</span> <span class="tag">disableHolidays</span> All restrictions combined</p>
+          <div class="form-group">
+            <label for="business-date">Report Date</label>
+            <input type="text" id="business-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="business-output">None</span></div>
+        </div>
+
+        <!-- Blackout Dates -->
+        <div class="demo-card">
+          <h3>Blackout Dates</h3>
+          <p><span class="tag">disabledDates</span> Specific dates blocked</p>
+          <div class="form-group">
+            <label for="blackout-date">Booking Date</label>
+            <input type="text" id="blackout-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="blackout-output">None</span></div>
+        </div>
+
+        <!-- Date & Time -->
         <div class="demo-card">
           <h3>Date & Time</h3>
-          <p>New integrated time selection</p>
+          <p>With integrated time selection</p>
           <div class="form-group">
-            <label for="time-date">Selection with Time</label>
-            <input
-              type="npdate"
-              id="time-date"
-              data-mode="BS"
-              data-language="en"
-            />
+            <label for="time-date">Select Date & Time</label>
+            <input type="text" id="time-date" />
           </div>
-          <div class="output">
-            <strong>Value:</strong> <span id="time-output">None</span>
-          </div>
+          <div class="output"><strong>Value:</strong> <span id="time-output">None</span></div>
         </div>
 
+        <!-- Programmatic API -->
         <div class="demo-card">
-          <h3>Shortcuts & Holidays</h3>
-          <p>Quick dates and red holidays</p>
-          <div class="form-group">
-            <label for="shortcut-date">Try Shortcuts Below</label>
-            <input
-              type="npdate"
-              id="shortcut-date"
-              data-mode="AD"
-              data-language="en"
-            />
-          </div>
-          <div class="output">
-            <strong>Value:</strong> <span id="shortcut-output">None</span>
-          </div>
-        </div>
-
-        <div class="demo-card">
-          <h3>Programmatic Usage</h3>
-          <p>Full JavaScript API</p>
+          <h3>Programmatic API</h3>
+          <p>Full JavaScript control</p>
           <div class="form-group">
             <label for="api-date">API Demo</label>
             <input type="text" id="api-date" />
           </div>
-          <button
-            onclick="setToday()"
-            style="
-              padding: 0.5rem 1rem;
-              background: #3b82f6;
-              color: white;
-              border: none;
-              border-radius: 0.5rem;
-              cursor: pointer;
-              margin-right: 0.5rem;
-            "
-          >
-            Set Today
-          </button>
-          <button
-            onclick="clearDate()"
-            style="
-              padding: 0.5rem 1rem;
-              background: #ef4444;
-              color: white;
-              border: none;
-              border-radius: 0.5rem;
-              cursor: pointer;
-            "
-          >
-            Clear
-          </button>
-          <div class="output">
-            <strong>Selected:</strong> <span id="api-output">None</span>
-          </div>
+          <button onclick="setToday()" style="padding:4px 12px;background:#417690;color:white;border:none;border-radius:4px;cursor:pointer;margin-right:4px;font-size:0.8rem;">Set Today</button>
+          <button onclick="clearDate()" style="padding:4px 12px;background:#ba2121;color:white;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;">Clear</button>
+          <div class="output"><strong>Selected:</strong> <span id="api-output">None</span></div>
         </div>
 
+        <!-- Range Picker -->
         <div class="demo-card">
-          <h3>With Callbacks</h3>
-          <p>Event handling & validation</p>
-          <div class="form-group">
-            <label for="callback-date">Date with Events</label>
-            <input type="text" id="callback-date" />
-          </div>
-          <div class="output">
-            <strong>Events:</strong>
-            <span id="callback-output">No events yet</span>
-          </div>
-        </div>
-        <div class="demo-card">
-          <h3>Date Range Picker</h3>
+          <h3>Date Range</h3>
           <p>Select a start and end date</p>
           <div class="form-group">
             <label for="range-date">Select Range</label>
             <input type="text" id="range-date" placeholder="Start to End" />
           </div>
-          <div class="output">
-            <strong>Selected Range:</strong>
-            <span id="range-output">None</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="features">
-        <h2>📚 Installation & Usage</h2>
-
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
-          1. Include Files
-        </h3>
-        <div class="code-block">
-          &lt;link rel="stylesheet" href="picker.css"&gt; <br />
-          &lt;script type="module"&gt; <br />
-          &nbsp;&nbsp; import NepaliDatePicker from './picker.js'; <br />
-          &lt;/script&gt; <br />
-        </div>
-
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
-          2. HTML Usage (Automatic)
-        </h3>
-        <div class="code-block">
-          &lt;!-- Nepali Date (BS) --&gt; <br />
-          &lt;input type="npdate" data-mode="BS" data-language="en"&gt;
-          <br /><br />
-          &lt;!-- With Nepali numerals --&gt; <br />
-          &lt;input type="npdate" data-mode="BS" data-language="np"&gt;
-          <br /><br />
-          &lt;!-- Gregorian Date (AD) --&gt; <br />
-          &lt;input type="npdate" data-mode="AD"&gt;
-        </div>
-
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
-          3. JavaScript API
-        </h3>
-        <div class="code-block">
-          <code>import</code> NepaliDatePicker <code>from</code> './picker.js';
-          <br />
-          // Create instance <br />
-          <code>const</code> picker =
-          <code>new</code> NepaliDatePicker('#my-input', { mode: 'BS', language:
-          'en', onChange: (date, picker) => { console.log('Selected:',
-          date.format('%Y-%m-%d')); } }); <br />
-          <br />
-          // Initialize all npdate inputs <br />
-          NepaliDatePicker.init();
-        </div>
-
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151">
-          4. Options
-        </h3>
-        <div class="code-block">
-          { <br />
-          &nbsp;&nbsp; mode: 'BS', // 'BS' or 'AD' <br />
-          &nbsp;&nbsp; language: 'en', // 'en' or 'np' <br />
-          &nbsp;&nbsp; format: '%Y-%m-%d', // Date format <br />
-          &nbsp;&nbsp; theme: 'auto', // 'auto', 'light', 'dark' <br />
-          &nbsp;&nbsp; position: 'auto', // 'auto', 'top', 'bottom' <br />
-          &nbsp;&nbsp; closeOnSelect: <code>true</code>, // Auto close on select
-          <br />
-          &nbsp;&nbsp; showTodayButton: <code>true</code>, // Show today button
-          <br />
-          &nbsp;&nbsp; showClearButton: <code>true</code>, // Show clear button
-          <br />
-          &nbsp;&nbsp; onChange: <code>null</code>, // Callback function <br />
-          &nbsp;&nbsp; // Callback function <br />
-          &nbsp;&nbsp; onOpen: <code>null</code>, // Open callback <br />
-          &nbsp;&nbsp; onClose: <code>null</code> // Close callback <br />
-          }
+          <div class="output"><strong>Range:</strong> <span id="range-output">None</span></div>
         </div>
       </div>
     </div>
@@ -479,87 +202,98 @@
     <script type="module">
       import NepaliDatePicker from "../picker.js";
 
-      // Wait for DOM
       document.addEventListener("DOMContentLoaded", () => {
-        // Auto-init will handle npdate inputs
-
-        // Setup outputs for basic demos
-        document
-          .getElementById("basic-date")
-          ?.addEventListener("change", (e) => {
-            document.getElementById("basic-output").textContent =
-              e.target.value || "None";
-          });
-
-        document
-          .getElementById("nepali-date")
-          ?.addEventListener("change", (e) => {
-            document.getElementById("nepali-output").textContent =
-              e.target.value || "None";
-          });
-
-        document.getElementById("ad-date")?.addEventListener("change", (e) => {
-          document.getElementById("ad-output").textContent =
-            e.target.value || "None";
+        // Basic
+        document.getElementById("basic-date")?.addEventListener("change", (e) => {
+          document.getElementById("basic-output").textContent = e.target.value || "None";
         });
 
-        document
-          .getElementById("custom-date")
-          ?.addEventListener("change", (e) => {
-            document.getElementById("custom-output").textContent =
-              e.target.value || "None";
-          });
+        // Nepali
+        document.getElementById("nepali-date")?.addEventListener("change", (e) => {
+          document.getElementById("nepali-output").textContent = e.target.value || "None";
+        });
 
-        document
-          .getElementById("time-date")
-          ?.addEventListener("change", (e) => {
-            document.getElementById("time-output").textContent =
-              e.target.value || "None";
-          });
+        // AD
+        document.getElementById("ad-date")?.addEventListener("change", (e) => {
+          document.getElementById("ad-output").textContent = e.target.value || "None";
+        });
 
-        document
-          .getElementById("shortcut-date")
-          ?.addEventListener("change", (e) => {
-            document.getElementById("shortcut-output").textContent =
-              e.target.value || "None";
-          });
+        // Future only
+        new NepaliDatePicker("#future-date", {
+          mode: "BS",
+          disablePastDates: true,
+          onChange: (date) => {
+            document.getElementById("future-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // No weekends
+        new NepaliDatePicker("#noweekend-date", {
+          mode: "BS",
+          disableWeekends: true,
+          onChange: (date) => {
+            document.getElementById("noweekend-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // No holidays
+        new NepaliDatePicker("#noholiday-date", {
+          mode: "BS",
+          disableHolidays: true,
+          showHolidays: true,
+          onChange: (date) => {
+            document.getElementById("noholiday-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // Custom disabled days (only weekends selectable)
+        new NepaliDatePicker("#customdays-date", {
+          mode: "BS",
+          disabledDays: ["1-5"],  // Mon-Fri disabled
+          onChange: (date) => {
+            document.getElementById("customdays-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // Strict business day
+        new NepaliDatePicker("#business-date", {
+          mode: "BS",
+          disablePastDates: true,
+          disableWeekends: true,
+          disableHolidays: true,
+          onChange: (date) => {
+            document.getElementById("business-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // Blackout dates
+        new NepaliDatePicker("#blackout-date", {
+          mode: "BS",
+          disabledDates: ["2082-01-01", "2082-09-03", "2082-10-15"],
+          disablePastDates: true,
+          onChange: (date) => {
+            document.getElementById("blackout-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // Date & Time
+        new NepaliDatePicker("#time-date", {
+          mode: "BS",
+          includeTime: true,
+          onChange: (date) => {
+            document.getElementById("time-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
 
         // API demo
         window.apiPicker = new NepaliDatePicker("#api-date", {
           mode: "BS",
           onChange: (date) => {
-            if (date) {
-              document.getElementById("api-output").textContent =
-                date.format("%Y-%m-%d");
-            } else {
-              document.getElementById("api-output").textContent = "None";
-            }
+            document.getElementById("api-output").textContent = date ? date.format("%Y-%m-%d") : "None";
           },
         });
 
-        // Callback demo
-        new NepaliDatePicker("#callback-date", {
-          mode: "BS",
-          onChange: (date) => {
-            document.getElementById("callback-output").textContent = date
-              ? `Changed: ${date.format("%Y-%m-%d")}`
-              : "Cleared";
-          },
-          onOpen: () => {
-            document.getElementById("callback-output").textContent =
-              "Picker opened";
-          },
-          onClose: () => {
-            const current =
-              document.getElementById("callback-output").textContent;
-            if (current === "Picker opened") {
-              document.getElementById("callback-output").textContent =
-                "Picker closed";
-            }
-          },
-        });
-
-        // Range Picker Demo
+        // Range picker
         new NepaliDatePicker("#range-date", {
           mode: "BS",
           isRange: true,
@@ -576,17 +310,11 @@
         });
       });
 
-      // API demo functions
       window.setToday = () => {
-        if (window.apiPicker) {
-          window.apiPicker.selectToday();
-        }
+        if (window.apiPicker) window.apiPicker.selectToday();
       };
-
       window.clearDate = () => {
-        if (window.apiPicker) {
-          window.apiPicker.clear();
-        }
+        if (window.apiPicker) window.apiPicker.clear();
       };
     </script>
   </body>

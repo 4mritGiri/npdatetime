@@ -1,11 +1,14 @@
 """Custom model fields for Nepali dates"""
-from django.db import models
+
+import re
+
 from django.core import validators
 from django.core.exceptions import ValidationError
-import re
+from django.db import models
 
 try:
     from npdatetime import NepaliDate
+
     NPDATETIME_AVAILABLE = True
 except ImportError:
     NPDATETIME_AVAILABLE = False
@@ -15,6 +18,7 @@ class NepaliDateWrapper(str):
     """
     A string wrapper that provides easy access to Nepali date properties.
     """
+
     def __new__(cls, value):
         if value is None:
             return None
@@ -26,9 +30,8 @@ class NepaliDateWrapper(str):
             return
 
         try:
-            # Handle YYYY-MM-DD and YYYY-MM-DD HH:MM:SS
-            date_part = str(value).split(' ')[0]
-            year, month, day = map(int, date_part.split('-'))
+            date_part = str(value).split(" ")[0]
+            year, month, day = map(int, date_part.split("-"))
             self._date_obj = NepaliDate(year, month, day)
         except Exception:
             pass
@@ -59,187 +62,221 @@ class NepaliDateWrapper(str):
 
 
 class NepaliDateField(models.CharField):
-    """
-    A model field for storing Nepali (Bikram Sambat) dates.
-    
+    """A model field for storing Nepali (Bikram Sambat) dates.
+
     Stores dates in YYYY-MM-DD format internally.
-    Can be used to create, validate, and convert Nepali dates.
+    Supports all dynamic widget options passed via ``widget_kwargs``
+    on the model field or through ``formfield()``.
+
+    Args:
+        mode (str): 'BS' or 'AD'. Default: 'BS'
+        language (str): 'en' or 'np'. Default: 'en'
+        widget_kwargs (dict): Extra keyword arguments forwarded to
+            NepaliDatePickerWidget. Supports disabled_dates,
+            disable_past_dates, disable_holidays, holiday_provider,
+            disable_weekends, admin_theme, etc.
+
+    Example::
+
+        class LeaveRequest(models.Model):
+            # Future dates only, no holidays
+            start_date = NepaliDateField(
+                widget_kwargs={
+                    'disable_past_dates': True,
+                    'disable_holidays': True,
+                    'disable_weekends': True,
+                }
+            )
+
+            # Admin-themed with custom disabled dates
+            review_date = NepaliDateField(
+                widget_kwargs={
+                    'admin_theme': True,
+                    'disabled_dates': ['2082-01-01', '2082-09-03'],
+                }
+            )
     """
-    
+
     description = "Nepali Date (Bikram Sambat) field"
-    
-    def __init__(self, *args, mode='BS', language='en', **kwargs):
+
+    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
-        # Force max_length to 10 for YYYY-MM-DD format
-        kwargs['max_length'] = 10
+        self.widget_kwargs = widget_kwargs or {}
+        kwargs["max_length"] = 10
         super().__init__(*args, **kwargs)
-        
-        # Add validator for date format
-        self.validators.append(validators.RegexValidator(
-            regex=r'^\d{4}-\d{2}-\d{2}$',
-            message='Enter a valid Nepali date in YYYY-MM-DD format.',
-            code='invalid_nepali_date_format'
-        ))
-    
+
+        self.validators.append(
+            validators.RegexValidator(
+                regex=r"^\d{4}-\d{2}-\d{2}$",
+                message="Enter a valid Nepali date in YYYY-MM-DD format.",
+                code="invalid_nepali_date_format",
+            )
+        )
+
     def deconstruct(self):
-        """
-        Return enough information to recreate the field as a 4-tuple.
-        """
         name, path, args, kwargs = super().deconstruct()
-        # Remove max_length as we set it automatically
-        kwargs.pop('max_length', None)
-        if self.mode != 'BS':
-            kwargs['mode'] = self.mode
-        if self.language != 'en':
-            kwargs['language'] = self.language
+        kwargs.pop("max_length", None)
+        if self.mode != "BS":
+            kwargs["mode"] = self.mode
+        if self.language != "en":
+            kwargs["language"] = self.language
+        if self.widget_kwargs:
+            kwargs["widget_kwargs"] = self.widget_kwargs
         return name, path, args, kwargs
-    
+
     def to_python(self, value):
-        """
-        Convert the input value to a NepaliDate instance or string.
-        """
-        if value is None or value == '':
+        if value is None or value == "":
             return None
-            
+
         if isinstance(value, str):
-            # Validate format
-            if not re.match(r'^\d{4}-\d{2}-\d{2}$', value):
+            if not re.match(r"^\d{4}-\d{2}-\d{2}$", value):
                 return value
-            
             return NepaliDateWrapper(value)
-        
+
         if NPDATETIME_AVAILABLE and isinstance(value, NepaliDate):
             return NepaliDateWrapper(f"{value.year}-{value.month:02d}-{value.day:02d}")
-        
+
         return NepaliDateWrapper(str(value))
-    
+
     def from_db_value(self, value, expression, connection):
-        """
-        Convert database value to Python value.
-        """
         if value is None:
             return value
         return NepaliDateWrapper(value)
-    
+
     def get_prep_value(self, value):
-        """
-        Convert Python value to database value.
-        """
-        if value is None or value == '':
+        if value is None or value == "":
             return None
         return str(value)
-    
+
     def formfield(self, **kwargs):
-        """
-        Return a form field instance for this model field.
-        """
         from .forms import NepaliDateField as NepaliDateFormField
         from .widgets import NepaliDatePickerWidget
-        
-        # If the widget is being overridden by Django Admin (vTextField), 
-        # we want to restore ours.
-        if 'widget' in kwargs:
-            widget = kwargs['widget']
-            # Check if it's the admin's default CharField widget
-            if hasattr(widget, '__name__') and widget.__name__ == 'AdminCharFieldWidget':
-                kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language)
-            elif not isinstance(widget, NepaliDatePickerWidget) and not (isinstance(widget, type) and issubclass(widget, NepaliDatePickerWidget)):
-                 # If it's not a NepaliDatePickerWidget, we still want to use ours 
-                 # but maybe merge some attrs? For now, just force ours.
-                 kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language)
-        
+
+        # Build widget kwargs from model field config
+        widget_kw = {
+            "mode": self.mode,
+            "language": self.language,
+        }
+        widget_kw.update(self.widget_kwargs)
+
+        # If a widget was explicitly passed in kwargs, inspect it
+        if "widget" in kwargs:
+            widget = kwargs["widget"]
+            if isinstance(widget, type) and not issubclass(
+                widget, NepaliDatePickerWidget
+            ):
+                kwargs["widget"] = NepaliDatePickerWidget(**widget_kw)
+            elif not isinstance(widget, NepaliDatePickerWidget):
+                kwargs["widget"] = NepaliDatePickerWidget(**widget_kw)
+            # If it's already our widget, let it through
+
         defaults = {
-            'form_class': NepaliDateFormField,
-            'widget': NepaliDatePickerWidget(mode=self.mode, language=self.language),
-            'mode': self.mode,
-            'language': self.language,
+            "form_class": NepaliDateFormField,
+            "widget": NepaliDatePickerWidget(**widget_kw),
+            "mode": self.mode,
+            "language": self.language,
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
 
-# Aliases for shorter usage
+# Aliases
 NpDateField = NepaliDateField
 NpDate = NepaliDateField
 
 
 class NepaliDateTimeField(models.CharField):
-    """
-    A model field for storing Nepali dates with time.
-    
+    """A model field for storing Nepali dates with time.
+
     Stores datetime in YYYY-MM-DD HH:MM:SS format internally.
+
+    Args:
+        mode (str): 'BS' or 'AD'. Default: 'BS'
+        language (str): 'en' or 'np'. Default: 'en'
+        widget_kwargs (dict): Extra keyword arguments forwarded to
+            NepaliDatePickerWidget.
     """
-    
+
     description = "Nepali DateTime (Bikram Sambat) field"
-    
-    def __init__(self, *args, mode='BS', language='en', **kwargs):
+
+    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
-        # Force max_length to 19 for YYYY-MM-DD HH:MM:SS format
-        kwargs['max_length'] = 19
+        self.widget_kwargs = widget_kwargs or {}
+        kwargs["max_length"] = 19
         super().__init__(*args, **kwargs)
-        
-        # Add validator for datetime format
-        self.validators.append(validators.RegexValidator(
-            regex=r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$',
-            message='Enter a valid Nepali datetime in YYYY-MM-DD HH:MM:SS format.',
-            code='invalid_nepali_datetime_format'
-        ))
-    
+
+        self.validators.append(
+            validators.RegexValidator(
+                regex=r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$",
+                message="Enter a valid Nepali datetime in YYYY-MM-DD HH:MM:SS format.",
+                code="invalid_nepali_datetime_format",
+            )
+        )
+
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs.pop('max_length', None)
-        if self.mode != 'BS':
-            kwargs['mode'] = self.mode
-        if self.language != 'en':
-            kwargs['language'] = self.language
+        kwargs.pop("max_length", None)
+        if self.mode != "BS":
+            kwargs["mode"] = self.mode
+        if self.language != "en":
+            kwargs["language"] = self.language
+        if self.widget_kwargs:
+            kwargs["widget_kwargs"] = self.widget_kwargs
         return name, path, args, kwargs
-    
+
     def to_python(self, value):
-        """Convert input value to valid Nepali datetime string."""
-        if value is None or value == '':
+        if value is None or value == "":
             return None
-            
+
         if isinstance(value, str):
-            # Validate format
-            if not re.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', value):
+            if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", value):
                 return value
-            
             return NepaliDateWrapper(value)
-        
+
         return NepaliDateWrapper(str(value))
-    
+
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
         return NepaliDateWrapper(value)
-    
+
     def get_prep_value(self, value):
-        if value is None or value == '':
+        if value is None or value == "":
             return None
         return str(value)
-    
+
     def formfield(self, **kwargs):
-        """Return a form field instance for this model field."""
         from .forms import NepaliDateTimeField as NepaliDateTimeFormField
         from .widgets import NepaliDatePickerWidget
-        
-        if 'widget' in kwargs:
-            widget = kwargs['widget']
-            if hasattr(widget, '__name__') and widget.__name__ == 'AdminCharFieldWidget':
-                kwargs['widget'] = NepaliDatePickerWidget(mode=self.mode, language=self.language, include_time=True)
-        
+
+        widget_kw = {
+            "mode": self.mode,
+            "language": self.language,
+            "include_time": True,
+        }
+        widget_kw.update(self.widget_kwargs)
+
+        if "widget" in kwargs:
+            widget = kwargs["widget"]
+            if isinstance(widget, type) and not issubclass(
+                widget, NepaliDatePickerWidget
+            ):
+                kwargs["widget"] = NepaliDatePickerWidget(**widget_kw)
+            elif not isinstance(widget, NepaliDatePickerWidget):
+                kwargs["widget"] = NepaliDatePickerWidget(**widget_kw)
+
         defaults = {
-            'form_class': NepaliDateTimeFormField,
-            'widget': NepaliDatePickerWidget(mode=self.mode, language=self.language, include_time=True),
-            'mode': self.mode,
-            'language': self.language,
+            "form_class": NepaliDateTimeFormField,
+            "widget": NepaliDatePickerWidget(**widget_kw),
+            "mode": self.mode,
+            "language": self.language,
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
 
-# Aliases for shorter usage
+# Aliases
 NpDateTimeField = NepaliDateTimeField
 NpDateTime = NepaliDateTimeField

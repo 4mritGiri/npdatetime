@@ -181,6 +181,7 @@
   visibility: hidden;
   transform: translateY(-0.5rem) scale(0.95);
   transition: var(--npd-transition);
+  overflow: hidden;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
@@ -209,7 +210,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-  gap: 1rem;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .npd-title {
@@ -225,6 +227,11 @@
   color: var(--npd-text);
   cursor: pointer;
   transition: var(--npd-transition-fast);
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .npd-title:hover {
@@ -241,9 +248,46 @@
   transform: translateY(2px);
 }
 
+/* Mode toggle in header — compact inline style */
+.npd-header .npd-mode-toggle {
+  display: flex;
+  background: var(--npd-bg-secondary);
+  border: 1px solid var(--npd-border);
+  border-radius: var(--npd-radius-sm);
+  padding: 1px;
+  gap: 1px;
+  flex-shrink: 0;
+  margin: 0 0.25rem;
+}
+
+.npd-mode-btn {
+  padding: 0.2rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--npd-radius-sm);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--npd-text-muted);
+  cursor: pointer;
+  transition: var(--npd-transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.npd-mode-btn:hover {
+  color: var(--npd-text);
+}
+
+.npd-mode-btn.active {
+  background: var(--npd-bg);
+  color: var(--npd-primary);
+  box-shadow: var(--npd-shadow-sm);
+}
+
 .npd-nav {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .npd-nav-btn {
@@ -538,46 +582,6 @@
   border-top: 1px solid var(--npd-border);
 }
 
-.npd-mode-toggle {
-  display: flex;
-  background: var(--npd-bg-secondary);
-  border: 1px solid var(--npd-border);
-  border-radius: var(--npd-radius);
-  padding: 0.25rem;
-  gap: 0.25rem;
-}
-
-.npd-mode-btn {
-  flex: 1;
-  padding: 0.5rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--npd-radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--npd-text-muted);
-  cursor: pointer;
-  transition: var(--npd-transition-fast);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.npd-mode-btn:hover {
-  color: var(--npd-text);
-}
-
-.npd-mode-btn.active {
-  background: white;
-  color: var(--npd-primary);
-  box-shadow: var(--npd-shadow-sm);
-}
-
-@media (prefers-color-scheme: dark) {
-  .npd-mode-btn.active {
-    background: var(--npd-bg);
-  }
-}
-
 .npd-actions {
   display: flex;
   gap: 0.25rem;
@@ -797,4 +801,283 @@
   background: #374151;
   border-color: #4b5563;
   color: #f9fafb;
+}
+
+/* ===============================================
+   Disabled Date Styling
+   =============================================== */
+
+.npd-day.disabled {
+  color: var(--npd-text-light);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+.npd-day.disabled.holiday {
+  color: var(--npd-text-light);
+  opacity: 0.35;
+}
+
+.npd-day.disabled.today {
+  border-color: var(--npd-text-light);
+  color: var(--npd-text-light);
+  opacity: 0.4;
+}
+
+.npd-day.disabled.selected {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* ===============================================
+   Django Admin Theme
+   Minimal, matching Django admin design language
+   =============================================== */
+
+[data-theme="admin"] {
+  --npd-primary: #417690;
+  --npd-primary-hover: #335f76;
+  --npd-primary-light: #e1f0f7;
+  --npd-secondary: #79aec8;
+  --npd-success: #417690;
+  --npd-danger: #ba2121;
+  --npd-warning: #f0ad4e;
+
+  --npd-bg: #ffffff;
+  --npd-bg-secondary: #f8f8f8;
+  --npd-bg-hover: #e8e8e8;
+  --npd-text: #333333;
+  --npd-text-muted: #666666;
+  --npd-text-light: #999999;
+
+  --npd-border: #cccccc;
+  --npd-border-focus: #417690;
+  --npd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  --npd-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --npd-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  --npd-radius: 4px;
+  --npd-radius-sm: 3px;
+  --npd-radius-lg: 6px;
+  --npd-radius-full: 9999px;
+
+  font-family: "Roboto", "Lucida Grande", "DejaVu Sans", Verdana, Arial, sans-serif;
+}
+
+[data-theme="admin"] .npd-input {
+  padding: 5px 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #333333;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease-in-out;
+}
+
+[data-theme="admin"] .npd-input:focus {
+  border-color: #999999;
+  box-shadow: none;
+  outline: none;
+}
+
+[data-theme="admin"] .npd-input:hover {
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-icon-btn {
+  color: #666666;
+}
+
+[data-theme="admin"] .npd-icon-btn:hover {
+  color: #417690;
+  background: #f8f8f8;
+}
+
+[data-theme="admin"] .npd-picker {
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  font-size: 13px;
+}
+
+[data-theme="admin"] .npd-header {
+  margin-bottom: 10px;
+}
+
+[data-theme="admin"] .npd-title {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  color: #333333;
+  border-radius: 4px;
+}
+
+[data-theme="admin"] .npd-title:hover {
+  background: #f8f8f8;
+}
+
+[data-theme="admin"] .npd-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #cccccc;
+  background: #f8f8f8;
+  border-radius: 4px;
+}
+
+[data-theme="admin"] .npd-nav-btn:hover {
+  background: #417690;
+  border-color: #417690;
+}
+
+[data-theme="admin"] .npd-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999999;
+  padding: 4px 0;
+}
+
+[data-theme="admin"] .npd-day {
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+[data-theme="admin"] .npd-day:not(.selected):not(.npd-empty):not(.disabled):hover {
+  background: #e8e8e8;
+  color: #333333;
+}
+
+[data-theme="admin"] .npd-day.selected {
+  background: #417690;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+[data-theme="admin"] .npd-day.today {
+  border: 2px solid #417690;
+  color: #417690;
+  font-weight: 600;
+}
+
+[data-theme="admin"] .npd-day.today.selected {
+  background: #417690;
+  color: #ffffff;
+  border-color: #417690;
+}
+
+[data-theme="admin"] .npd-day.holiday {
+  color: #ba2121;
+}
+
+[data-theme="admin"] .npd-day.disabled {
+  color: #cccccc;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+[data-theme="admin"] .npd-footer {
+  border-top: 1px solid #e8e8e8;
+  padding-top: 10px;
+}
+
+[data-theme="admin"] .npd-mode-toggle {
+  background: #f8f8f8;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  padding: 1px;
+}
+
+[data-theme="admin"] .npd-mode-btn {
+  font-size: 10px;
+  padding: 2px 6px;
+  color: #666666;
+  border-radius: 2px;
+}
+
+[data-theme="admin"] .npd-mode-btn.active {
+  background: #ffffff;
+  color: #417690;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="admin"] .npd-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid #cccccc;
+  background: #f8f8f8;
+  border-radius: 4px;
+  color: #333333;
+}
+
+[data-theme="admin"] .npd-btn:hover {
+  background: #e8e8e8;
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-today {
+  background: #417690;
+  border-color: #417690;
+  color: #ffffff;
+}
+
+[data-theme="admin"] .npd-today:hover {
+  background: #335f76;
+  border-color: #335f76;
+  color: #ffffff;
+}
+
+[data-theme="admin"] .npd-clear:hover {
+  background: #ba2121;
+  border-color: #ba2121;
+  color: #ffffff;
+}
+
+[data-theme="admin"] .npd-month,
+[data-theme="admin"] .npd-year {
+  padding: 10px;
+  font-size: 13px;
+  border: 1px solid #cccccc;
+  background: #f8f8f8;
+  border-radius: 4px;
+  color: #333333;
+}
+
+[data-theme="admin"] .npd-month:hover,
+[data-theme="admin"] .npd-year:hover {
+  background: #e1f0f7;
+  border-color: #417690;
+  color: #417690;
+  transform: none;
+}
+
+[data-theme="admin"] .npd-month.selected,
+[data-theme="admin"] .npd-year.selected {
+  background: #417690;
+  border-color: #417690;
+  color: #ffffff;
+}
+
+[data-theme="admin"] .npd-time-input {
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background: #f8f8f8;
+  font-size: 13px;
+}
+
+[data-theme="admin"] .npd-time-input:focus {
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-tooltip {
+  background: #333333;
+  border: 1px solid #555555;
+  color: #ffffff;
+  font-size: 11px;
+  border-radius: 4px;
 }
