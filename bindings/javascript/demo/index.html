@@ -129,6 +129,17 @@
           <div class="output"><strong>Selected:</strong> <span id="noholiday-output">None</span></div>
         </div>
 
+        <!-- Tithi on Hover -->
+        <div class="demo-card">
+          <h3>तिथि (Tithi) on Hover</h3>
+          <p><span class="tag">showTithi</span> Hover any date to see lunar tithi</p>
+          <div class="form-group">
+            <label for="tithi-date">तिथि सहित मिति</label>
+            <input type="text" id="tithi-date" />
+          </div>
+          <div class="output"><strong>Selected:</strong> <span id="tithi-output">None</span></div>
+        </div>
+
         <!-- Custom Disabled Days -->
         <div class="demo-card">
           <h3>Custom Disabled Days</h3>
@@ -243,6 +254,16 @@
           showHolidays: true,
           onChange: (date) => {
             document.getElementById("noholiday-output").textContent = date ? date.format("%Y-%m-%d") : "None";
+          },
+        });
+
+        // Tithi on hover
+        new NepaliDatePicker("#tithi-date", {
+          mode: "BS",
+          showTithi: true,
+          language: "np",
+          onChange: (date) => {
+            document.getElementById("tithi-output").textContent = date ? date.format("%Y-%m-%d") : "None";
           },
         });
 

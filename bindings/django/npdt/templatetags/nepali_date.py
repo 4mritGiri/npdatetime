@@ -231,6 +231,7 @@ def nepali_date_picker(
     disable_holidays=False,
     disabled_dates="",
     disabled_days="",
+    show_tithi=False,
     admin_theme=False,
     **kwargs,
 ):
@@ -265,6 +266,9 @@ def nepali_date_picker(
         options["disabledDays"] = [
             int(d.strip()) for d in disabled_days.split(",") if d.strip()
         ]
+
+    if show_tithi:
+        options["showTithi"] = True
 
     options.update(kwargs)
 

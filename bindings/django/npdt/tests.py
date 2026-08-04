@@ -138,6 +138,18 @@ class NepaliDatePickerWidgetTest(TestCase):
         html = widget.render("test_date", "2082-01-15", attrs={})
         self.assertIn('value="2082-01-15"', html)
 
+    def test_show_tithi(self):
+        widget = NepaliDatePickerWidget(show_tithi=True)
+        context = widget.get_context("test_date", None, {})
+        options = json.loads(context["widget"]["picker_options"])
+        self.assertTrue(options["showTithi"])
+
+    def test_show_tithi_default(self):
+        widget = NepaliDatePickerWidget()
+        context = widget.get_context("test_date", None, {})
+        options = json.loads(context["widget"]["picker_options"])
+        self.assertNotIn("showTithi", options)
+
 
 class NepaliDateRangeWidgetTest(TestCase):
     """Test NepaliDateRangeWidget."""

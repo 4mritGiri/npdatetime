@@ -5,6 +5,7 @@ export class NepaliDatePicker {
   static instances = new Map();
   static daysCache = new Map();
   static weekdayCache = new Map();
+  static tithiCache = new Map();
 
   static _free(obj) {
     if (obj && typeof obj.free === "function") {
@@ -40,6 +41,7 @@ export class NepaliDatePicker {
       disableWeekends: options.disableWeekends || false,
       holidayNames: options.holidayNames || {},
       onDateDisabled: options.onDateDisabled || "prevent",
+      showTithi: options.showTithi || false,
       theme: element.dataset.theme || options.theme || "auto",
       position: options.position || "auto",
       closeOnSelect: options.closeOnSelect !== false,
@@ -1052,6 +1054,9 @@ export class NepaliDatePicker {
       const isCurrentYear = todayBS && this.viewDate.year === todayBS.year;
       const isCurrentMonth = todayBS && this.viewDate.month === todayBS.month;
 
+      // Pre-compute tithi for this month (only if showTithi enabled)
+      const tithiMap = this.options.showTithi ? this._getTithiForMonth(this.viewDate.year, this.viewDate.month) : null;
+
       // Pre-compute range dates as plain values to avoid WASM alloc in loop
       let rangeStartBs = null, rangeEndBs = null;
       if (this.options.isRange) {
@@ -1105,10 +1110,11 @@ export class NepaliDatePicker {
         // Check if this date is disabled
         const isDisabled = this.isDateDisabled(fullDate, currentWeekday);
 
-        // Add holiday name to tooltip if available
+        // Add holiday name and tithi to tooltip if available
         let details = fullDate;
         const holidayName = this.options.holidayNames[fullDate];
         if (holidayName) details += `\n${holidayName}`;
+        if (tithiMap && tithiMap[day]) details += `\n${tithiMap[day]}`;
 
         let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""} ${isDisabled ? "disabled" : ""}`;
         if (this.options.isRange) {
@@ -1158,6 +1164,9 @@ export class NepaliDatePicker {
       const today = new Date();
       const isCurrentYear = this.viewDate.year === today.getFullYear();
       const isCurrentMonth = this.viewDate.month === today.getMonth() + 1;
+
+      // Pre-compute tithi for AD month (only if showTithi enabled)
+      const tithiMapAD = this.options.showTithi ? this._getTithiForADMonth(this.viewDate.year, this.viewDate.month) : null;
 
       // Pre-compute selected date as plain values to avoid WASM alloc in loop
       let selAdY = null, selAdM = null, selAdD = null;
@@ -1217,6 +1226,7 @@ export class NepaliDatePicker {
         let details = fullDate;
         const holidayName = this.options.holidayNames[fullDate];
         if (holidayName) details += `\n${holidayName}`;
+        if (tithiMapAD && tithiMapAD[day]) details += `\n${tithiMapAD[day]}`;
 
         let classes = `npd-day ${isSelected ? "selected" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday" : ""} ${isDisabled ? "disabled" : ""}`;
         if (this.options.isRange) {
@@ -1705,6 +1715,44 @@ export class NepaliDatePicker {
     } catch (e) {
       return 0;
     }
+  }
+
+  _getTithiForMonth(year, month) {
+    const key = `${year}-${month}`;
+    if (NepaliDatePicker.tithiCache.has(key)) {
+      return NepaliDatePicker.tithiCache.get(key);
+    }
+    const tithiMap = {};
+    const daysInMonth = this.getDaysInMonth(year, month);
+    for (let d = 1; d <= daysInMonth; d++) {
+      try {
+        const nd = new NepaliDate(year, month, d);
+        const tithi = nd.tithi();
+        NepaliDatePicker._free(nd);
+        if (tithi) tithiMap[d] = tithi;
+      } catch (e) {}
+    }
+    NepaliDatePicker.tithiCache.set(key, tithiMap);
+    return tithiMap;
+  }
+
+  _getTithiForADMonth(year, month) {
+    const key = `ad-${year}-${month}`;
+    if (NepaliDatePicker.tithiCache.has(key)) {
+      return NepaliDatePicker.tithiCache.get(key);
+    }
+    const tithiMap = {};
+    const daysInMonth = new Date(year, month, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      try {
+        const nd = NepaliDate.fromGregorian(year, month, d);
+        const tithi = nd.tithi();
+        NepaliDatePicker._free(nd);
+        if (tithi) tithiMap[d] = tithi;
+      } catch (e) {}
+    }
+    NepaliDatePicker.tithiCache.set(key, tithiMap);
+    return tithiMap;
   }
 
   _getTodayBS() {

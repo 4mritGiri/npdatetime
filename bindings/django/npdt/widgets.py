@@ -137,6 +137,7 @@ class NepaliDatePickerWidget(Input):
         show_holidays=True,
         disable_weekends=False,
         on_date_disabled="prevent",
+        show_tithi=False,
         admin_theme=False,
         **kwargs,
     ):
@@ -159,6 +160,7 @@ class NepaliDatePickerWidget(Input):
         self.show_holidays = show_holidays
         self.disable_weekends = disable_weekends
         self.on_date_disabled = on_date_disabled
+        self.show_tithi = show_tithi
         self.extra_options = kwargs
 
     def _get_holiday_dates(self):
@@ -281,6 +283,9 @@ class NepaliDatePickerWidget(Input):
         if self.on_date_disabled != "prevent":
             picker_options["onDateDisabled"] = self.on_date_disabled
 
+        if self.show_tithi:
+            picker_options["showTithi"] = True
+
         # Add any extra options
         picker_options.update(self.extra_options)
 
@@ -341,6 +346,7 @@ class NepaliDateRangeWidget(forms.MultiWidget):
         show_holidays=True,
         disable_weekends=False,
         on_date_disabled="prevent",
+        show_tithi=False,
         admin_theme=False,
         **kwargs,
     ):
@@ -355,6 +361,7 @@ class NepaliDateRangeWidget(forms.MultiWidget):
             "show_holidays": show_holidays,
             "disable_weekends": disable_weekends,
             "on_date_disabled": on_date_disabled,
+            "show_tithi": show_tithi,
             "admin_theme": admin_theme,
         }
         widget_kwargs.update(kwargs)
