@@ -41,7 +41,7 @@ class NepaliDateField(forms.CharField):
             )
     """
 
-    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
+    def __init__(self, *args, mode="AD", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
 
@@ -81,6 +81,11 @@ class NepaliDateField(forms.CharField):
                     f"Invalid {self.mode} date: {e}", code="invalid_date"
                 )
 
+        # Server-side validation for disabled date constraints
+        widget = self.widget
+        if hasattr(widget, "validate_date"):
+            widget.validate_date(value)
+
         return value
 
     def to_nepali_date(self, value):
@@ -109,7 +114,7 @@ class NepaliDateTimeField(forms.CharField):
         widget_kwargs (dict): Extra keyword arguments forwarded to widget.
     """
 
-    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
+    def __init__(self, *args, mode="AD", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
 
@@ -176,7 +181,7 @@ class NepaliDateRangeField(forms.CharField):
         widget_kwargs (dict): Extra keyword arguments forwarded to widget.
     """
 
-    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
+    def __init__(self, *args, mode="AD", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
 

@@ -99,7 +99,7 @@ class NepaliDateField(models.CharField):
 
     description = "Nepali Date (Bikram Sambat) field"
 
-    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
+    def __init__(self, *args, mode="AD", language="en", widget_kwargs=None, **kwargs):
         self.mode = mode
         self.language = language
         self.widget_kwargs = widget_kwargs or {}

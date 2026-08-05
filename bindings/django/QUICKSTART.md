@@ -83,19 +83,82 @@ class PersonAdmin(admin.ModelAdmin):
     # Date picker automatically applied!
 ```
 
+For explicit admin theme matching:
+
+```python
+from npdt.widgets import NepaliDatePickerWidget
+
+widgets = {
+    'birth_date_bs': NepaliDatePickerWidget(admin_theme=True),
+}
+```
+
 ## Widget Options
+
+### Core Options
 
 ```python
 NepaliDatePickerWidget(
     mode='BS',                    # 'BS' or 'AD'
     language='en',                # 'en' or 'np'
-    theme='auto',                 # 'auto' (follows html[data-theme]), 'light', or 'dark'
+    theme='auto',                 # 'auto', 'light', 'dark', or 'admin'
+    admin_theme=False,            # Shortcut for theme='admin'
     include_time=False,           # Include time picker
     show_today_button=True,       # Show today button
     show_clear_button=True,       # Show clear button
     min_date='2080-01-01',       # Minimum date
     max_date='2085-12-30',       # Maximum date
 )
+```
+
+### Dynamic Disabling Options
+
+```python
+NepaliDatePickerWidget(
+    # Disable specific dates
+    disabled_dates=['2082-01-15', '2082-06-20'],
+
+    # Disable specific weekdays (0=Sun, 1=Mon, ..., 6=Sat)
+    disabled_days=[0, 6],              # List format
+    disabled_days='1-5',               # Range format (Mon–Fri)
+    disabled_days='1-5,0',             # Mixed format
+
+    # Disable past dates (future-only selection)
+    disable_past_dates=True,
+
+    # Disable weekends (Sat in BS, Sun in AD)
+    disable_weekends=True,
+
+    # Disable holidays from holiday provider
+    disable_holidays=True,             # Uses NepalPublicHolidays by default
+    holiday_provider=MyHolidays(),     # Custom provider
+
+    # Show holidays visually (without disabling)
+    show_holidays=True,
+
+    # Behavior when disabled date is selected
+    on_date_disabled='prevent',        # 'prevent' or 'warn'
+
+    # Show lunar tithi on date hover
+    show_tithi=True,
+)
+```
+
+### Using `widget_kwargs` with Form Fields
+
+```python
+from npdt.forms import NepaliDateField
+
+class LeaveForm(forms.Form):
+    start_date = NepaliDateField(
+        mode='BS',
+        widget_kwargs={
+            'disable_past_dates': True,
+            'disable_holidays': True,
+            'disable_weekends': True,
+            'show_tithi': True,
+        }
+    )
 ```
 
 ## Common Template Filters
@@ -121,6 +184,11 @@ NepaliDatePickerWidget(
 <!-- Fiscal Year and Quarter -->
 {{ date|fiscal_year }}     {# 2080/81 #}
 {{ date|fiscal_quarter }}  {# 3 #}
+
+<!-- Inline date picker with options -->
+{% nepali_date_picker "event_date" disable_past_dates=True %}
+{% nepali_date_picker "event_date" admin_theme=True %}
+{% nepali_date_picker "event_date" show_tithi=True %}
 ```
 
 That's it! You're ready to use Nepali dates in your Django application! 🎉

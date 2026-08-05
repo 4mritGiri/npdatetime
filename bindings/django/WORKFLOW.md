@@ -3,7 +3,7 @@
 ## The Key Point
 
 **JavaScript/CSS files have ONE source location:**
-- ✅ Source: `bindings/javascript/picker.js` 
+- ✅ Source: `bindings/javascript/picker.js`
 - ✅ Source: `bindings/javascript/picker.css`
 - ❌ Copy: `bindings/django/npdt/static/.../picker.min.js`
 - ❌ Copy: `bindings/django/npdt/static/.../picker.css`
@@ -39,6 +39,49 @@ git commit -m "Update date picker"
 ../javascript/pkg/*             → static/.../js/pkg/*
 ```
 
+## Publishing
+
+All packages are published via GitHub Actions when a version tag is pushed. The `Makefile` provides convenience targets:
+
+### Bump Version
+
+```bash
+# Bump version across all packages (Cargo.toml, pyproject.toml, setup.py, etc.)
+make publish-bump VERSION=0.3.0
+# Commits with [skip ci] to avoid triggering CI
+```
+
+### Publish
+
+```bash
+# Tag current version and push to GitHub — triggers CI to publish all packages
+make publish
+
+# Dry run — show what would happen without pushing
+make publish-dry
+```
+
+### Clean a Tag
+
+```bash
+# Delete a version tag locally and remotely
+make publish-clean VERSION=0.2.5
+```
+
+### What CI Publishes
+
+When a `v*.*.*` tag is pushed, the `publish.yml` workflow publishes:
+
+| Package | Target |
+|---------|--------|
+| 🦀 Rust crate | crates.io |
+| 🐍 Python package | PyPI |
+| 🌐 WASM package | npm (`@4mritgiri/npdatetime`) |
+| 🎯 Django package | PyPI (`django-npdt`) |
+| 🐘 PHP package | GitHub release assets |
+
+Monitor: https://github.com/4mritGiri/npdatetime/actions
+
 ## Why This Approach?
 
 ✅ **Single source of truth** - No confusion about which file to edit
@@ -55,7 +98,10 @@ git commit -m "Update date picker"
 | Sync to Django | `python3 build_assets.py` |
 | Install for dev | `pip install -e .` |
 | Build package | `python setup.py sdist bdist_wheel` |
-| Publish | `twine upload dist/*` |
+| Bump version | `make publish-bump VERSION=X.Y.Z` |
+| Publish | `make publish` |
+| Publish dry run | `make publish-dry` |
+| Clean tag | `make publish-clean VERSION=X.Y.Z` |
 
 ## Files Created
 

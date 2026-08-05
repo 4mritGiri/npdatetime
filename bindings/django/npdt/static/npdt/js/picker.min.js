@@ -653,6 +653,30 @@ export class NepaliDatePicker {
         newDate = NepaliDate.fromGregorian(year, month, day);
       }
 
+      // Validate: reject disabled dates typed manually
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const weekday = this._getWeekdayForDate(year, month, day);
+      if (this.isDateDisabled(dateStr, weekday)) {
+        NepaliDatePicker._free(newDate);
+        this.input.value = "";
+        if (this.selectedDate) {
+          NepaliDatePicker._free(this.selectedDate);
+          this.selectedDate = null;
+        }
+        this.input.classList.add("npd-error");
+        this.input.dispatchEvent(new CustomEvent("npd:disabled-date", {
+          bubbles: true,
+          detail: { date: dateStr, source: "input" },
+        }));
+        if (this.options.onDateDisabled === "warn") {
+          console.warn(`NepaliDatePicker: Disabled date ${dateStr} entered manually (onDateDisabled="warn").`);
+        } else {
+          this.render();
+          return;
+        }
+      }
+      this.input.classList.remove("npd-error");
+
       NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
       this.viewDate = {
@@ -1003,6 +1027,8 @@ export class NepaliDatePicker {
       } else {
         isHoliday = index === 0; // Sunday
       }
+      // Also mark disabledDays as holiday in header
+      if (this._disabledDaysSet.has(index)) isHoliday = true;
       html += `<div class="npd-weekday ${isHoliday ? "holiday" : ""}">${day}</div>`;
     });
 
@@ -1043,7 +1069,7 @@ export class NepaliDatePicker {
         // So we just check if the cell position % 7 === 6.
 
         const cellIndex = startWeekday - 1 - i;
-        const isHoliday = cellIndex % 7 === 6;
+        const isHoliday = cellIndex % 7 === 6 || this._disabledDaysSet.has(cellIndex % 7);
 
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
@@ -1100,7 +1126,7 @@ export class NepaliDatePicker {
         const isToday = isCurrentYear && isCurrentMonth && todayBS && day === todayBS.day;
 
         const currentWeekday = (startWeekday + day - 1) % 7;
-        const isHoliday = currentWeekday === 6; // Saturday in Nepal
+        const isHoliday = currentWeekday === 6 || this._disabledDaysSet.has(currentWeekday);
 
         const fullDate = `${this.viewDate.year}-${String(this.viewDate.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
@@ -1132,7 +1158,7 @@ export class NepaliDatePicker {
       const currentCells = startWeekday + daysInMonth;
       for (let day = 1; day <= totalCells - currentCells; day++) {
         const cellIndex = currentCells + day - 1;
-        const isHoliday = cellIndex % 7 === 6;
+        const isHoliday = cellIndex % 7 === 6 || this._disabledDaysSet.has(cellIndex % 7);
 
         const dayText =
           this.options.language === "np" ? this.toNepaliNum(day) : day;
@@ -1156,7 +1182,7 @@ export class NepaliDatePicker {
       // Previous month overflow
       for (let i = startWeekday - 1; i >= 0; i--) {
         const cellIndex = startWeekday - 1 - i;
-        const isHoliday = cellIndex % 7 === 0; // Sunday logic for AD
+        const isHoliday = cellIndex % 7 === 0 || this._disabledDaysSet.has(cellIndex % 7);
         const day = daysInPrevMonth - i;
         html += `<div role="button" tabindex="0" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${day}</div>`;
       }
@@ -1218,7 +1244,7 @@ export class NepaliDatePicker {
           isCurrentYear && isCurrentMonth && day === today.getDate();
 
         const currentWeekday = (startWeekday + day - 1) % 7;
-        const isHoliday = currentWeekday === 0; // Sunday for AD
+        const isHoliday = currentWeekday === 0 || this._disabledDaysSet.has(currentWeekday);
 
         const fullDate = `${this.viewDate.year}-${String(this.viewDate.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const isDisabled = this.isDateDisabled(fullDate, currentWeekday);
@@ -1243,7 +1269,7 @@ export class NepaliDatePicker {
       const currentCells = startWeekday + daysInMonth;
       for (let day = 1; day <= totalCells - currentCells; day++) {
         const cellIndex = currentCells + day - 1;
-        const isHoliday = cellIndex % 7 === 0; // Sunday for AD
+        const isHoliday = cellIndex % 7 === 0 || this._disabledDaysSet.has(cellIndex % 7);
         html += `<div role="button" tabindex="0" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="1">${day}</div>`;
       }
     }
@@ -1700,6 +1726,14 @@ export class NepaliDatePicker {
     );
   }
 
+  _getWeekdayForDate(year, month, day) {
+    if (this.options.mode === "BS") {
+      const startWeekday = this._getStartWeekdayBS(year, month);
+      return (startWeekday + day - 1) % 7;
+    }
+    return new Date(year, month - 1, day).getDay();
+  }
+
   _getStartWeekdayBS(year, month) {
     const key = `${year}-${month}`;
     if (NepaliDatePicker.weekdayCache.has(key)) {
@@ -1886,6 +1920,30 @@ export class NepaliDatePicker {
       } else {
         newDate = NepaliDate.fromGregorian(year, month, day);
       }
+
+      // Validate: reject disabled dates typed manually
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const weekday = this._getWeekdayForDate(year, month, day);
+      if (this.isDateDisabled(dateStr, weekday)) {
+        NepaliDatePicker._free(newDate);
+        this.input.value = "";
+        if (this.selectedDate) {
+          NepaliDatePicker._free(this.selectedDate);
+          this.selectedDate = null;
+        }
+        this.input.classList.add("npd-error");
+        this.input.dispatchEvent(new CustomEvent("npd:disabled-date", {
+          bubbles: true,
+          detail: { date: dateStr, source: "blur" },
+        }));
+        if (this.options.onDateDisabled === "warn") {
+          console.warn(`NepaliDatePicker: Disabled date ${dateStr} entered manually (onDateDisabled="warn").`);
+        } else {
+          this.render();
+          return;
+        }
+      }
+      this.input.classList.remove("npd-error");
 
       NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;

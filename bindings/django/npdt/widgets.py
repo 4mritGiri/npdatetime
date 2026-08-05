@@ -89,6 +89,7 @@ class NepaliDatePickerWidget(Input):
         on_date_disabled (str): Behavior when a disabled date is selected:
             'prevent' - prevent selection entirely (default)
             'warn' - allow selection with a warning
+        show_tithi (bool): Show lunar tithi on date hover. Default: False
         admin_theme (bool): Alias for theme='admin'. Default: False
 
     Example::
@@ -315,6 +316,163 @@ class NepaliDatePickerWidget(Input):
                 attrs["placeholder"] = "YYYY-MM-DD"
 
         return attrs
+
+    def validate_date(self, value):
+        """Server-side validation for disabled date constraints.
+
+        Call this from your form's ``clean()`` method to enforce the same
+        constraints that the client-side picker enforces. Prevents bypass
+        via manual input or direct HTTP POST.
+
+        Args:
+            value (str): Date string in YYYY-MM-DD format.
+
+        Raises:
+            ValidationError: If the date violates any disabled constraint.
+        """
+        from django.core.exceptions import ValidationError
+
+        if not value:
+            return
+
+        try:
+            parts = value.split("-")
+            year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
+        except (ValueError, IndexError):
+            raise ValidationError(
+                "Invalid date format. Use YYYY-MM-DD.", code="invalid_format"
+            )
+
+        # 1. Explicit disabledDates
+        if self.disabled_dates and value in self.disabled_dates:
+            raise ValidationError(
+                "Date %(date)s is not available for selection.",
+                code="disabled_date",
+                params={"date": value},
+            )
+
+        # 2. Disabled weekdays
+        if self.disabled_days:
+            try:
+                import npdatetime as npd
+
+                if self.mode == "BS":
+                    nd = npd.NepaliDate(year, month, day)
+                    gy, gm, gd = nd.to_gregorian()
+                    weekday = _gregorian_weekday(gy, gm, gd)
+                else:
+                    import datetime
+
+                    weekday = datetime.date(year, month, day).weekday()
+                    # Convert: Python weekday (Mon=0) → JS convention (Sun=0)
+                    weekday = (weekday + 1) % 7
+            except Exception:
+                weekday = None
+
+            if weekday is not None and weekday in self.disabled_days:
+                day_names = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                ]
+                raise ValidationError(
+                    "%(day_name)ss are not available for selection.",
+                    code="disabled_weekday",
+                    params={"day_name": day_names[weekday]},
+                )
+
+        # 3. Disable weekends
+        if self.disable_weekends:
+            try:
+                if self.mode == "BS":
+                    import npdatetime as npd
+
+                    nd = npd.NepaliDate(year, month, day)
+                    gy, gm, gd = nd.to_gregorian()
+                    weekday = _gregorian_weekday(gy, gm, gd)
+                else:
+                    import datetime
+
+                    weekday = datetime.date(year, month, day).weekday()
+                    weekday = (weekday + 1) % 7
+            except Exception:
+                weekday = None
+
+            if weekday is not None:
+                if self.mode == "BS" and weekday == 6:
+                    raise ValidationError(
+                        "Saturdays are not available for selection.",
+                        code="disabled_weekend",
+                    )
+                if self.mode == "AD" and weekday == 0:
+                    raise ValidationError(
+                        "Sundays are not available for selection.",
+                        code="disabled_weekend",
+                    )
+
+        # 4. Disable past dates
+        if self.disable_past_dates:
+            try:
+                import npdatetime as npd
+
+                today = npd.NepaliDate.today()
+                if self.mode == "AD":
+                    import datetime
+
+                    today_ad = datetime.date.today()
+                    date_obj = datetime.date(year, month, day)
+                    if date_obj < today_ad:
+                        raise ValidationError(
+                            "Past dates are not available for selection.",
+                            code="past_date",
+                        )
+                else:
+                    today_str = f"{today.year}-{today.month:02d}-{today.day:02d}"
+                    if value < today_str:
+                        raise ValidationError(
+                            "Past dates are not available for selection.",
+                            code="past_date",
+                        )
+            except ValidationError:
+                raise
+            except Exception:
+                pass
+
+        # 5. Disable holidays
+        if self.disable_holidays:
+            holiday_dates = self._get_holiday_dates()
+            if value in holiday_dates:
+                raise ValidationError(
+                    "Date %(date)s is a holiday and not available for selection.",
+                    code="holiday_date",
+                    params={"date": value},
+                )
+
+        # 6. Min/Max date bounds
+        if self.min_date and value < self.min_date:
+            raise ValidationError(
+                "Date must be on or after %(min_date)s.",
+                code="min_date",
+                params={"min_date": self.min_date},
+            )
+        if self.max_date and value > self.max_date:
+            raise ValidationError(
+                "Date must be on or before %(max_date)s.",
+                code="max_date",
+                params={"max_date": self.max_date},
+            )
+
+
+def _gregorian_weekday(year, month, day):
+    """Get weekday in JS convention (0=Sun, 1=Mon, ..., 6=Sat)."""
+    import datetime
+
+    py_wd = datetime.date(year, month, day).weekday()
+    return (py_wd + 1) % 7
 
 
 class NepaliDateRangeWidget(forms.MultiWidget):

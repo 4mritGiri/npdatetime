@@ -3,7 +3,7 @@
 A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian calendars. Beautiful, accessible, and easy to use.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-0.2.5-green.svg)]()
 [![](https://data.jsdelivr.com/v1/package/npm/@4mritgiri/npdatetime/badge)](https://www.jsdelivr.com/package/npm/@4mritgiri/npdatetime)
 
 ## ✨ Features
@@ -21,6 +21,9 @@ A modern, production-ready date picker for Nepali (Bikram Sambat) and Gregorian 
 - 🔒 **Strict Validation** - Prevents invalid characters and format errors
 - 🟥 **Holiday Highlighting** - Saturdays (BS) and Sundays (AD) in red
 - 🌙 **Dark Mode** - Automatic system theme integration
+- 🏢 **Enterprise Options** - Disable past dates, weekends, holidays, specific dates/weekdays, and custom callbacks
+- 🌙 **Tithi on Hover** - Show lunar tithi (Nepali date detail) on date hover
+- 🎯 **Admin Theme** - Built-in Django admin theme integration
 - 🚀 **Zero Dependencies** - Pure JavaScript and high-performance WASM
 - ⚡ **Auto-Init** - Initialize via `type="npdate"` or `data-npdate`
 
@@ -40,11 +43,11 @@ You can use the library directly via CDN without installing:
 
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.5/picker.css">
 
 <!-- JS Module -->
 <script type="module">
-  import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.0/picker.js';
+  import NepaliDatePicker from 'https://cdn.jsdelivr.net/npm/@4mritgiri/npdatetime@0.2.5/picker.js';
   
   // Auto-initialize inputs
   NepaliDatePicker.init();
@@ -118,15 +121,16 @@ new NepaliDatePicker(element, options)
 
 ### Options
 
+#### Core Options
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `mode` | string | `'BS'` | Calendar mode: `'BS'` or `'AD'` |
 | `language` | string | `'en'` | Display language: `'en'` or `'np'` |
 | `format` | string | `'%Y-%m-%d'` | Date format string |
-| `minDate` | NepaliDate | `null` | Minimum selectable date |
-| `maxDate` | NepaliDate | `null` | Maximum selectable date |
-| `disabledDates` | array | `[]` | Array of disabled dates |
-| `theme` | string | `'auto'` | Theme: `'auto'`, `'light'`, `'dark'` |
+| `minDate` | string | `null` | Minimum selectable date (YYYY-MM-DD) |
+| `maxDate` | string | `null` | Maximum selectable date (YYYY-MM-DD) |
+| `theme` | string | `'auto'` | Theme: `'auto'`, `'light'`, `'dark'`, or `'admin'` |
 | `position` | string | `'auto'` | Picker position: `'auto'`, `'top'`, `'bottom'` |
 | `closeOnSelect` | boolean | `true` | Close picker after selection |
 | `showTodayButton` | boolean | `true` | Show "Today" button |
@@ -134,6 +138,19 @@ new NepaliDatePicker(element, options)
 | `onChange` | function | `null` | Callback when date changes |
 | `onOpen` | function | `null` | Callback when picker opens |
 | `onClose` | function | `null` | Callback when picker closes |
+
+#### Dynamic Disabling Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `disabledDates` | array | `[]` | Array of date strings to disable (YYYY-MM-DD) |
+| `disabledDays` | array | `[]` | Weekday indices to disable (0=Sun, 1=Mon, ..., 6=Sat) |
+| `disablePastDates` | boolean | `false` | Disable all dates before today |
+| `disableWeekends` | boolean | `false` | Disable weekends (Saturday in BS, Sunday in AD) |
+| `disableHolidays` | boolean | `false` | Disable dates in `disabledDates` that are holidays |
+| `holidayNames` | object | `{}` | Map of date strings to holiday names for tooltips |
+| `onDateDisabled` | string | `'prevent'` | Behavior when disabled date is clicked: `'prevent'` or `'warn'` |
+| `showTithi` | boolean | `false` | Show lunar tithi on date hover |
 
 ### Methods
 
@@ -153,7 +170,7 @@ picker.clear();
 // Switch calendar mode
 picker.switchMode('BS' | 'AD');
 
-// Destroy the picker
+// Destroy the picker (frees WASM memory)
 picker.destroy();
 
 // Get selected date
@@ -183,6 +200,24 @@ The date picker comes with multiple color themes:
 <input type="npdate" data-theme="red">
 ```
 
+### Django Admin Theme
+
+Use the built-in admin theme to match Django admin styling:
+
+```javascript
+const picker = new NepaliDatePicker('#admin-date', {
+  theme: 'admin',
+});
+```
+
+Or via data attribute:
+
+```html
+<input type="npdate" data-theme="admin">
+```
+
+The admin theme uses Django admin's color palette (#417690 primary, #ba2121 danger) and adapts to the admin's font stack.
+
 ### Custom Styling
 
 You can easily override CSS variables:
@@ -205,17 +240,72 @@ Dark mode is automatically supported via `prefers-color-scheme` or you can force
 
 ## 📋 Examples
 
+### Enterprise: Disable Past Dates & Weekends
+
+```javascript
+const picker = new NepaliDatePicker('#leave-date', {
+  mode: 'BS',
+  disablePastDates: true,
+  disableWeekends: true,
+  onChange: (date) => {
+    console.log('Selected:', date.format('%Y-%m-%d'));
+  }
+});
+```
+
+### Disable Specific Dates & Days
+
+```javascript
+const picker = new NepaliDatePicker('#date-input', {
+  mode: 'BS',
+  disabledDates: ['2082-01-15', '2082-06-20'],  // Specific dates
+  disabledDays: [0, 6],  // Disable Sundays & Saturdays
+  onChange: (date) => {
+    console.log('Selected:', date.format('%Y-%m-%d'));
+  }
+});
+```
+
+### Holidays with Tooltips
+
+```javascript
+const picker = new NepaliDatePicker('#date-input', {
+  mode: 'BS',
+  disabledDates: ['2082-01-01', '2082-08-10'],
+  holidayNames: {
+    '2082-01-01': 'New Year',
+    '2082-08-10': 'Vijaya Dashami',
+  },
+  disableHolidays: true,
+  onChange: (date) => {
+    console.log('Selected:', date.format('%Y-%m-%d'));
+  }
+});
+```
+
 ### With Validation
 
 ```javascript
 const picker = new NepaliDatePicker('#date-input', {
   mode: 'BS',
-  minDate: new NepaliDate(2080, 1, 1),
-  maxDate: new NepaliDate(2081, 12, 30),
+  minDate: '2080-01-01',
+  maxDate: '2085-12-30',
   onChange: (date) => {
     if (date) {
       console.log('Valid date selected:', date.format('%d %B %Y'));
     }
+  }
+});
+```
+
+### Show Tithi on Hover
+
+```javascript
+const picker = new NepaliDatePicker('#date-input', {
+  mode: 'BS',
+  showTithi: true,
+  onChange: (date) => {
+    console.log('Selected:', date.format('%Y-%m-%d'));
   }
 });
 ```
@@ -261,6 +351,7 @@ function DateInput() {
     if (inputRef.current) {
       pickerRef.current = new NepaliDatePicker(inputRef.current, {
         mode: 'BS',
+        disablePastDates: true,
         onChange: (date) => {
           console.log('Selected:', date);
         }
@@ -300,6 +391,35 @@ If you are not using a bundler (like Webpack or Vite), you can use valid ES Modu
 ```
 *Ensure `picker.js`, `picker.css`, and the `pkg/` folder are in the same directory.*
 
+## ⚡ WASM Memory Management
+
+This library uses WebAssembly for high-performance Nepali date calculations. `NepaliDate` objects allocate WASM linear memory that must be explicitly freed. The picker handles this internally, but if you create `NepaliDate` instances yourself, you **must** call `.free()` when done:
+
+```javascript
+import { NepaliDate } from './pkg/npdatetime.js';
+
+// ✅ Correct: free after use
+const date = new NepaliDate(2082, 1, 15);
+console.log(date.format('%Y-%m-%d'));
+date.free();
+
+// ❌ Wrong: memory leak — WASM memory is never reclaimed
+function leak() {
+  const date = new NepaliDate(2082, 1, 15);
+  return date.format('%Y-%m-%d');
+  // date.free() never called — WASM memory grows unbounded
+}
+```
+
+**Important:** JavaScript's `FinalizationRegistry` only triggers on GC, not on WASM memory pressure. In hot paths (e.g., rendering 42 days per month), always free immediately after use.
+
+The picker's `destroy()` method frees all internal WASM objects. Always call `destroy()` when removing a picker instance:
+
+```javascript
+// Clean up on component unmount
+picker.destroy();
+```
+
 ## ⌨️ Keyboard Navigation
 
 - **Enter/Space** - Open picker
@@ -328,7 +448,7 @@ If you are not using a bundler (like Webpack or Vite), you can use valid ES Modu
 │   ├── npdatetime_bg.wasm
 │   └── ...
 ├── demo/
-│   └── demo.html        # Demo page
+│   └── index.html        # Demo page
 └── README.md
 ```
 
@@ -389,12 +509,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🗺️ Roadmap
 
-- [ ] Time picker support
-- [ ] Date range selection
-- [ ] More themes
-- [ ] Mobile-optimized touch interactions
+- [x] Time picker support
+- [x] Date range selection
 - [x] NPM package
 - [x] CDN hosting
+- [x] Enterprise options (disable past dates, weekends, holidays)
+- [x] Django admin theme
+- [x] Tithi on hover
+- [ ] More themes
+- [ ] Mobile-optimized touch interactions
 
 ---
 

@@ -1,4 +1,4 @@
-.PHONY: help build test check clean lint \
+.PHONY: help build test check clean lint publish \
        build-rust test-rust bench-rust \
        build-python test-python \
        build-js test-js demo-js \
@@ -70,7 +70,11 @@ run-django: ## Run Django dev server on :8000
 	cd $(DJANGO_DIR) && $(DJANGO_PYTHON) manage.py runserver 0.0.0.0:8000 --settings=$(DJANGO_SETTINGS)
 
 migrate-django: ## Run Django migrations
+	cd $(DJANGO_DIR) && $(DJANGO_PYTHON) manage.py makemigrations --settings=$(DJANGO_SETTINGS)
 	cd $(DJANGO_DIR) && $(DJANGO_PYTHON) manage.py migrate --settings=$(DJANGO_SETTINGS)
+
+create-django: ## Create Django superuser
+	cd $(DJANGO_DIR) && $(DJANGO_PYTHON) manage.py createsuperuser --settings=$(DJANGO_SETTINGS)
 
 shell-django: ## Open Django shell
 	cd $(DJANGO_DIR) && $(DJANGO_PYTHON) manage.py shell --settings=$(DJANGO_SETTINGS)
@@ -88,6 +92,54 @@ test-all: test-rust test-django ## Run all tests
 check: lint-rust test-rust ## Lint + test Rust
 
 lint: lint-rust ## Lint Rust code
+
+# ── Publish ──────────────────────────────────────────────────────────
+
+VERSION ?= $(shell grep '^version =' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+
+publish: ## Tag current version and push to GitHub (triggers CI publish)
+	@echo "Current version: $(VERSION)"
+	@echo ""
+	@git status --porcelain | grep -q . && echo "⚠  Uncommitted changes detected. Commit first." && exit 1 || true
+	@git tag -l "v$(VERSION)" | grep -q . && echo "⚠  Tag v$(VERSION) already exists." && echo "   Delete it first:  make publish-clean VERSION=$(VERSION)" && exit 1 || true
+	@echo "→ Tagging v$(VERSION)..."
+	git tag v$(VERSION)
+	@echo "→ Pushing tag v$(VERSION) to origin..."
+	git push origin v$(VERSION)
+	@echo ""
+	@echo "✅ Tag v$(VERSION) pushed. CI will publish all packages."
+	@echo "   Monitor: https://github.com/4mritGiri/npdatetime/actions"
+
+publish-dry: ## Show what publish would do (no actual push)
+	@echo "Current version: $(VERSION)"
+	@echo ""
+	@git status --porcelain | grep -q . && echo "⚠  Uncommitted changes detected!" || echo "✓ Working tree clean"
+	@git tag -l "v$(VERSION)" | grep -q . && echo "⚠  Tag v$(VERSION) already exists" || echo "✓ Tag v$(VERSION) does not exist yet"
+	@echo ""
+	@echo "Would run:"
+	@echo "  git tag v$(VERSION)"
+	@echo "  git push origin v$(VERSION)"
+	@echo ""
+	@echo "This triggers CI to publish:"
+	@echo "  🦀 Rust → crates.io"
+	@echo "  🐍 Python → PyPI"
+	@echo "  🌐 WASM → npm (@4mritgiri/npdatetime)"
+	@echo "  🎯 Django → PyPI (django-npdt)"
+	@echo "  🐘 PHP → GitHub release assets"
+
+publish-clean: ## Delete a version tag locally and remotely
+	@echo "Removing tag v$(VERSION)..."
+	@git tag -d v$(VERSION) 2>/dev/null || echo "  (local tag not found)"
+	@git push origin :refs/tags/v$(VERSION) 2>/dev/null || echo "  (remote tag not found)"
+	@echo "✅ Tag v$(VERSION) removed."
+
+publish-bump: ## Bump version and commit: make publish-bump VERSION=0.3.0
+	@echo "Bumping version to $(VERSION)..."
+	python3 update_version.py $(VERSION)
+	@echo "→ Committing version bump..."
+	git add -A
+	git commit -m "chore: bump version to $(VERSION) [skip ci]"
+	@echo "✅ Version bumped to $(VERSION). Run 'make publish' to tag and push."
 
 # ── Clean ─────────────────────────────────────────────────────────────
 

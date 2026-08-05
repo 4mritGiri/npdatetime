@@ -275,3 +275,87 @@ class NepaliDateModelFieldTest(TestCase):
         field = NepaliDateModelField()
         name, path, args, kwargs = field.deconstruct()
         self.assertNotIn("widget_kwargs", kwargs)
+
+
+class ValidateDateTest(TestCase):
+    """Test NepaliDatePickerWidget.validate_date server-side validation."""
+
+    def test_valid_date_passes(self):
+        widget = NepaliDatePickerWidget(disable_weekends=True)
+        # Should not raise — a weekday is fine
+        widget.validate_date("2082-01-14")  # Tuesday in BS
+
+    def test_disabled_date_rejected(self):
+        widget = NepaliDatePickerWidget(disabled_dates=["2082-01-15"])
+        from django.core.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2082-01-15")
+        self.assertEqual(ctx.exception.code, "disabled_date")
+
+    def test_disabled_weekday_rejected(self):
+        widget = NepaliDatePickerWidget(disabled_days=[0, 6])
+        # Find a known Sunday — 2025-01-05 is a Sunday
+        from django.core.exceptions import ValidationError
+
+        widget_ad = NepaliDatePickerWidget(mode="AD", disabled_days=[0])
+        with self.assertRaises(ValidationError) as ctx:
+            widget_ad.validate_date("2025-01-05")
+        self.assertEqual(ctx.exception.code, "disabled_weekday")
+
+    def test_weekend_bs_rejected(self):
+        widget = NepaliDatePickerWidget(mode="BS", disable_weekends=True)
+        from django.core.exceptions import ValidationError
+
+        # 2082-01-06 is a Saturday in BS
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2082-01-06")
+        self.assertEqual(ctx.exception.code, "disabled_weekend")
+
+    def test_weekend_ad_rejected(self):
+        widget = NepaliDatePickerWidget(mode="AD", disable_weekends=True)
+        from django.core.exceptions import ValidationError
+
+        # 2025-01-05 is a Sunday
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2025-01-05")
+        self.assertEqual(ctx.exception.code, "disabled_weekend")
+
+    def test_past_date_rejected(self):
+        widget = NepaliDatePickerWidget(mode="AD", disable_past_dates=True)
+        from django.core.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2020-01-01")
+        self.assertEqual(ctx.exception.code, "past_date")
+
+    def test_min_date_rejected(self):
+        widget = NepaliDatePickerWidget(min_date="2082-06-01")
+        from django.core.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2082-05-15")
+        self.assertEqual(ctx.exception.code, "min_date")
+
+    def test_max_date_rejected(self):
+        widget = NepaliDatePickerWidget(max_date="2082-06-01")
+        from django.core.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2082-06-15")
+        self.assertEqual(ctx.exception.code, "max_date")
+
+    def test_holiday_rejected(self):
+        widget = NepaliDatePickerWidget(disable_holidays=True)
+        from django.core.exceptions import ValidationError
+
+        # New Year is always a holiday: 2082-01-01
+        with self.assertRaises(ValidationError) as ctx:
+            widget.validate_date("2082-01-01")
+        self.assertEqual(ctx.exception.code, "holiday_date")
+
+    def test_empty_value_passes(self):
+        widget = NepaliDatePickerWidget(disable_weekends=True)
+        # Should not raise for empty
+        widget.validate_date("")
+        widget.validate_date(None)

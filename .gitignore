@@ -69,3 +69,6 @@ local_test/
 notes/
 .venv/
 .qwen/
+
+# SQLite
+*.sqlite3

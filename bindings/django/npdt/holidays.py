@@ -6,7 +6,6 @@ Nepal public holiday support and a base class for custom providers.
 """
 
 from abc import ABC, abstractmethod
-from datetime import date
 
 
 class HolidayProvider(ABC):
