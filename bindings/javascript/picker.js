@@ -1513,10 +1513,17 @@ export class NepaliDatePicker {
 
     // 5. Disable past dates
     if (this.options.disablePastDates) {
-      if (!this._todayStr) {
-        this._getTodayBS(); // Populates _todayStr
+      if (this.options.mode === "AD") {
+        if (!this._todayStrAD) {
+          this._getTodayAD();
+        }
+        if (this._todayStrAD && dateStr < this._todayStrAD) return true;
+      } else {
+        if (!this._todayStr) {
+          this._getTodayBS();
+        }
+        if (this._todayStr && dateStr < this._todayStr) return true;
       }
-      if (this._todayStr && dateStr < this._todayStr) return true;
     }
 
     return false;
@@ -1801,6 +1808,17 @@ export class NepaliDatePicker {
       this._todayStr = null;
     }
     return this._todayBs;
+  }
+
+  _getTodayAD() {
+    if (this._todayStrAD) return this._todayStrAD;
+    try {
+      const now = new Date();
+      this._todayStrAD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    } catch (e) {
+      this._todayStrAD = null;
+    }
+    return this._todayStrAD;
   }
 
   getDaysInMonth(year, month) {
