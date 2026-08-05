@@ -1990,17 +1990,86 @@ export class NepaliDatePicker {
     this.picker.dataset.theme = theme;
   }
 
+  static _isDjangoAdmin() {
+    return (
+      document.querySelector("#changelist-filter, .admin, #content-main, fieldset.module") !== null ||
+      document.body.classList.contains("admin") ||
+      window.location.pathname.startsWith("/admin/")
+    );
+  }
+
   static init(
     selector = 'input[type="npdate"], input[data-npdate]',
     options = {},
   ) {
     this.setupThemeObserver();
+    this.setupDOMObserver(selector, options);
     const inputs = document.querySelectorAll(selector);
     inputs.forEach((input) => {
       if (!NepaliDatePicker.instances.has(input)) {
-        new NepaliDatePicker(input, options);
+        this._initSingle(input, options);
       }
     });
+  }
+
+  static _initSingle(input, defaultOptions = {}) {
+    if (NepaliDatePicker.instances.has(input)) return;
+
+    let options = { ...defaultOptions };
+    const configAttr = input.getAttribute("data-npdate-config");
+    if (configAttr) {
+      try {
+        options = { ...options, ...JSON.parse(configAttr) };
+      } catch (e) {
+        // ignore invalid config
+      }
+    }
+
+    // Auto-detect Django admin theme
+    if (!options.theme || options.theme === "auto") {
+      if (this._isDjangoAdmin()) {
+        options.theme = "admin";
+      }
+    }
+
+    // Set input data-theme so the picker's syncTheme() reads correctly
+    if (options.theme && options.theme !== "auto") {
+      input.dataset.theme = options.theme;
+    }
+
+    const instance = new NepaliDatePicker(input, options);
+
+    // Propagate theme to wrapper so CSS :has() selectors work
+    const wrapper = input.closest(".npd-input-wrapper");
+    if (wrapper && options.theme) {
+      wrapper.dataset.theme = options.theme;
+    }
+
+    input.dispatchEvent(
+      new CustomEvent("npd:ready", { detail: { picker: instance }, bubbles: true })
+    );
+
+    return instance;
+  }
+
+  static setupDOMObserver(selector, options) {
+    if (this.domObserverSetup) return;
+    this.domObserverSetup = true;
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+          const matches = node.matches?.(selector)
+            ? [node]
+            : [...(node.querySelectorAll?.(selector) || [])];
+          matches.forEach((input) => this._initSingle(input, options));
+        }
+      }
+    });
+
+    const target = document.body || document.documentElement;
+    observer.observe(target, { childList: true, subtree: true });
   }
 }
 

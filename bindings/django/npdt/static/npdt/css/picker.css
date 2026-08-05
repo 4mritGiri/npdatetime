@@ -501,9 +501,44 @@
   color: var(--npd-text);
 }
 
-.npd-day.holiday {
+.npd-day.holiday:not(.disabled) {
   color: var(--npd-danger);
   font-weight: 600;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.npd-day.holiday.disabled {
+  color: var(--npd-danger);
+  opacity: 0.7;
+  text-decoration: line-through;
+  background: rgba(239, 68, 68, 0.1);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.npd-day.disabled:not(.holiday) {
+  color: var(--npd-text-light);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+.npd-day.disabled.today {
+  border-color: var(--npd-text-light);
+  color: var(--npd-text-light);
+  opacity: 0.4;
+}
+
+.npd-day.disabled.today.holiday {
+  color: var(--npd-danger);
+  opacity: 0.7;
+  border-color: var(--npd-danger);
+}
+
+.npd-day.disabled.selected {
+  opacity: 0.5;
+  text-decoration: line-through;
 }
 
 .npd-day.npd-overflow {
@@ -860,34 +895,6 @@
 }
 
 /* ===============================================
-   Disabled Date Styling
-   =============================================== */
-
-.npd-day.disabled {
-  color: var(--npd-text-light);
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-  text-decoration: line-through;
-}
-
-.npd-day.disabled.holiday {
-  color: var(--npd-text-light);
-  opacity: 0.35;
-}
-
-.npd-day.disabled.today {
-  border-color: var(--npd-text-light);
-  color: var(--npd-text-light);
-  opacity: 0.4;
-}
-
-.npd-day.disabled.selected {
-  opacity: 0.5;
-  text-decoration: line-through;
-}
-
-/* ===============================================
    Django Admin Theme
    Minimal, matching Django admin design language
    =============================================== */
@@ -1136,4 +1143,497 @@
   color: #ffffff;
   font-size: 11px;
   border-radius: 4px;
+}
+  color: #f9fafb;
+}
+
+/* ===============================================
+   Django Admin Theme — Light Mode
+   Matches Django admin CSS variables from vars.css
+   =============================================== */
+
+[data-theme="admin"] {
+  --npd-primary: #417690;
+  --npd-primary-hover: #335f76;
+  --npd-primary-light: #e1f0f7;
+  --npd-secondary: #79aec8;
+  --npd-success: #417690;
+  --npd-danger: #ba2121;
+  --npd-warning: #f0ad4e;
+
+  --npd-bg: #ffffff;
+  --npd-bg-secondary: #f8f8f8;
+  --npd-bg-hover: #e8e8e8;
+  --npd-text: #333333;
+  --npd-text-muted: #666666;
+  --npd-text-light: #999999;
+
+  --npd-border: #cccccc;
+  --npd-border-focus: #417690;
+  --npd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  --npd-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --npd-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  --npd-radius: 4px;
+  --npd-radius-sm: 3px;
+  --npd-radius-lg: 6px;
+  --npd-radius-full: 9999px;
+
+  font-family: "Roboto", "Lucida Grande", "DejaVu Sans", Verdana, Arial, sans-serif;
+}
+
+[data-theme="admin"] .npd-input {
+  padding: 5px 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #333333;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease-in-out;
+}
+
+[data-theme="admin"] .npd-input:focus {
+  border-color: #999999;
+  box-shadow: none;
+  outline: none;
+}
+
+[data-theme="admin"] .npd-input:hover {
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-icon-btn {
+  color: #666666;
+  background: #f8f8f8;
+}
+
+[data-theme="admin"] .npd-icon-btn:hover {
+  color: #417690;
+  background: #e8e8e8;
+}
+
+[data-theme="admin"] .npd-picker {
+  border: 1px solid #cccccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+[data-theme="admin"] .npd-header {
+  border-bottom: 1px solid #e8e8e8;
+}
+
+[data-theme="admin"] .npd-title {
+  color: #333333;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+[data-theme="admin"] .npd-title:hover {
+  background: #f8f8f8;
+  color: #417690;
+}
+
+[data-theme="admin"] .npd-nav-btn {
+  color: #666666;
+  background: #f8f8f8;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+[data-theme="admin"] .npd-nav-btn:hover {
+  background: #e8e8e8;
+  color: #417690;
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-weekday {
+  color: #999999;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+[data-theme="admin"] .npd-day {
+  color: #333333;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+[data-theme="admin"] .npd-day:not(.selected):not(.npd-empty):not(.disabled):hover {
+  background: #e8e8e8;
+  color: #333333;
+}
+
+[data-theme="admin"] .npd-day.selected {
+  background: #417690;
+  color: #ffffff;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+[data-theme="admin"] .npd-day.today {
+  border: 2px solid #417690;
+  font-weight: 600;
+}
+
+[data-theme="admin"] .npd-day.today.selected {
+  background: #417690;
+  color: #ffffff;
+  border-color: #417690;
+}
+
+[data-theme="admin"] .npd-day.holiday:not(.disabled) {
+  color: #ba2121;
+  font-weight: 600;
+  background: rgba(186, 33, 33, 0.08);
+}
+
+[data-theme="admin"] .npd-day.disabled {
+  color: #cccccc;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+[data-theme="admin"] .npd-day.disabled.holiday {
+  color: #ba2121;
+  opacity: 0.7;
+  text-decoration: line-through;
+  background: rgba(186, 33, 33, 0.1);
+}
+
+[data-theme="admin"] .npd-footer {
+  border-top: 1px solid #e8e8e8;
+  padding-top: 10px;
+}
+
+[data-theme="admin"] .npd-mode-toggle {
+  background: #f8f8f8;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+[data-theme="admin"] .npd-mode-btn {
+  font-size: 11px;
+  padding: 4px;
+  color: #666666;
+  border-radius: 3px;
+}
+
+[data-theme="admin"] .npd-mode-btn.active {
+  background: #ffffff;
+  color: #417690;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="admin"] .npd-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  color: #666666;
+  background: #f8f8f8;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+}
+
+[data-theme="admin"] .npd-btn:hover {
+  background: #e8e8e8;
+  color: #417690;
+}
+
+[data-theme="admin"] .npd-today {
+  color: #417690;
+  background: #e1f0f7;
+  border: 1px solid #417690;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+[data-theme="admin"] .npd-today:hover {
+  background: #d0e5f0;
+}
+
+[data-theme="admin"] .npd-clear:hover {
+  color: #ba2121;
+}
+
+[data-theme="admin"] .npd-month,
+[data-theme="admin"] .npd-year {
+  color: #333333;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  padding: 8px;
+  font-size: 13px;
+}
+
+[data-theme="admin"] .npd-month:hover,
+[data-theme="admin"] .npd-year:hover {
+  background: #e8e8e8;
+  color: #417690;
+  border-color: #999999;
+}
+
+[data-theme="admin"] .npd-month.selected,
+[data-theme="admin"] .npd-year.selected {
+  background: #417690;
+  color: #ffffff;
+  border-color: #417690;
+}
+
+[data-theme="admin"] .npd-time-input {
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  color: #333333;
+  padding: 4px;
+  background: #ffffff;
+}
+
+[data-theme="admin"] .npd-time-input:focus {
+  border-color: #417690;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(65, 118, 144, 0.15);
+}
+
+[data-theme="admin"] .npd-tooltip {
+  background: #333333;
+  border: 1px solid #666666;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: pre-line;
+}
+
+/* ===============================================
+   Django Admin Theme — Dark Mode
+   Follows html[data-theme="dark"] from Django admin
+   =============================================== */
+
+html[data-theme="dark"] [data-theme="admin"],
+html[data-theme="dark"] input[data-theme="admin"],
+html[data-theme="dark"] .npd-input-wrapper:has(input[data-theme="admin"]) {
+  --npd-primary: #81d4fa;
+  --npd-primary-hover: #4fc3f7;
+  --npd-primary-light: #1a3a4a;
+  --npd-secondary: #79aec8;
+  --npd-success: #66bb6a;
+  --npd-danger: #e35f5f;
+  --npd-warning: #f0ad4e;
+
+  --npd-bg: #121212;
+  --npd-bg-secondary: #1b1b1b;
+  --npd-bg-hover: #2c2c2c;
+  --npd-text: #e0e0e0;
+  --npd-text-muted: #999999;
+  --npd-text-light: #666666;
+
+  --npd-border: #353535;
+  --npd-border-focus: #81d4fa;
+  --npd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --npd-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --npd-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] input[data-theme="admin"].npd-input,
+html[data-theme="dark"] .npd-input-wrapper:has(input[data-theme="admin"]) .npd-input {
+  padding: 5px 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid #353535;
+  border-radius: 4px;
+  color: #e0e0e0;
+  background-color: #131722;
+  transition: border-color 0.15s ease-in-out;
+}
+
+html[data-theme="dark"] input[data-theme="admin"].npd-input:focus,
+html[data-theme="dark"] .npd-input-wrapper:has(input[data-theme="admin"]) .npd-input:focus {
+  border-color: #81d4fa;
+  box-shadow: 0 0 0 2px rgba(129, 212, 250, 0.15);
+  outline: none;
+}
+
+html[data-theme="dark"] input[data-theme="admin"].npd-input:hover,
+html[data-theme="dark"] .npd-input-wrapper:has(input[data-theme="admin"]) .npd-input:hover {
+  border-color: #555555;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-icon-btn {
+  color: #999999;
+  background: #1b1b1b;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-icon-btn:hover {
+  color: #81d4fa;
+  background: #2c2c2c;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-picker {
+  border: 1px solid #353535;
+  background: #121212;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-title {
+  color: #e0e0e0;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-title:hover {
+  background: #2c2c2c;
+  color: #81d4fa;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-nav-btn {
+  color: #999999;
+  background: #1b1b1b;
+  border-color: #353535;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-nav-btn:hover {
+  background: #2c2c2c;
+  color: #81d4fa;
+  border-color: #555555;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day:not(.selected):not(.npd-empty):not(.disabled):hover {
+  background: #2c2c2c;
+  color: #e0e0e0;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.selected {
+  background: #81d4fa;
+  color: #121212;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.today {
+  border-color: #81d4fa;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.today.selected {
+  background: #81d4fa;
+  border-color: #81d4fa;
+  color: #121212;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.holiday:not(.disabled) {
+  color: #e35f5f;
+  font-weight: 600;
+  background: rgba(227, 95, 95, 0.1);
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.disabled {
+  color: #555555;
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-day.disabled.holiday {
+  color: #e35f5f;
+  opacity: 0.7;
+  text-decoration: line-through;
+  background: rgba(227, 95, 95, 0.12);
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-mode-toggle {
+  background: #1b1b1b;
+  border: 1px solid #353535;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-mode-btn {
+  color: #999999;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-mode-btn.active {
+  background: #2c2c2c;
+  color: #81d4fa;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-btn {
+  color: #999999;
+  background: #1b1b1b;
+  border-color: #353535;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-btn:hover {
+  background: #2c2c2c;
+  color: #81d4fa;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-today {
+  color: #81d4fa;
+  background: #1a3a4a;
+  border-color: #81d4fa;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-today:hover {
+  background: #264b5d;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-month,
+html[data-theme="dark"] [data-theme="admin"] .npd-year {
+  color: #e0e0e0;
+  border-color: #353535;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-month:hover,
+html[data-theme="dark"] [data-theme="admin"] .npd-year:hover {
+  background: #2c2c2c;
+  color: #81d4fa;
+  border-color: #555555;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-month.selected,
+html[data-theme="dark"] [data-theme="admin"] .npd-year.selected {
+  background: #81d4fa;
+  border-color: #81d4fa;
+  color: #121212;
+}
+
+html[data-theme="dark"] [data-theme="admin"] .npd-tooltip {
+  background: #e0e0e0;
+  border: 1px solid #555555;
+  color: #121212;
+}
+
+/* Also respond to prefers-color-scheme when html theme is not set */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) [data-theme="admin"],
+  html:not([data-theme="light"]) input[data-theme="admin"],
+  html:not([data-theme="light"]) .npd-input-wrapper:has(input[data-theme="admin"]) {
+    --npd-primary: #81d4fa;
+    --npd-primary-hover: #4fc3f7;
+    --npd-primary-light: #1a3a4a;
+    --npd-bg: #121212;
+    --npd-bg-secondary: #1b1b1b;
+    --npd-bg-hover: #2c2c2c;
+    --npd-text: #e0e0e0;
+    --npd-text-muted: #999999;
+    --npd-text-light: #666666;
+    --npd-border: #353535;
+    --npd-border-focus: #81d4fa;
+    --npd-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  html:not([data-theme="light"]) input[data-theme="admin"].npd-input,
+  html:not([data-theme="light"]) .npd-input-wrapper:has(input[data-theme="admin"]) .npd-input {
+    border: 1px solid #353535;
+    color: #e0e0e0;
+    background-color: #131722;
+  }
+
+  html:not([data-theme="light"]) input[data-theme="admin"].npd-input:focus,
+  html:not([data-theme="light"]) .npd-input-wrapper:has(input[data-theme="admin"]) .npd-input:focus {
+    border-color: #81d4fa;
+    box-shadow: 0 0 0 2px rgba(129, 212, 250, 0.15);
+  }
+
+  html:not([data-theme="light"]) [data-theme="admin"] .npd-day.disabled.holiday {
+    color: #e35f5f;
+    opacity: 0.7;
+    text-decoration: line-through;
+    background: rgba(227, 95, 95, 0.12);
+  }
 }
