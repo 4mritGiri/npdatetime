@@ -121,7 +121,7 @@ class NepaliDatePickerWidget(Input):
     def __init__(
         self,
         attrs=None,
-        mode="BS",
+        mode="AD",
         language="en",
         include_time=False,
         format="%Y-%m-%d",
@@ -290,7 +290,7 @@ class NepaliDatePickerWidget(Input):
         # Add any extra options
         picker_options.update(self.extra_options)
 
-        context["widget"]["picker_options"] = mark_safe(json.dumps(picker_options))
+        context["widget"]["picker_options"] = json.dumps(picker_options)
         context["widget"]["include_time"] = self.include_time
 
         return context
