@@ -95,48 +95,22 @@ class HolidayDate:
 
 
 class NepalPublicHolidays(HolidayProvider):
-    """Built-in Nepal public holiday provider.
+    """Built-in Nepal public holiday provider using astronomical Tithi calculations from npdatetime.
 
-    Covers major Nepali public holidays for BS years 2070-2100.
-    These are the nationally observed holidays that fall on fixed
-    dates each year in the Bikram Sambat calendar.
-
-    Note: Some holidays (like Dashain/Tihar) shift slightly each year.
-    This provider includes the commonly observed dates. For exact
-    government calendar holidays, extend with a custom provider.
+    Covers major Nepal public holidays dynamically based on astronomical Tithis
+    and Bikram Sambat solar transits.
     """
 
-    # Fixed BS-date holidays (month, day) -> (name_en, name_np)
+    # Fixed solar BS-date holidays (month, day) -> (name_en, name_np)
     FIXED_HOLIDAYS = {
         (1, 1): ("New Year", "नयाँ वर्ष"),
         (1, 14): ("Labour Day", "श्रम दिवस"),
         (3, 15): ("Constitution Day", "संविधान दिवस"),
-        (5, 1): ("Janai Purnima", "जनै पूर्णिमा"),
-        (5, 15): ("Gai Jatra", "गाई जात्रा"),
-        (6, 4): ("Krishna Janmashtami", "कृष्ण जन्माष्टमी"),
-        (6, 19): ("Father's Day", "बुबा जन्मदिन"),
-        (7, 1): ("Indra Jatra", "इन्द्र जात्रा"),
-        (8, 1): ("Dashain (Ghatasthapana)", "दशैं (घटस्थापना)"),
-        (8, 7): ("Phulpati", "फूलपाती"),
-        (8, 8): ("Maha Ashtami", "महाष्टमी"),
-        (8, 9): ("Maha Nawami", "महानवमी"),
-        (8, 10): ("Vijaya Dashami", "विजया दशमी"),
-        (8, 15): ("Kojagrat Purnima", "कोजाग्रत पूर्णिमा"),
-        (9, 1): ("Tihar (Laxmi Puja)", "तिहार (लक्ष्मी पूजा)"),
-        (9, 2): ("Tihar (Mha Puja)", "तिहार (म्ह पूजा)"),
-        (9, 3): ("Tihar (Bhai Tika)", "तिहार (भाई टीका)"),
-        (9, 5): ("Chhath", "छठ"),
-        (10, 1): ("Nepal Sambat New Year", "नेपाल सम्बत नयाँ वर्ष"),
-        (10, 15): ("Mother's Day", "आमा जन्मदिन"),
-        (11, 15): ("Maghe Sankranti", "माघे सक्रान्ति"),
-        (11, 29): ("Shivaratri", "शिवरात्रि"),
-        (12, 8): ("Fagu Purnima (Holi)", "फागु पूर्णिमा (होली)"),
-        (12, 15): ("Chaitra Dashain", "चैत्र दशैं"),
-        (12, 29): ("Ram Nawami", "राम नवमी"),
+        (11, 1): ("Maghe Sankranti", "माघे सक्रान्ति"),
     }
 
     def get_holidays(self, year, month=None):
-        """Return Nepal public holidays for the given BS year.
+        """Return Nepal public holidays for the given BS year calculated dynamically via astronomical Tithis using npdatetime.
 
         Args:
             year (int): BS year.
@@ -145,12 +119,99 @@ class NepalPublicHolidays(HolidayProvider):
         Returns:
             list[HolidayDate]: List of holidays.
         """
+        from npdatetime import NepaliDate
+
+        months_to_check = [month] if month is not None else list(range(1, 13))
         holidays = []
-        for (m, d), (name_en, name_np) in self.FIXED_HOLIDAYS.items():
-            if month is not None and m != month:
+
+        for m in months_to_check:
+            try:
+                start_bs = NepaliDate(year, m, 1)
+            except Exception:
                 continue
-            date_str = f"{year}-{m:02d}-{d:02d}"
-            holidays.append(HolidayDate(date_str, name_en, name_np, "public"))
+
+            curr_bs = start_bs
+            while curr_bs.month == m:
+                d = curr_bs.day
+                date_str = f"{year}-{m:02d}-{d:02d}"
+
+                if (m, d) in self.FIXED_HOLIDAYS:
+                    name_en, name_np = self.FIXED_HOLIDAYS[(m, d)]
+                    holidays.append(HolidayDate(date_str, name_en, name_np, "public"))
+
+                # Use npdatetime library directly for astronomical Tithi details
+                details = curr_bs.tithi_details()
+                tithi_num = details["index"]
+                is_shukla = (details["paksha"] == "Shukla")
+                shukla_day = tithi_num if is_shukla else 0
+                krishna_day = (tithi_num - 15) if not is_shukla else 0
+
+                tithi_evts = []
+                if m == 1 and shukla_day == 15:
+                    tithi_evts.append(("Buddha Jayanti", "बुद्ध जयन्ती"))
+
+                if m in (4, 5):
+                    if shukla_day == 15:
+                        tithi_evts.append(("Janai Purnima", "जनै पूर्णिमा"))
+                    elif krishna_day == 1:
+                        tithi_evts.append(("Gai Jatra", "गाई जात्रा"))
+
+                if m == 5:
+                    if shukla_day == 3:
+                        tithi_evts.append(("Haritalika Teej", "हरितालिका तीज"))
+                    elif shukla_day == 5:
+                        tithi_evts.append(("Rishi Panchami", "ऋषि पञ्चमी"))
+                    elif krishna_day == 8:
+                        tithi_evts.append(("Krishna Janmashtami", "कृष्ण जन्माष्टमी"))
+                    elif krishna_day == 15:
+                        tithi_evts.append(("Kushe Aushi (Father's Day)", "कुशे औंशी (बुबाको मुख हेर्ने दिन)"))
+                    elif shukla_day == 14:
+                        tithi_evts.append(("Indra Jatra", "इन्द्र जात्रा"))
+
+                if (m == 6 and shukla_day > 0) or (m == 7 and shukla_day > 0 and d < 15):
+                    if shukla_day == 1:
+                        tithi_evts.append(("Dashain (Ghatasthapana)", "दशैं (घटस्थापना)"))
+                    elif shukla_day == 7:
+                        tithi_evts.append(("Phulpati", "फूलपाती"))
+                    elif shukla_day == 8:
+                        tithi_evts.append(("Maha Ashtami", "महाष्टमी"))
+                    elif shukla_day == 9:
+                        tithi_evts.append(("Maha Nawami", "महानवमी"))
+                    elif shukla_day == 10:
+                        tithi_evts.append(("Vijaya Dashami", "विजया दशमी"))
+                    elif shukla_day == 15:
+                        tithi_evts.append(("Kojagrat Purnima", "कोजाग्रत पूर्णिमा"))
+
+                if m == 7:
+                    if krishna_day == 15:
+                        tithi_evts.append(("Tihar (Laxmi Puja)", "तिहार (लक्ष्मी पूजा)"))
+                    elif shukla_day == 1:
+                        tithi_evts.append(("Tihar (Mha Puja)", "तिहार (म्ह पूजा)"))
+                    elif shukla_day == 2:
+                        tithi_evts.append(("Tihar (Bhai Tika)", "तिहार (भाई टीका)"))
+                    elif shukla_day == 6:
+                        tithi_evts.append(("Chhath", "छठ"))
+
+                if m == 10 and shukla_day == 5:
+                    tithi_evts.append(("Shree Panchami", "श्रीपञ्चमी (सरस्वती पूजा)"))
+
+                if m == 11:
+                    if krishna_day == 14:
+                        tithi_evts.append(("Shivaratri", "शिवरात्रि"))
+                    elif shukla_day == 15:
+                        tithi_evts.append(("Fagu Purnima (Holi)", "फागु पूर्णिमा (होली)"))
+
+                if m == 12:
+                    if shukla_day == 8:
+                        tithi_evts.append(("Chaitra Dashain", "चैत्र दशैं"))
+                    elif shukla_day == 9:
+                        tithi_evts.append(("Ram Nawami", "राम नवमी"))
+
+                for name_en, name_np in tithi_evts:
+                    holidays.append(HolidayDate(date_str, name_en, name_np, "public"))
+
+                curr_bs = curr_bs.add_days(1)
+
         return holidays
 
 

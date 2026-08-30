@@ -197,6 +197,55 @@ impl NepaliDate {
         
         Ok(format!("{} {}", tithi.paksha, tithi.name()))
     }
+
+    /// Get detailed Tithi information including start and end times in NPT
+    #[wasm_bindgen(js_name = tithiDetails)]
+    pub fn tithi_details(&self) -> Result<JsValue, JsValue> {
+        let (y, m, d) = self.inner.to_gregorian().map_err(|e| JsValue::from_str(&e.to_string()))?;
+        
+        use npdatetime::astronomical::core::constants::NEPAL_TZ_OFFSET;
+        use npdatetime::astronomical::core::JulianDay;
+        use npdatetime::astronomical::TithiCalculator;
+        
+        let jd_mid = JulianDay::from_gregorian(y, m, d, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd_mid);
+        
+        let start_jd = TithiCalculator::find_tithi_end(tithi.index - 1, jd_mid).unwrap_or(jd_mid);
+        let end_jd = TithiCalculator::find_tithi_end(tithi.index, jd_mid).unwrap_or(jd_mid);
+        
+        let start_npt = start_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+        let end_npt = end_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+        
+        let (sy, sm, sd, shour) = start_npt.to_gregorian();
+        let (ey, em, ed, ehour) = end_npt.to_gregorian();
+        
+        fn format_time(y: i32, m: u8, d: u8, hour_float: f64) -> String {
+            let total_secs = (hour_float * 3600.0).round() as u32;
+            let h = (total_secs / 3600) % 24;
+            let min = (total_secs % 3600) / 60;
+            let sec = total_secs % 60;
+            format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02}", y, m, d, h, min, sec)
+        }
+        
+        #[derive(Serialize)]
+        struct TithiInfo {
+            name: String,
+            paksha: String,
+            index: u8,
+            start_time: String,
+            end_time: String,
+        }
+        
+        let info = TithiInfo {
+            name: format!("{} {}", tithi.paksha, tithi.name()),
+            paksha: format!("{}", tithi.paksha),
+            index: tithi.index,
+            start_time: format_time(sy, sm, sd, shour),
+            end_time: format_time(ey, em, ed, ehour),
+        };
+        
+        serde_wasm_bindgen::to_value(&info).map_err(|e| JsValue::from_str(&e.to_string()))
+    }
 }
 
 /// Astronomical Bikram Sambat date for JavaScript

@@ -194,12 +194,189 @@ impl NepaliDate {
     fn __ge__(&self, other: &Self) -> bool {
         self.inner >= other.inner
     }
+
+    /// Get Tithi for the date (Astronomical calculation)
+    /// 
+    /// Returns:
+    ///     str: Tithi name (e.g., "Shukla Pratipada", "Krishna Dwitiya", "Purnima", "Amavasya")
+    fn tithi(&self) -> PyResult<String> {
+        let (y, m, d) = self.inner.to_gregorian()
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+        use npdatetime_core::astronomical::core::JulianDay;
+        use npdatetime_core::astronomical::TithiCalculator;
+
+        let jd = JulianDay::from_gregorian(y, m as u8, d as u8, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd);
+
+        Ok(format!("{} {}", tithi.paksha, tithi.name()))
+    }
+
+    /// Get detailed Tithi information including start and end times in Nepal Standard Time (NPT)
+    /// 
+    /// Returns:
+    ///     dict: { "name": str, "paksha": str, "index": int, "start_time": str, "end_time": str }
+    fn tithi_details(&self, py: Python) -> PyResult<PyObject> {
+        let (y, m, d) = self.inner.to_gregorian()
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+        use npdatetime_core::astronomical::core::constants::NEPAL_TZ_OFFSET;
+        use npdatetime_core::astronomical::core::JulianDay;
+        use npdatetime_core::astronomical::TithiCalculator;
+
+        let jd_mid = JulianDay::from_gregorian(y, m as u8, d as u8, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd_mid);
+
+        let start_jd = TithiCalculator::find_tithi_end(tithi.index - 1, jd_mid)
+            .unwrap_or(jd_mid);
+        let end_jd = TithiCalculator::find_tithi_end(tithi.index, jd_mid)
+            .unwrap_or(jd_mid);
+
+        let start_npt = start_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+        let end_npt = end_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+
+        let (sy, sm, sd, shour) = start_npt.to_gregorian();
+        let (ey, em, ed, ehour) = end_npt.to_gregorian();
+
+        fn format_time(y: i32, m: u8, d: u8, hour_float: f64) -> String {
+            let total_secs = (hour_float * 3600.0).round() as u32;
+            let h = (total_secs / 3600) % 24;
+            let min = (total_secs % 3600) / 60;
+            let sec = total_secs % 60;
+            format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02}", y, m, d, h, min, sec)
+        }
+
+        let dict = pyo3::types::PyDict::new_bound(py);
+        dict.set_item("name", format!("{} {}", tithi.paksha, tithi.name()))?;
+        dict.set_item("paksha", format!("{}", tithi.paksha))?;
+        dict.set_item("index", tithi.index)?;
+        dict.set_item("start_time", format_time(sy, sm, sd, shour))?;
+        dict.set_item("end_time", format_time(ey, em, ed, ehour))?;
+
+        Ok(dict.into())
+    }
+}
+
+/// Astronomical Bikram Sambat date representation
+#[pyclass]
+#[derive(Clone)]
+struct BsDate {
+    inner: npdatetime_core::astronomical::BsDate,
+}
+
+#[pymethods]
+impl BsDate {
+    /// Create a new astronomical BS date
+    #[new]
+    fn new(year: i32, month: u8, day: u8) -> PyResult<Self> {
+        npdatetime_core::astronomical::BsDate::new(year, month, day)
+            .map(|inner| BsDate { inner })
+            .map_err(|e| PyValueError::new_err(e.to_string()))
+    }
+
+    /// Create BsDate from Gregorian (AD) date
+    #[staticmethod]
+    fn from_gregorian(year: i32, month: u8, day: u8) -> PyResult<Self> {
+        npdatetime_core::astronomical::BsDate::from_gregorian(year, month, day)
+            .map(|inner| BsDate { inner })
+            .map_err(|e| PyValueError::new_err(e.to_string()))
+    }
+
+    /// Convert to Gregorian (AD) date
+    fn to_gregorian(&self) -> PyResult<(i32, u8, u8)> {
+        self.inner.to_gregorian()
+            .map(|(y, m, d)| (y, m as u8, d as u8))
+            .map_err(|e| PyValueError::new_err(e.to_string()))
+    }
+
+    /// Get the year
+    #[getter]
+    fn year(&self) -> i32 {
+        self.inner.year
+    }
+
+    /// Get the month
+    #[getter]
+    fn month(&self) -> u8 {
+        self.inner.month
+    }
+
+    /// Get the day
+    #[getter]
+    fn day(&self) -> u8 {
+        self.inner.day
+    }
+
+    /// Get Tithi for the date (Astronomical)
+    fn tithi(&self) -> PyResult<String> {
+        let (y, m, d) = self.inner.to_gregorian()
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+        use npdatetime_core::astronomical::core::JulianDay;
+        use npdatetime_core::astronomical::TithiCalculator;
+
+        let jd = JulianDay::from_gregorian(y, m as u8, d as u8, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd);
+
+        Ok(format!("{} {}", tithi.paksha, tithi.name()))
+    }
+
+    /// Get detailed Tithi information including start and end times in Nepal Standard Time (NPT)
+    fn tithi_details(&self, py: Python) -> PyResult<PyObject> {
+        let (y, m, d) = self.inner.to_gregorian()
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+        use npdatetime_core::astronomical::core::constants::NEPAL_TZ_OFFSET;
+        use npdatetime_core::astronomical::core::JulianDay;
+        use npdatetime_core::astronomical::TithiCalculator;
+
+        let jd_mid = JulianDay::from_gregorian(y, m as u8, d as u8, 12.0);
+        let tithi = TithiCalculator::get_tithi(jd_mid);
+
+        let start_jd = TithiCalculator::find_tithi_end(tithi.index - 1, jd_mid)
+            .unwrap_or(jd_mid);
+        let end_jd = TithiCalculator::find_tithi_end(tithi.index, jd_mid)
+            .unwrap_or(jd_mid);
+
+        let start_npt = start_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+        let end_npt = end_jd.add_days(NEPAL_TZ_OFFSET / 24.0);
+
+        let (sy, sm, sd, shour) = start_npt.to_gregorian();
+        let (ey, em, ed, ehour) = end_npt.to_gregorian();
+
+        fn format_time(y: i32, m: u8, d: u8, hour_float: f64) -> String {
+            let total_secs = (hour_float * 3600.0).round() as u32;
+            let h = (total_secs / 3600) % 24;
+            let min = (total_secs % 3600) / 60;
+            let sec = total_secs % 60;
+            format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02}", y, m, d, h, min, sec)
+        }
+
+        let dict = pyo3::types::PyDict::new_bound(py);
+        dict.set_item("name", format!("{} {}", tithi.paksha, tithi.name()))?;
+        dict.set_item("paksha", format!("{}", tithi.paksha))?;
+        dict.set_item("index", tithi.index)?;
+        dict.set_item("start_time", format_time(sy, sm, sd, shour))?;
+        dict.set_item("end_time", format_time(ey, em, ed, ehour))?;
+
+        Ok(dict.into())
+    }
+
+    fn __str__(&self) -> String {
+        format!("{}", self.inner)
+    }
+
+    fn __repr__(&self) -> String {
+        format!("BsDate({}, {}, {})", self.inner.year, self.inner.month, self.inner.day)
+    }
 }
 
 /// NPDateTime - Fast Nepali (Bikram Sambat) datetime library
 #[pymodule]
 fn npdatetime(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NepaliDate>()?;
+    m.add_class::<BsDate>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
+    m.add("__all__", vec!["NepaliDate", "BsDate", "__version__"])?;
     Ok(())
 }
