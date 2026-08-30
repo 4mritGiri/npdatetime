@@ -1957,11 +1957,11 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="err">✅</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_date</span><span class="p">(</span><span class="n">input</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">// Descriptive error messages</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="err">❌</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="s">&quot;invalid&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="err">❌</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="s">"invalid"</span><span class="p">)</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="err">✅</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">NpDateTimeError</span><span class="p">::</span><span class="n">InvalidDate</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">year</span><span class="p">:</span><span class="w"> </span><span class="mi">2077</span><span class="p">,</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">month</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Month must be between 1 and 12&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">message</span><span class="p">:</span><span class="w"> </span><span class="s">"Month must be between 1 and 12"</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">})</span>
 </code></pre></div>
 <h4 id="13-api-design">1.3 API Design<a class="headerlink" href="#13-api-design" title="Permanent link">&para;</a></h4>
@@ -1974,7 +1974,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Simple and intuitive</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kd">let</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NepaliDate</span><span class="p">::</span><span class="n">from_ymd</span><span class="p">(</span><span class="mi">2077</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">19</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">let</span><span class="w"> </span><span class="n">gregorian</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">to_gregorian</span><span class="p">();</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">let</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;%Y-%m-%d&quot;</span><span class="p">);</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">let</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="s">"%Y-%m-%d"</span><span class="p">);</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">// Chainable operations</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kd">let</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NepaliDate</span><span class="p">::</span><span class="n">today</span><span class="p">()</span><span class="o">?</span>
@@ -2016,7 +2016,7 @@
 <a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>let gregorian = date.to_gregorian(); // (2020, 9, 4)
 <a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>
 <a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>// Format
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>println!(&quot;{}&quot;, date.format(&quot;%d %B %Y&quot;)); // &quot;19 Bhadra 2077&quot;
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>println!("{}", date.format("%d %B %Y")); // "19 Bhadra 2077"
 <a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>\```
 <a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>
 <a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="gu">### Python</span>
@@ -2032,7 +2032,7 @@
 <a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a><span class="gu">### Rust</span>
 <a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>\```toml
 <a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>[dependencies]
-<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>npdatetime = &quot;1.0&quot;
+<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>npdatetime = "1.0"
 <a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>\```
 <a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>
 <a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a><span class="gu">### Python</span>
@@ -2095,7 +2095,7 @@
 <a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="sd">/// assert_eq!((year, month, day), (2020, 9, 4));</span>
 <a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="sd">///</span>
 <a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="sd">/// // Format the date</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="sd">/// assert_eq!(date.format(&quot;%Y-%m-%d&quot;), &quot;2077-05-19&quot;);</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="sd">/// assert_eq!(date.format("%Y-%m-%d"), "2077-05-19");</span>
 <a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="sd">/// # Ok::&lt;(), npdatetime::Error&gt;(())</span>
 <a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="sd">/// ```</span>
 <a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="sd">///</span>
@@ -2316,7 +2316,7 @@
 <a id="__codelineno-10-63" name="__codelineno-10-63" href="#__codelineno-10-63"></a><span class="w">          </span><span class="nt">override</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <a id="__codelineno-10-64" name="__codelineno-10-64" href="#__codelineno-10-64"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions-rs/tarpaulin@v0.1</span>
 <a id="__codelineno-10-65" name="__codelineno-10-65" href="#__codelineno-10-65"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<a id="__codelineno-10-66" name="__codelineno-10-66" href="#__codelineno-10-66"></a><span class="w">          </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;--all-features</span><span class="nv"> </span><span class="s">--workspace</span><span class="nv"> </span><span class="s">--timeout</span><span class="nv"> </span><span class="s">600</span><span class="nv"> </span><span class="s">--out</span><span class="nv"> </span><span class="s">Xml&#39;</span>
+<a id="__codelineno-10-66" name="__codelineno-10-66" href="#__codelineno-10-66"></a><span class="w">          </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="s">'--all-features</span><span class="nv"> </span><span class="s">--workspace</span><span class="nv"> </span><span class="s">--timeout</span><span class="nv"> </span><span class="s">600</span><span class="nv"> </span><span class="s">--out</span><span class="nv"> </span><span class="s">Xml'</span>
 <a id="__codelineno-10-67" name="__codelineno-10-67" href="#__codelineno-10-67"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">codecov/codecov-action@v3</span>
 <a id="__codelineno-10-68" name="__codelineno-10-68" href="#__codelineno-10-68"></a>
 <a id="__codelineno-10-69" name="__codelineno-10-69" href="#__codelineno-10-69"></a><span class="w">  </span><span class="nt">security</span><span class="p">:</span>
@@ -2356,28 +2356,28 @@
 <h3 id="cratesio-preparation">✅ Crates.io Preparation<a class="headerlink" href="#cratesio-preparation" title="Permanent link">&para;</a></h3>
 <h4 id="51-update-cargotoml">5.1 Update <code>Cargo.toml</code><a class="headerlink" href="#51-update-cargotoml" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">[package]</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;npdatetime&quot;</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2021&quot;</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Your Name &lt;your.email@example.com&gt;&quot;</span><span class="p">]</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Fast and accurate Nepali (Bikram Sambat) date and time library&quot;</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">documentation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://docs.rs/npdatetime&quot;</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">homepage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/yourusername/npdatetime&quot;</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="n">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/yourusername/npdatetime&quot;</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MIT&quot;</span>
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="n">keywords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;nepali&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bikram-sambat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;calendar&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;datetime&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;nepal&quot;</span><span class="p">]</span>
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="n">categories</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;date-and-time&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;localization&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;internationalization&quot;</span><span class="p">]</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"npdatetime"</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.0.0"</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2021"</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"Your Name &lt;your.email@example.com&gt;"</span><span class="p">]</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Fast and accurate Nepali (Bikram Sambat) date and time library"</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">documentation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://docs.rs/npdatetime"</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">homepage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://github.com/yourusername/npdatetime"</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="n">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://github.com/yourusername/npdatetime"</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"README.md"</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"MIT"</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="n">keywords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"nepali"</span><span class="p">,</span><span class="w"> </span><span class="s2">"bikram-sambat"</span><span class="p">,</span><span class="w"> </span><span class="s2">"calendar"</span><span class="p">,</span><span class="w"> </span><span class="s2">"datetime"</span><span class="p">,</span><span class="w"> </span><span class="s2">"nepal"</span><span class="p">]</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="n">categories</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"date-and-time"</span><span class="p">,</span><span class="w"> </span><span class="s2">"localization"</span><span class="p">,</span><span class="w"> </span><span class="s2">"internationalization"</span><span class="p">]</span>
 <a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="s2">&quot;/.github&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="s2">&quot;/target&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="s2">&quot;/benches&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="s2">&quot;*.png&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="s2">"/.github"</span><span class="p">,</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="s2">"/target"</span><span class="p">,</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="s2">"/benches"</span><span class="p">,</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="s2">"*.png"</span><span class="p">,</span>
 <a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="p">]</span>
 <a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>
 <a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="k">[package.metadata.docs.rs]</span>
 <a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="n">all-features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="n">rustdoc-args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;--cfg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;docsrs&quot;</span><span class="p">]</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="n">rustdoc-args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"--cfg"</span><span class="p">,</span><span class="w"> </span><span class="s2">"docsrs"</span><span class="p">]</span>
 </code></pre></div>
 <h4 id="52-versioning-strategy">5.2 Versioning Strategy<a class="headerlink" href="#52-versioning-strategy" title="Permanent link">&para;</a></h4>
 <p>Follow <a href="https://semver.org/">Semantic Versioning</a>:</p>
@@ -2426,18 +2426,18 @@
 <p><strong>Setup in <code>bindings/python/</code>:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># pyproject.toml</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="p">[</span><span class="n">build</span><span class="o">-</span><span class="n">system</span><span class="p">]</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">requires</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;maturin&gt;=1.0,&lt;2.0&quot;</span><span class="p">]</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">build</span><span class="o">-</span><span class="n">backend</span> <span class="o">=</span> <span class="s2">&quot;maturin&quot;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">requires</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"maturin&gt;=1.0,&lt;2.0"</span><span class="p">]</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">build</span><span class="o">-</span><span class="n">backend</span> <span class="o">=</span> <span class="s2">"maturin"</span>
 <a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
 <a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">[</span><span class="n">project</span><span class="p">]</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;npdatetime&quot;</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;1.0.0&quot;</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Fast Nepali datetime library (Rust bindings)&quot;</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="n">requires</span><span class="o">-</span><span class="n">python</span> <span class="o">=</span> <span class="s2">&quot;&gt;=3.7&quot;</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">name</span> <span class="o">=</span> <span class="s2">"npdatetime"</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">version</span> <span class="o">=</span> <span class="s2">"1.0.0"</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">description</span> <span class="o">=</span> <span class="s2">"Fast Nepali datetime library (Rust bindings)"</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="n">requires</span><span class="o">-</span><span class="n">python</span> <span class="o">=</span> <span class="s2">"&gt;=3.7"</span>
 <a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="n">classifiers</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="s2">&quot;Programming Language :: Rust&quot;</span><span class="p">,</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="s2">&quot;Programming Language :: Python :: 3&quot;</span><span class="p">,</span>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="s2">&quot;License :: OSI Approved :: MIT License&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="s2">"Programming Language :: Rust"</span><span class="p">,</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="s2">"Programming Language :: Python :: 3"</span><span class="p">,</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="s2">"License :: OSI Approved :: MIT License"</span><span class="p">,</span>
 <a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="p">]</span>
 <a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>
 <a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="c1"># src/lib.rs (Python bindings)</span>

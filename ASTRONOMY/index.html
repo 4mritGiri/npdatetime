@@ -1345,14 +1345,14 @@
 <h3 id="core-astronomical-calculations-required">Core Astronomical Calculations Required<a class="headerlink" href="#core-astronomical-calculations-required" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Theoretical Implementation</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">// 1. Calculate Sun&#39;s Longitude (Solar Position)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">// 1. Calculate Sun's Longitude (Solar Position)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">fn</span><span class="w"> </span><span class="nf">sun_longitude</span><span class="p">(</span><span class="n">julian_day</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">f64</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="c1">// Using VSOP87 or similar planetary theory</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="c1">// Returns longitude in degrees (0-360)</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="c1">// Accuracy needed: ~0.04 arcseconds</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">// 2. Calculate Moon&#39;s Longitude (Lunar Position)  </span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">// 2. Calculate Moon's Longitude (Lunar Position)  </span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">fn</span><span class="w"> </span><span class="nf">moon_longitude</span><span class="p">(</span><span class="n">julian_day</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">f64</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="c1">// Using ELP-2000 or Chapront lunar theory</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="c1">// Returns longitude in degrees (0-360)</span>
@@ -1407,7 +1407,7 @@
 <p>Here's how you could actually implement it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="kt">f64</span><span class="p">::</span><span class="n">consts</span><span class="p">::</span><span class="n">PI</span><span class="p">;</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="sd">/// Calculate Sun&#39;s mean longitude using simplified formula</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="sd">/// Calculate Sun's mean longitude using simplified formula</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">fn</span><span class="w"> </span><span class="nf">sun_mean_longitude</span><span class="p">(</span><span class="n">jde</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">f64</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="c1">// JDE = Julian Ephemeris Day</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">jde</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2451545.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">36525.0</span><span class="p">;</span><span class="w"> </span><span class="c1">// Centuries since J2000.0</span>
@@ -1418,7 +1418,7 @@
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">l0</span><span class="p">.</span><span class="n">rem_euclid</span><span class="p">(</span><span class="mf">360.0</span><span class="p">)</span>
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="sd">/// Calculate Moon&#39;s mean longitude</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="sd">/// Calculate Moon's mean longitude</span>
 <a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="k">fn</span><span class="w"> </span><span class="nf">moon_mean_longitude</span><span class="p">(</span><span class="n">jde</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">f64</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">jde</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2451545.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">36525.0</span><span class="p">;</span>
 <a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
@@ -1475,7 +1475,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Simple version: ~100 lines</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1">// Accurate version: ~10,000 lines of astronomical formulas</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// You&#39;d need to implement:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// You'd need to implement:</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="o">-</span><span class="w"> </span><span class="n">VSOP87</span><span class="w"> </span><span class="n">planetary</span><span class="w"> </span><span class="n">theory</span><span class="w"> </span><span class="p">(</span><span class="n">Sun</span><span class="w"> </span><span class="n">position</span><span class="p">)</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="o">-</span><span class="w"> </span><span class="n">ELP</span><span class="o">-</span><span class="mi">2000</span><span class="o">/</span><span class="mi">82</span><span class="w"> </span><span class="n">lunar</span><span class="w"> </span><span class="n">theory</span><span class="w"> </span><span class="p">(</span><span class="n">Moon</span><span class="w"> </span><span class="n">position</span><span class="p">)</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="o">-</span><span class="w"> </span><span class="n">Nutation</span><span class="w"> </span><span class="n">calculations</span>
@@ -1552,10 +1552,10 @@
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_bs_month_length</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">ts</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">timescale</span><span class="p">()</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">planets</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;de421.bsp&#39;</span><span class="p">)</span>  <span class="c1"># JPL ephemeris</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">planets</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">'de421.bsp'</span><span class="p">)</span>  <span class="c1"># JPL ephemeris</span>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">earth</span> <span class="o">=</span> <span class="n">planets</span><span class="p">[</span><span class="s1">&#39;earth&#39;</span><span class="p">]</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="n">sun</span> <span class="o">=</span> <span class="n">planets</span><span class="p">[</span><span class="s1">&#39;sun&#39;</span><span class="p">]</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">earth</span> <span class="o">=</span> <span class="n">planets</span><span class="p">[</span><span class="s1">'earth'</span><span class="p">]</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="n">sun</span> <span class="o">=</span> <span class="n">planets</span><span class="p">[</span><span class="s1">'sun'</span><span class="p">]</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
 <a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="c1"># Find when sun enters zodiac sign</span>
 <a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="c1"># ... complex calculations ...</span>
@@ -1609,7 +1609,7 @@
 <a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">calc</span><span class="p">.</span><span class="n">calculate_month_days</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">);</span>
 <a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">        </span><span class="p">}</span>
 <a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a>
-<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">        </span><span class="nb">Err</span><span class="p">(</span><span class="s">&quot;Year out of range and astronomical calculator not available&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">        </span><span class="nb">Err</span><span class="p">(</span><span class="s">"Year out of range and astronomical calculator not available"</span><span class="p">)</span>
 <a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a><span class="p">}</span>
 </code></pre></div>
