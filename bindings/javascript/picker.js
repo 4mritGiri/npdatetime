@@ -26,7 +26,7 @@ export class NepaliDatePicker {
     this.id = `npd-${Math.random().toString(36).substr(2, 9)}`;
 
     this.options = {
-      mode: (element.dataset.mode || options.mode || "BS").toUpperCase(),
+      mode: "AD", // placeholder; resolved right after this object is built
       language: (
         element.dataset.language ||
         options.language ||
@@ -52,6 +52,22 @@ export class NepaliDatePicker {
       onClose: options.onClose || null,
       ...options,
     };
+
+    // Resolve the date system. Priority:
+    // 1. data-mode attribute on the input (explicit)
+    // 2. "_bs" / "-bs" in the input name, id or class
+    // 3. options.mode passed from JS
+    // 4. default: AD
+    this.options.mode = (
+      element.dataset.mode ||
+      NepaliDatePicker._detectModeFromElement(element) ||
+      options.mode ||
+      "AD"
+    ).toUpperCase();
+
+    // Fixed for the lifetime of the picker: the system used for the input TEXT.
+    // options.mode is only the calendar VIEW and changes with the AD/BS toggle.
+    this.inputMode = this.options.mode;
 
     // Normalize disabledDates to a Set for O(1) lookup
     this._disabledDatesSet = new Set(this.options.disabledDates);
@@ -158,6 +174,34 @@ export class NepaliDatePicker {
 
     // Set max length
     this.input.maxLength = 10;
+  }
+
+  static _detectModeFromElement(el) {
+    // Matches "_bs" or "-bs" as a whole token: date_bs, start-bs, dob_bs_np
+    // Won't match things like "-bsomething" or "_bsd"
+    const re = /[_-]bs(?![a-z0-9])/i;
+    const haystack = [el.getAttribute("name"), el.id, el.className]
+      .filter((v) => typeof v === "string")
+      .join(" ");
+    return re.test(haystack) ? "BS" : null;
+  }
+
+  // Year/month to display for a NepaliDate in the *current calendar view*
+  _viewFromDate(nd) {
+    if (this.options.mode === "AD") {
+      const [y, m] = nd.toGregorian();
+      return { year: y, month: m };
+    }
+    return { year: nd.year, month: nd.month };
+  }
+
+  // Year/month/day of a NepaliDate in a given system
+  _partsInMode(nd, mode) {
+    if (mode === "AD") {
+      const [year, month, day] = nd.toGregorian();
+      return { year, month, day };
+    }
+    return { year: nd.year, month: nd.month, day: nd.day };
   }
 
   humanizeFormat(fmt) {
@@ -483,77 +527,49 @@ export class NepaliDatePicker {
   }
 
   adjustSegment(segment, amount) {
-    if (!this.selectedDate) {
-      // If empty, initialize with Today
-      const today = NepaliDate.today();
-      if (this.options.mode === "BS") {
-        this.selectedDate = today;
-      } else {
-        const [y, m, d] = today.toGregorian();
-        NepaliDatePicker._free(today);
-        this.selectedDate = NepaliDate.fromGregorian(y, m, d);
-      }
-      this.viewDate = {
-        year: this.selectedDate.year,
-        month: this.selectedDate.month,
-      };
-      this.updateInput();
-
-      // Loop back to handle the adjustment immediately? Or just stop here?
-      // User pressed Up/Down on empty. They might expect it to start at Today, OR Today + 1.
-      // Let's just start at Today.
-
+    const reselect = () =>
       requestAnimationFrame(() => {
         if (segment === "year") this.selectSegment(0, 4);
         else if (segment === "month") this.selectSegment(5, 7);
         else if (segment === "day") this.selectSegment(8, 10);
       });
+
+    if (!this.selectedDate) {
+      // Empty input: start at today
+      this.selectedDate = NepaliDate.today();
+      this.viewDate = this._viewFromDate(this.selectedDate);
+      this.updateInput();
+      reselect();
       return;
     }
 
-    // We operate on selectedDate then update string
-    // Note: selectedDate is a NepaliDate class or JS Date
+    const mode = this.inputMode;
+    let { year, month, day } = this._partsInMode(this.selectedDate, mode);
 
-    // Clone date first (conceptually)
-    let newYear = this.selectedDate.year;
-    let newMonth = this.selectedDate.month;
-    let newDay = this.selectedDate.day;
-
-    if (segment === "year") newYear += amount;
+    if (segment === "year") year += amount;
     if (segment === "month") {
-      newMonth += amount;
-      if (newMonth > 12) {
-        newMonth = 1;
-        newYear++;
+      month += amount;
+      if (month > 12) {
+        month = 1;
+        year++;
       }
-      if (newMonth < 1) {
-        newMonth = 12;
-        newYear--;
+      if (month < 1) {
+        month = 12;
+        year--;
       }
     }
-    if (segment === "day") {
-      newDay += amount;
-      // Validate days in month...
-      // For simplicity now, let's just create new Object and let it overflow IF library supports
-      // Library might panic on invalid day.
-      // Safer: clamp or use library addDays?
-      // Assuming library constructor handles valid dates only?
-      // Let's rely on constructor/helpers.
-    }
+    if (segment === "day") day += amount;
 
     try {
-      // Create new date instance
       let newDate;
-      if (this.options.mode === "BS") {
-        // Basic day clamp for BS
-        const maxDays = this.getDaysInMonth(newYear, newMonth);
-        if (newDay > maxDays) newDay = 1; // Loop or clamp? User requests "right move on dd again right move on year"
-        if (newDay < 1) newDay = maxDays;
-
-        newDate = new NepaliDate(newYear, newMonth, newDay);
+      if (mode === "BS") {
+        const maxDays = this.getDaysInMonth(year, month);
+        if (day > maxDays) day = 1;
+        if (day < 1) day = maxDays;
+        newDate = new NepaliDate(year, month, day);
       } else {
-        // JS Date automatically handles overflow
-        const d = new Date(newYear, newMonth - 1, newDay);
+        // JS Date handles overflow
+        const d = new Date(year, month - 1, day);
         newDate = NepaliDate.fromGregorian(
           d.getFullYear(),
           d.getMonth() + 1,
@@ -563,15 +579,9 @@ export class NepaliDatePicker {
 
       NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
-      this.viewDate = { year: newDate.year, month: newDate.month };
+      this.viewDate = this._viewFromDate(newDate);
       this.updateInput();
-
-      // Keep selection on invalidation
-      requestAnimationFrame(() => {
-        if (segment === "year") this.selectSegment(0, 4);
-        else if (segment === "month") this.selectSegment(5, 7);
-        else if (segment === "day") this.selectSegment(8, 10);
-      });
+      reselect();
     } catch (e) {
       console.error("Adjustment failed", e);
     }
@@ -647,7 +657,7 @@ export class NepaliDatePicker {
       }
 
       let newDate;
-      if (this.options.mode === "BS") {
+      if (this.inputMode === "BS") {
         newDate = new NepaliDate(year, month, day);
       } else {
         newDate = NepaliDate.fromGregorian(year, month, day);
@@ -655,8 +665,8 @@ export class NepaliDatePicker {
 
       // Validate: reject disabled dates typed manually
       const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const weekday = this._getWeekdayForDate(year, month, day);
-      if (this.isDateDisabled(dateStr, weekday)) {
+      const weekday = this._getWeekdayForDate(year, month, day, this.inputMode);
+      if (this.isDateDisabled(dateStr, weekday, this.inputMode)) {
         NepaliDatePicker._free(newDate);
         this.input.value = "";
         if (this.selectedDate) {
@@ -679,10 +689,7 @@ export class NepaliDatePicker {
 
       NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
-      this.viewDate = {
-        year: this.selectedDate.year,
-        month: this.selectedDate.month,
-      };
+      this.viewDate = this._viewFromDate(this.selectedDate);
 
       // Update time inputs in picker UI
       const hourInput = this.picker.querySelector(".npd-hour");
@@ -721,15 +728,12 @@ export class NepaliDatePicker {
       }
 
       NepaliDatePicker._free(this.selectedDate);
-      if (this.options.mode === "BS") {
+      if (this.inputMode === "BS") {
         this.selectedDate = new NepaliDate(year, month, day);
       } else {
         this.selectedDate = NepaliDate.fromGregorian(year, month, day);
       }
-      this.viewDate = {
-        year: this.selectedDate.year,
-        month: this.selectedDate.month,
-      };
+      this.viewDate = this._viewFromDate(this.selectedDate);
     } catch (e) {
       console.warn("Invalid initial date value:", value);
     }
@@ -781,6 +785,7 @@ export class NepaliDatePicker {
 
     this._todayBs = null; // Refresh cached today date
     this._todayStr = null; // Refresh cached today string
+    this._todayStrAD = null; // Refresh cached AD today string
     this.syncTheme(); // Ensure theme is synced before opening
 
     this.isOpen = true;
@@ -1490,7 +1495,7 @@ export class NepaliDatePicker {
     );
   }
 
-  isDateDisabled(dateStr, weekday) {
+  isDateDisabled(dateStr, weekday, mode = this.options.mode) {
     if (!dateStr) return false;
 
     // 1. Explicit disabledDates list
@@ -1507,13 +1512,13 @@ export class NepaliDatePicker {
 
     // 4. Disable weekends
     if (this.options.disableWeekends) {
-      if (this.options.mode === "BS" && weekday === 6) return true;
-      if (this.options.mode === "AD" && weekday === 0) return true;
+      if (mode === "BS" && weekday === 6) return true;
+      if (mode === "AD" && weekday === 0) return true;
     }
 
     // 5. Disable past dates
     if (this.options.disablePastDates) {
-      if (this.options.mode === "AD") {
+      if (mode === "AD") {
         if (!this._todayStrAD) {
           this._getTodayAD();
         }
@@ -1614,10 +1619,7 @@ export class NepaliDatePicker {
   selectToday() {
     NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = NepaliDate.today();
-    this.viewDate = {
-      year: this.selectedDate.year,
-      month: this.selectedDate.month,
-    };
+    this.viewDate = this._viewFromDate(this.selectedDate);
     this.updateInput();
     this.close();
 
@@ -1631,10 +1633,7 @@ export class NepaliDatePicker {
     NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(-1);
     NepaliDatePicker._free(today);
-    this.viewDate = {
-      year: this.selectedDate.year,
-      month: this.selectedDate.month,
-    };
+    this.viewDate = this._viewFromDate(this.selectedDate);
     this.updateInput();
     this.close();
 
@@ -1648,10 +1647,7 @@ export class NepaliDatePicker {
     NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(1);
     NepaliDatePicker._free(today);
-    this.viewDate = {
-      year: this.selectedDate.year,
-      month: this.selectedDate.month,
-    };
+    this.viewDate = this._viewFromDate(this.selectedDate);
     this.updateInput();
     this.close();
 
@@ -1681,7 +1677,7 @@ export class NepaliDatePicker {
       let startStr = "";
       let endStr = "";
 
-      if (this.options.mode === "BS") {
+      if (this.inputMode === "BS") {
         startStr = this.rangeStart.format(this.options.format);
         if (this.rangeEnd) endStr = this.rangeEnd.format(this.options.format);
       } else {
@@ -1703,7 +1699,7 @@ export class NepaliDatePicker {
 
       const timeStr = `${String(this.selectedTime.hour).padStart(2, "0")}:${String(this.selectedTime.minute).padStart(2, "0")}`;
 
-      if (this.options.mode === "BS") {
+      if (this.inputMode === "BS") {
         let value = this.selectedDate.format(this.options.format);
         if (this.options.includeTime && !value.match(/\d{2}:\d{2}/)) {
           value += ` ${timeStr}`;
@@ -1733,8 +1729,8 @@ export class NepaliDatePicker {
     );
   }
 
-  _getWeekdayForDate(year, month, day) {
-    if (this.options.mode === "BS") {
+  _getWeekdayForDate(year, month, day, mode = this.options.mode) {
+    if (mode === "BS") {
       const startWeekday = this._getStartWeekdayBS(year, month);
       return (startWeekday + day - 1) % 7;
     }
@@ -1908,7 +1904,7 @@ export class NepaliDatePicker {
       while (true && safety < 12) {
         // limit 1 year rollover to prevent infinite loops
         // Get max days for current Year/Month
-        if (this.options.mode === "BS") {
+        if (this.inputMode === "BS") {
           maxDays = this.getDaysInMonth(year, month);
         } else {
           maxDays = new Date(year, month, 0).getDate();
@@ -1933,7 +1929,7 @@ export class NepaliDatePicker {
       }
 
       let newDate;
-      if (this.options.mode === "BS") {
+      if (this.inputMode === "BS") {
         newDate = new NepaliDate(year, month, day);
       } else {
         newDate = NepaliDate.fromGregorian(year, month, day);
@@ -1941,8 +1937,8 @@ export class NepaliDatePicker {
 
       // Validate: reject disabled dates typed manually
       const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const weekday = this._getWeekdayForDate(year, month, day);
-      if (this.isDateDisabled(dateStr, weekday)) {
+      const weekday = this._getWeekdayForDate(year, month, day, this.inputMode);
+      if (this.isDateDisabled(dateStr, weekday, this.inputMode)) {
         NepaliDatePicker._free(newDate);
         this.input.value = "";
         if (this.selectedDate) {
@@ -1965,10 +1961,7 @@ export class NepaliDatePicker {
 
       NepaliDatePicker._free(this.selectedDate);
       this.selectedDate = newDate;
-      this.viewDate = {
-        year: this.selectedDate.year,
-        month: this.selectedDate.month,
-      };
+      this.viewDate = this._viewFromDate(this.selectedDate);
       this.render();
       this.updateInput(); // Format it nicely
     } catch (e) {
