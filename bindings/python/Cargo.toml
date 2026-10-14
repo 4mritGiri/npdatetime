@@ -1,6 +1,6 @@
 [package]
 name = "npdatetime-python"
-version = "0.2.10-beta"
+version = "0.2.11-beta"
 edition = "2021"
 
 [lib]

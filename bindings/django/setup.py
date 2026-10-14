@@ -11,7 +11,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='django-npdt',
-    version='0.2.10-beta',
+    version='0.2.11-beta',
     description='Nepali Date Field and Date Picker Widget for Django',
     long_description=long_description,
     long_description_content_type='text/markdown',
