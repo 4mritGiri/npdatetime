@@ -196,6 +196,7 @@
   transform: translateY(-0.5rem) scale(0.95);
   transition: var(--npd-transition);
   overflow: hidden;
+  max-height: calc(100dvh - 16px);
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
@@ -380,8 +381,9 @@
 
 .npd-body {
   position: relative;
-  min-height: 280px;
+  min-height: min(280px, calc(100dvh - 240px));
   margin-bottom: 1rem;
+  overflow-y: auto;
 }
 
 .npd-view {

@@ -19,6 +19,7 @@ __email__ = "amritgiri.dev@gmail.com"
 default_app_config = "npdt.apps.NpdatetimeDjangoConfig"
 
 from .forms import NepaliDateField as NepaliDateFormField
+from .forms import NepaliDateTimeField as NepaliDateTimeFormField
 from .holidays import (
     CompositeHolidayProvider,
     HolidayDate,
@@ -26,12 +27,14 @@ from .holidays import (
     NepalPublicHolidays,
     StaticHolidayProvider,
 )
-from .models import NepaliDateField
+from .models import NepaliDateField, NepaliDateTimeField
 from .widgets import NepaliDatePickerWidget
 
 __all__ = [
     "NepaliDateField",
+    "NepaliDateTimeField",
     "NepaliDateFormField",
+    "NepaliDateTimeFormField",
     "NepaliDatePickerWidget",
     "HolidayProvider",
     "HolidayDate",

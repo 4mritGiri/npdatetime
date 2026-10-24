@@ -6,10 +6,13 @@ dates, specific weekdays, and custom validation callbacks.
 """
 
 import json
+from datetime import datetime, timezone as datetime_timezone
+from zoneinfo import ZoneInfo
 
 from django import forms
 from django.forms.widgets import Input
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 
 from .holidays import HolidayProvider, NepalPublicHolidays
 
@@ -140,6 +143,7 @@ class NepaliDatePickerWidget(Input):
         on_date_disabled="prevent",
         show_tithi=False,
         admin_theme=False,
+        timezone_name=None,
         **kwargs,
     ):
         super().__init__(attrs)
@@ -162,6 +166,7 @@ class NepaliDatePickerWidget(Input):
         self.disable_weekends = disable_weekends
         self.on_date_disabled = on_date_disabled
         self.show_tithi = show_tithi
+        self.timezone_name = timezone_name or timezone.get_current_timezone_name()
         self.extra_options = kwargs
 
     def _get_holiday_dates(self):
@@ -229,6 +234,7 @@ class NepaliDatePickerWidget(Input):
         widget_attrs["data-mode"] = self.mode
         widget_attrs["data-language"] = self.language
         widget_attrs["data-theme"] = self.theme
+        widget_attrs["data-timezone"] = self.timezone_name
         if self.include_time:
             widget_attrs["data-include-time"] = "true"
 
@@ -247,7 +253,13 @@ class NepaliDatePickerWidget(Input):
             "showTodayButton": self.show_today_button,
             "showClearButton": self.show_clear_button,
             "includeTime": self.include_time,
+            "timezone": self.timezone_name,
         }
+        local_now = timezone.now().astimezone(ZoneInfo(self.timezone_name))
+        picker_options["todayAD"] = local_now.strftime("%Y-%m-%d")
+        if self.include_time:
+            picker_options["defaultHour"] = local_now.hour
+            picker_options["defaultMinute"] = local_now.minute
 
         if self.min_date:
             picker_options["minDate"] = self.min_date
@@ -295,6 +307,24 @@ class NepaliDatePickerWidget(Input):
 
         return context
 
+    def format_value(self, value):
+        """Present UTC database values in the user's configured timezone."""
+        if not self.include_time or not isinstance(value, datetime):
+            return super().format_value(value)
+        if timezone.is_naive(value):
+            value = timezone.make_aware(value, datetime_timezone.utc)
+        local_value = value.astimezone(ZoneInfo(self.timezone_name))
+        if self.mode == "BS":
+            try:
+                from npdatetime import NepaliDate
+                date = NepaliDate.from_gregorian(local_value.year, local_value.month, local_value.day)
+                date_value = f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
+            except Exception:
+                return super().format_value(value)
+        else:
+            date_value = local_value.strftime("%Y-%m-%d")
+        return f"{date_value} {local_value:%H:%M:%S}"
+
     def build_attrs(self, base_attrs, extra_attrs=None):
         """Build HTML attributes for the widget."""
         attrs = super().build_attrs(base_attrs, extra_attrs)
@@ -302,6 +332,7 @@ class NepaliDatePickerWidget(Input):
         attrs["data-mode"] = self.mode
         attrs["data-language"] = self.language
         attrs["data-theme"] = self.theme
+        attrs["data-timezone"] = self.timezone_name
         if self.include_time:
             attrs["data-include-time"] = "true"
 

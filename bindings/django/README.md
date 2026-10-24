@@ -121,15 +121,29 @@ class Event(models.Model):
 
 #### NepaliDateTimeField
 
-Stores Nepali dates with time in `YYYY-MM-DD HH:MM:SS` format.
+Stores one timezone-aware instant in the database. With Django `USE_TZ=True`,
+Django persists the value in UTC; the picker converts to and from the selected
+local IANA timezone. `mode` chooses whether the field accepts and displays BS
+or AD. The calendar toggle lets users browse either calendar without changing
+the stored instant.
 
 ```python
 from npdt.models import NepaliDateTimeField
 
 class Meeting(models.Model):
     title = models.CharField(max_length=200)
-    scheduled_at_bs = NepaliDateTimeField()
+    scheduled_at = NepaliDateTimeField(mode="BS", timezone_name="Asia/Kathmandu")
 ```
+
+The form value `2081-01-01 09:30` is interpreted as Nepal time, converted to
+UTC before persistence, and rendered back as Nepal time. Use an explicit IANA
+timezone for cross-border deployments. Invalid and ambiguous daylight-saving
+wall times are rejected instead of being silently changed.
+
+`NepaliDateTimeField` now uses a database datetime column. Existing releases
+that used its former text column must migrate their legacy values to UTC before
+altering the column. Do this with a project-specific data migration because the
+legacy value does not record its timezone.
 
 ### Form Fields and Widgets
 

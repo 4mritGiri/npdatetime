@@ -3,6 +3,8 @@
 import re
 
 from django.core import validators
+from django.core import checks
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -186,10 +188,11 @@ NpDateField = NepaliDateField
 NpDate = NepaliDateField
 
 
-class NepaliDateTimeField(models.CharField):
-    """A model field for storing Nepali dates with time.
+class NepaliDateTimeField(models.DateTimeField):
+    """A timezone-aware datetime field with an AD/BS picker.
 
-    Stores datetime in YYYY-MM-DD HH:MM:SS format internally.
+    Values are stored by Django as UTC instants.  ``mode`` only controls the
+    calendar used for input and display; it never changes the stored instant.
 
     Args:
         mode (str): 'BS' or 'AD'. Default: 'BS'
@@ -200,52 +203,38 @@ class NepaliDateTimeField(models.CharField):
 
     description = "Nepali DateTime (Bikram Sambat) field"
 
-    def __init__(self, *args, mode="BS", language="en", widget_kwargs=None, **kwargs):
-        self.mode = mode
+    def __init__(self, *args, mode="BS", language="en", timezone_name=None, widget_kwargs=None, **kwargs):
+        self.mode = mode.upper()
+        if self.mode not in {"AD", "BS"}:
+            raise ValueError("mode must be either 'AD' or 'BS'")
         self.language = language
+        self.timezone_name = timezone_name
         self.widget_kwargs = widget_kwargs or {}
-        kwargs["max_length"] = 19
         super().__init__(*args, **kwargs)
 
-        self.validators.append(
-            validators.RegexValidator(
-                regex=r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$",
-                message="Enter a valid Nepali datetime in YYYY-MM-DD HH:MM:SS format.",
-                code="invalid_nepali_datetime_format",
+    def check(self, **kwargs):
+        errors = super().check(**kwargs)
+        if not settings.USE_TZ:
+            errors.append(
+                checks.Error(
+                    "NepaliDateTimeField requires USE_TZ=True to guarantee UTC storage.",
+                    obj=self,
+                    id="npdt.E001",
+                )
             )
-        )
+        return errors
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs.pop("max_length", None)
         if self.mode != "BS":
             kwargs["mode"] = self.mode
         if self.language != "en":
             kwargs["language"] = self.language
+        if self.timezone_name:
+            kwargs["timezone_name"] = self.timezone_name
         if self.widget_kwargs:
             kwargs["widget_kwargs"] = self.widget_kwargs
         return name, path, args, kwargs
-
-    def to_python(self, value):
-        if value is None or value == "":
-            return None
-
-        if isinstance(value, str):
-            if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", value):
-                return value
-            return NepaliDateWrapper(value)
-
-        return NepaliDateWrapper(str(value))
-
-    def from_db_value(self, value, expression, connection):
-        if value is None:
-            return value
-        return NepaliDateWrapper(value)
-
-    def get_prep_value(self, value):
-        if value is None or value == "":
-            return None
-        return str(value)
 
     def formfield(self, **kwargs):
         from .forms import NepaliDateTimeField as NepaliDateTimeFormField
@@ -255,6 +244,7 @@ class NepaliDateTimeField(models.CharField):
             "mode": self.mode,
             "language": self.language,
             "include_time": True,
+            "timezone_name": self.timezone_name,
         }
         widget_kw.update(self.widget_kwargs)
 
@@ -272,6 +262,7 @@ class NepaliDateTimeField(models.CharField):
             "widget": NepaliDatePickerWidget(**widget_kw),
             "mode": self.mode,
             "language": self.language,
+            "timezone_name": self.timezone_name,
         }
         defaults.update(kwargs)
         return super().formfield(**defaults)

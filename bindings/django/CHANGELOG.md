@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `NepaliDateTimeField` now extends Django's `DateTimeField` and stores UTC-aware
+  instants rather than calendar text. A field accepts BS or AD values in its
+  configured IANA timezone and renders the same instant in that timezone.
+- Date-time pickers receive the server-local date and time, so their defaults and
+  date restrictions are independent of the browser timezone.
+
 All notable changes to django-npdt will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

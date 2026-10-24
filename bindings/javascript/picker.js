@@ -47,6 +47,7 @@ export class NepaliDatePicker {
       closeOnSelect: options.closeOnSelect !== false,
       showTodayButton: options.showTodayButton !== false,
       showClearButton: options.showClearButton !== false,
+      todayAD: options.todayAD || null,
       onChange: options.onChange || null,
       onOpen: options.onOpen || null,
       onClose: options.onClose || null,
@@ -92,16 +93,15 @@ export class NepaliDatePicker {
     this.rangeStart = null;
     this.rangeEnd = null;
 
-    const now = new Date();
     this.selectedTime = {
       hour:
         options.defaultHour !== undefined
           ? options.defaultHour
-          : now.getHours(),
+          : new Date().getHours(),
       minute:
         options.defaultMinute !== undefined
           ? options.defaultMinute
-          : now.getMinutes(),
+          : new Date().getMinutes(),
     };
     this.viewDate = { year: 2081, month: 1 };
     this.viewMode = "days";
@@ -173,7 +173,7 @@ export class NepaliDatePicker {
     }
 
     // Set max length
-    this.input.maxLength = 10;
+    this.input.maxLength = this.options.includeTime ? 19 : 10;
   }
 
   static _detectModeFromElement(el) {
@@ -741,7 +741,7 @@ export class NepaliDatePicker {
 
   setDetailsFromToday() {
     try {
-      const today = NepaliDate.today();
+      const today = this._getTodayNepaliDate();
       if (this.options.mode === "BS") {
         this.viewDate = { year: today.year, month: today.month };
       } else {
@@ -790,8 +790,8 @@ export class NepaliDatePicker {
 
     this.isOpen = true;
     this.picker.classList.add("active");
-    this.position();
     this.render();
+    this.position();
 
     if (this.options.onOpen) {
       this.options.onOpen(this);
@@ -814,23 +814,30 @@ export class NepaliDatePicker {
     const pickerHeight = this.picker.offsetHeight || 350;
     const spaceBelow = window.innerHeight - inputRect.bottom;
     const spaceAbove = inputRect.top;
+    const margin = 8;
 
     this.picker.style.left = `${inputRect.left}px`;
     // Set picker width with a reasonable max-width instead of matching input width
     // Min: 320px, Max: 400px to prevent overly wide pickers on full-width inputs
     this.picker.style.width = `${Math.min(Math.max(inputRect.width, 300), 350)}px`;
 
-    if (
+    const placeAbove =
       this.options.position === "top" ||
       (this.options.position === "auto" &&
-        spaceBelow < pickerHeight &&
-        spaceAbove > spaceBelow)
-    ) {
-      this.picker.style.bottom = `${window.innerHeight - inputRect.top + 8}px`;
-      this.picker.style.top = "auto";
+        pickerHeight <= spaceAbove &&
+        spaceBelow < pickerHeight);
+
+    if (placeAbove) {
+      this.picker.style.top = `${Math.max(margin, inputRect.top - pickerHeight - margin)}px`;
+      this.picker.style.bottom = "auto";
       this.picker.classList.add("npd-position-top");
     } else {
-      this.picker.style.top = `${inputRect.bottom + 8}px`;
+      // If neither side fits, keep the complete picker inside the viewport.
+      // It may overlap the input, but controls such as Clear and Today remain
+      // reachable instead of being clipped below the browser window.
+      const preferredTop = inputRect.bottom + margin;
+      const maxTop = Math.max(margin, window.innerHeight - pickerHeight - margin);
+      this.picker.style.top = `${Math.max(margin, Math.min(preferredTop, maxTop))}px`;
       this.picker.style.bottom = "auto";
       this.picker.classList.remove("npd-position-top");
     }
@@ -853,56 +860,62 @@ export class NepaliDatePicker {
   _performSwitchMode(mode) {
     if (this.options.mode === mode) return;
 
+    const previousMode = this.options.mode;
+    let anchorDate = this.selectedDate;
+
+    // A month has no single equivalent in the other calendar. When the user
+    // is looking at the current month, use today's actual day as the anchor;
+    // converting day 15 caused October 24 to open Ashwin instead of Kartik.
+    if (!anchorDate) {
+      try {
+        if (previousMode === "AD") {
+          const [todayYear, todayMonth, todayDay] = this._getTodayAD().split("-").map(Number);
+          const day = this.viewDate.year === todayYear && this.viewDate.month === todayMonth
+            ? todayDay
+            : 15;
+          anchorDate = NepaliDate.fromGregorian(this.viewDate.year, this.viewDate.month, day);
+        } else {
+          const todayBS = this._getTodayBS();
+          const day = todayBS && this.viewDate.year === todayBS.year && this.viewDate.month === todayBS.month
+            ? todayBS.day
+            : 15;
+          anchorDate = new NepaliDate(this.viewDate.year, this.viewDate.month, day);
+        }
+      } catch (error) {
+        console.error("Failed to create calendar switch anchor:", error);
+      }
+    }
+
     this.options.mode = mode;
     this.picker.querySelectorAll(".npd-mode-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     });
 
     try {
-      if (this.selectedDate) {
+      if (anchorDate) {
         if (mode === "AD") {
-          const [y, m] = this.selectedDate.toGregorian();
+          const [y, m] = anchorDate.toGregorian();
           this.viewDate = { year: y, month: m };
         } else {
           this.viewDate = {
-            year: this.selectedDate.year,
-            month: this.selectedDate.month,
+            year: anchorDate.year,
+            month: anchorDate.month,
           };
         }
       } else {
-        // If no date is selected, convert the current view date
-        try {
-          if (mode === "AD") {
-            // BS -> AD: Use Day 15 to avoid backward drift (Day 1 usually maps to previous month)
-            const bsDate = new NepaliDate(
-              this.viewDate.year,
-              this.viewDate.month,
-              15,
-            );
-            const [y, m] = bsDate.toGregorian();
-            NepaliDatePicker._free(bsDate);
-            this.viewDate = { year: y, month: m };
-          } else {
-            // AD -> BS: Use Day 15
-            const bsDate = NepaliDate.fromGregorian(
-              this.viewDate.year,
-              this.viewDate.month,
-              15,
-            );
-            this.viewDate = { year: bsDate.year, month: bsDate.month };
-            NepaliDatePicker._free(bsDate);
-          }
-        } catch (e) {
-          console.error("Failed to convert view date on mode switch:", e);
-          this.setDetailsFromToday();
-        }
+        this.setDetailsFromToday();
       }
     } catch (err) {
       console.error("Switch mode error:", err);
       this.setDetailsFromToday();
     }
 
+    if (anchorDate && anchorDate !== this.selectedDate) {
+      NepaliDatePicker._free(anchorDate);
+    }
+
     this.render();
+    this.position();
   }
 
   changeViewMode() {
@@ -1192,9 +1205,9 @@ export class NepaliDatePicker {
         html += `<div role="button" tabindex="0" class="npd-day npd-overflow ${isHoliday ? "holiday" : ""}" data-day="${day}" data-month-offset="-1">${day}</div>`;
       }
 
-      const today = new Date();
-      const isCurrentYear = this.viewDate.year === today.getFullYear();
-      const isCurrentMonth = this.viewDate.month === today.getMonth() + 1;
+      const [todayYear, todayMonth, todayDay] = this._getTodayAD().split("-").map(Number);
+      const isCurrentYear = this.viewDate.year === todayYear;
+      const isCurrentMonth = this.viewDate.month === todayMonth;
 
       // Pre-compute tithi for AD month (only if showTithi enabled)
       const tithiMapAD = this.options.showTithi ? this._getTithiForADMonth(this.viewDate.year, this.viewDate.month) : null;
@@ -1246,7 +1259,7 @@ export class NepaliDatePicker {
         }
 
         const isToday =
-          isCurrentYear && isCurrentMonth && day === today.getDate();
+          isCurrentYear && isCurrentMonth && day === todayDay;
 
         const currentWeekday = (startWeekday + day - 1) % 7;
         const isHoliday = currentWeekday === 0 || this._disabledDaysSet.has(currentWeekday);
@@ -1618,7 +1631,7 @@ export class NepaliDatePicker {
 
   selectToday() {
     NepaliDatePicker._free(this.selectedDate);
-    this.selectedDate = NepaliDate.today();
+    this.selectedDate = this._getTodayNepaliDate();
     this.viewDate = this._viewFromDate(this.selectedDate);
     this.updateInput();
     this.close();
@@ -1629,7 +1642,7 @@ export class NepaliDatePicker {
   }
 
   selectYesterday() {
-    const today = NepaliDate.today();
+    const today = this._getTodayNepaliDate();
     NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(-1);
     NepaliDatePicker._free(today);
@@ -1643,7 +1656,7 @@ export class NepaliDatePicker {
   }
 
   selectTomorrow() {
-    const today = NepaliDate.today();
+    const today = this._getTodayNepaliDate();
     NepaliDatePicker._free(this.selectedDate);
     this.selectedDate = today.addDays(1);
     NepaliDatePicker._free(today);
@@ -1795,7 +1808,7 @@ export class NepaliDatePicker {
   _getTodayBS() {
     if (this._todayBs) return this._todayBs;
     try {
-      const today = NepaliDate.today();
+      const today = this._getTodayNepaliDate();
       this._todayBs = { year: today.year, month: today.month, day: today.day };
       this._todayStr = `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
       NepaliDatePicker._free(today);
@@ -1809,12 +1822,25 @@ export class NepaliDatePicker {
   _getTodayAD() {
     if (this._todayStrAD) return this._todayStrAD;
     try {
-      const now = new Date();
-      this._todayStrAD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      if (this.options.todayAD && /^\d{4}-\d{2}-\d{2}$/.test(this.options.todayAD)) {
+        this._todayStrAD = this.options.todayAD;
+      } else {
+        const now = new Date();
+        this._todayStrAD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      }
     } catch (e) {
       this._todayStrAD = null;
     }
     return this._todayStrAD;
+  }
+
+  _getTodayNepaliDate() {
+    const todayAD = this._getTodayAD();
+    if (todayAD) {
+      const [year, month, day] = todayAD.split("-").map(Number);
+      return NepaliDate.fromGregorian(year, month, day);
+    }
+    return NepaliDate.today();
   }
 
   getDaysInMonth(year, month) {

@@ -1,9 +1,12 @@
 """Custom form fields for Nepali dates"""
 
 import re
+from datetime import datetime, timezone as datetime_timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 try:
     from npdatetime import NepaliDate
@@ -105,66 +108,105 @@ NpDateField = NepaliDateField
 NpDate = NepaliDateField
 
 
-class NepaliDateTimeField(forms.CharField):
-    """A form field for Nepali dates with time.
+class NepaliDateTimeField(forms.Field):
+    """Parse an AD or BS wall time and return a UTC-aware ``datetime``.
 
-    Args:
-        mode (str): 'BS' or 'AD'. Default: 'BS'
-        language (str): 'en' or 'np'. Default: 'en'
-        widget_kwargs (dict): Extra keyword arguments forwarded to widget.
+    The picker always displays a value in ``timezone_name`` (Django's current
+    timezone by default).  The value returned from ``clean()`` is an instant
+    in UTC, so a Django ``DateTimeField`` stores one canonical value regardless
+    of whether the user chose AD or BS in the picker.
     """
 
-    def __init__(self, *args, mode="AD", language="en", widget_kwargs=None, **kwargs):
-        self.mode = mode
-        self.language = language
+    input_formats = ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S")
 
-        wkw = {"mode": mode, "language": language, "include_time": True}
+    def __init__(
+        self, *args, mode="BS", language="en", timezone_name=None,
+        widget_kwargs=None, **kwargs
+    ):
+        self.mode = mode.upper()
+        if self.mode not in {"AD", "BS"}:
+            raise ValueError("mode must be either 'AD' or 'BS'")
+        self.language = language
+        self.timezone_name = timezone_name or timezone.get_current_timezone_name()
+        try:
+            self.display_timezone = ZoneInfo(self.timezone_name)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError(f"Unknown IANA timezone: {self.timezone_name}") from exc
+
+        wkw = {
+            "mode": self.mode,
+            "language": language,
+            "include_time": True,
+            "timezone_name": self.timezone_name,
+        }
         if widget_kwargs:
             wkw.update(widget_kwargs)
-
-        if "widget" not in kwargs:
-            kwargs["widget"] = NepaliDatePickerWidget(**wkw)
-
-        kwargs.setdefault("max_length", 19)
-
+        kwargs.setdefault("widget", NepaliDatePickerWidget(**wkw))
         super().__init__(*args, **kwargs)
 
-    def clean(self, value):
-        """Validate and clean the datetime value."""
-        value = super().clean(value)
-
-        if not value:
-            return value
-
-        if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$", value):
+    def _parse_local(self, value):
+        if not isinstance(value, str):
+            raise ValidationError("Enter a valid date and time.", code="invalid_datetime")
+        for input_format in self.input_formats:
+            try:
+                parsed = datetime.strptime(value, input_format)
+                break
+            except ValueError:
+                parsed = None
+        if parsed is None:
             raise ValidationError(
-                "Enter a valid datetime in YYYY-MM-DD HH:MM:SS format.",
+                "Enter a valid datetime in YYYY-MM-DD HH:MM or YYYY-MM-DD HH:MM:SS format.",
                 code="invalid_format",
             )
 
-        if value.count(":") == 1:
-            value += ":00"
-
-        if NPDATETIME_AVAILABLE:
+        if self.mode == "BS":
+            if not NPDATETIME_AVAILABLE:
+                raise ValidationError("npdatetime is required for BS dates.", code="npdatetime_unavailable")
             try:
-                date_part = value.split(" ")[0]
-                year, month, day = map(int, date_part.split("-"))
-                if self.mode == "BS":
-                    NepaliDate(year, month, day)
-                else:
-                    NepaliDate.from_gregorian(year, month, day)
+                nepali_date = NepaliDate(parsed.year, parsed.month, parsed.day)
+                year, month, day = nepali_date.to_gregorian()
+                parsed = parsed.replace(year=year, month=month, day=day)
+            except Exception as exc:
+                raise ValidationError(f"Invalid BS datetime: {exc}", code="invalid_datetime") from exc
 
-                time_part = value.split(" ")[1]
-                hour, minute, second = map(int, time_part.split(":"))
-                if not (0 <= hour < 24 and 0 <= minute < 60 and 0 <= second < 60):
-                    raise ValueError("Invalid time values")
+        # ZoneInfo does not reject daylight-saving gaps or folds itself.  A
+        # round-trip check means a bank cannot silently book an ambiguous time.
+        candidates = []
+        for fold in (0, 1):
+            candidate = parsed.replace(tzinfo=self.display_timezone, fold=fold)
+            utc_value = candidate.astimezone(datetime_timezone.utc)
+            if utc_value.astimezone(self.display_timezone).replace(tzinfo=None) == parsed:
+                candidates.append(utc_value)
+        candidates = list(dict.fromkeys(candidates))
+        if not candidates:
+            raise ValidationError("This local time does not exist in the selected timezone.", code="nonexistent_time")
+        if len(candidates) > 1:
+            raise ValidationError("This local time is ambiguous in the selected timezone.", code="ambiguous_time")
+        return candidates[0]
 
-            except Exception as e:
-                raise ValidationError(
-                    f"Invalid {self.mode} datetime: {e}", code="invalid_datetime"
-                )
+    def clean(self, value):
+        value = super().clean(value)
+        if value in self.empty_values:
+            return None
+        if isinstance(value, datetime):
+            if timezone.is_naive(value):
+                return self._parse_local(value.strftime("%Y-%m-%d %H:%M:%S"))
+            return value.astimezone(datetime_timezone.utc)
+        return self._parse_local(value)
 
-        return value
+    def prepare_value(self, value):
+        """Render stored UTC values in the configured local timezone and calendar."""
+        if not isinstance(value, datetime):
+            return value
+        if timezone.is_naive(value):
+            value = timezone.make_aware(value, datetime_timezone.utc)
+        local_value = value.astimezone(self.display_timezone)
+        if self.mode == "BS" and NPDATETIME_AVAILABLE:
+            nepali_date = NepaliDate.from_gregorian(local_value.year, local_value.month, local_value.day)
+            date_value = f"{nepali_date.year:04d}-{nepali_date.month:02d}-{nepali_date.day:02d}"
+        else:
+            date_value = local_value.strftime("%Y-%m-%d")
+        return f"{date_value} {local_value:%H:%M:%S}"
 
 
 # Aliases
