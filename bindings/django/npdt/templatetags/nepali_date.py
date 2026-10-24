@@ -4,7 +4,6 @@ import datetime
 import json
 
 from django import template
-from django.utils.safestring import mark_safe
 
 try:
     from npdatetime import NepaliDate
@@ -46,9 +45,7 @@ def to_nepali_date(value, format_str="%Y-%m-%d"):
         result = result.replace("%m", f"{nepali_date.month:02d}")
         result = result.replace("%d", f"{nepali_date.day:02d}")
         result = result.replace("%B", get_nepali_month_name(nepali_date.month, "en"))
-        result = result.replace(
-            "%b", get_nepali_month_name(nepali_date.month, "en")[:3]
-        )
+        result = result.replace("%b", get_nepali_month_name(nepali_date.month, "en")[:3])
 
         return result
 
@@ -156,9 +153,7 @@ def fiscal_year(value):
             date = NepaliDate(year, month, day)
         elif isinstance(value, datetime.date):
             date = NepaliDate.from_gregorian(value.year, value.month, value.day)
-        elif (
-            hasattr(value, "year") and hasattr(value, "month") and hasattr(value, "day")
-        ):
+        elif hasattr(value, "year") and hasattr(value, "month") and hasattr(value, "day"):
             # Potentially already a NepaliDate instance
             date = value
         else:
@@ -183,9 +178,7 @@ def fiscal_quarter(value):
             date = NepaliDate(year, month, day)
         elif isinstance(value, datetime.date):
             date = NepaliDate.from_gregorian(value.year, value.month, value.day)
-        elif (
-            hasattr(value, "year") and hasattr(value, "month") and hasattr(value, "day")
-        ):
+        elif hasattr(value, "year") and hasattr(value, "month") and hasattr(value, "day"):
             date = value
         else:
             return ""
@@ -258,14 +251,10 @@ def nepali_date_picker(
         options["theme"] = "admin"
 
     if disabled_dates:
-        options["disabledDates"] = [
-            d.strip() for d in disabled_dates.split(",") if d.strip()
-        ]
+        options["disabledDates"] = [d.strip() for d in disabled_dates.split(",") if d.strip()]
 
     if disabled_days:
-        options["disabledDays"] = [
-            int(d.strip()) for d in disabled_days.split(",") if d.strip()
-        ]
+        options["disabledDays"] = [int(d.strip()) for d in disabled_days.split(",") if d.strip()]
 
     if show_tithi:
         options["showTithi"] = True
