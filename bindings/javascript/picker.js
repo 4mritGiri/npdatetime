@@ -816,10 +816,14 @@ export class NepaliDatePicker {
     const spaceAbove = inputRect.top;
     const margin = 8;
 
-    this.picker.style.left = `${inputRect.left}px`;
     // Set picker width with a reasonable max-width instead of matching input width
     // Min: 320px, Max: 400px to prevent overly wide pickers on full-width inputs
-    this.picker.style.width = `${Math.min(Math.max(inputRect.width, 300), 350)}px`;
+    const pickerWidth = Math.min(Math.max(inputRect.width, 300), 350);
+    this.picker.style.width = `${pickerWidth}px`;
+    this.picker.style.left = `${Math.max(
+      margin,
+      Math.min(inputRect.left, window.innerWidth - pickerWidth - margin),
+    )}px`;
 
     const placeAbove =
       this.options.position === "top" ||
@@ -2087,6 +2091,13 @@ export class NepaliDatePicker {
     );
 
     return instance;
+  }
+
+  static destroyWithin(container) {
+    if (!container) return;
+    for (const [input, instance] of this.instances) {
+      if (container.contains(input)) instance.destroy();
+    }
   }
 
   static setupDOMObserver(selector, options) {

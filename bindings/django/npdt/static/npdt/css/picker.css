@@ -193,6 +193,7 @@
   z-index: var(--npd-z-index);
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transform: translateY(-0.5rem) scale(0.95);
   transition: var(--npd-transition);
   overflow: hidden;
@@ -231,6 +232,7 @@
 .npd-picker.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
   transform: translateY(0) scale(1);
 }
 
