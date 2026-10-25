@@ -3,11 +3,15 @@
 import re
 from datetime import datetime
 from datetime import timezone as datetime_timezone
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+except ImportError:
+    from backports.zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 try:
     from npdatetime import NepaliDate
