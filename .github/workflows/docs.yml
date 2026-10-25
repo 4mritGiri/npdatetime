@@ -1,3 +1,4 @@
+
 name: Documentation
 
 on:
@@ -10,18 +11,20 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
-          pip install mkdocs-material mkdocs-mermaid2-plugin
+          python -m pip install --upgrade pip
+          python -m pip install mkdocs-material mkdocs-mermaid2-plugin
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -31,7 +34,6 @@ jobs:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: 1
         run: |
           cargo doc --no-deps --all-features
-          # Fix for GitHub Pages
           echo '<meta http-equiv="refresh" content="0; url=npdatetime/index.html">' > target/doc/index.html
 
       - name: Build MkDocs site

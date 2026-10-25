@@ -38,6 +38,7 @@ classifiers = [
 dependencies = [
     "Django>=3.2",
     "npdatetime>=0.1.0",
+    "backports.zoneinfo; python_version < '3.9'",
 ]
 
 [project.urls]
