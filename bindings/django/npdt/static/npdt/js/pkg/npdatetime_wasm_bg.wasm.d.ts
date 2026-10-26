@@ -1,0 +1,36 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_bsdate_free: (a: number, b: number) => void;
+export const bsdate_day: (a: number) => number;
+export const bsdate_fromGregorian: (a: number, b: number, c: number, d: number) => void;
+export const bsdate_month: (a: number) => number;
+export const bsdate_new: (a: number, b: number, c: number, d: number) => void;
+export const bsdate_tithi: (a: number, b: number) => void;
+export const bsdate_toGregorian: (a: number, b: number) => void;
+export const bsdate_toString: (a: number, b: number) => void;
+export const bsdate_year: (a: number) => number;
+export const init: () => void;
+export const nepalidate_addDays: (a: number, b: number, c: number) => void;
+export const nepalidate_fiscalQuarter: (a: number) => number;
+export const nepalidate_fiscalYear: (a: number, b: number) => void;
+export const nepalidate_format: (a: number, b: number, c: number, d: number) => void;
+export const nepalidate_formatUnicode: (a: number, b: number) => void;
+export const nepalidate_fromGregorian: (a: number, b: number, c: number, d: number) => void;
+export const nepalidate_fromOrdinal: (a: number, b: number) => void;
+export const nepalidate_monthCalendar: (a: number, b: number) => void;
+export const nepalidate_new: (a: number, b: number, c: number, d: number) => void;
+export const nepalidate_tithi: (a: number, b: number) => void;
+export const nepalidate_toGregorian: (a: number, b: number) => void;
+export const nepalidate_toOrdinal: (a: number) => number;
+export const nepalidate_toString: (a: number, b: number) => void;
+export const nepalidate_today: (a: number) => void;
+export const __wbg_nepalidate_free: (a: number, b: number) => void;
+export const nepalidate_year: (a: number) => number;
+export const nepalidate_month: (a: number) => number;
+export const nepalidate_day: (a: number) => number;
+export const __wbindgen_export: (a: number, b: number, c: number) => void;
+export const __wbindgen_export2: (a: number, b: number) => number;
+export const __wbindgen_export3: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_add_to_stack_pointer: (a: number) => number;
+export const __wbindgen_start: () => void;
