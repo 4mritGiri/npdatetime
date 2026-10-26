@@ -8,7 +8,11 @@ dates, specific weekdays, and custom validation callbacks.
 import json
 from datetime import datetime
 from datetime import timezone as datetime_timezone
-from zoneinfo import ZoneInfo
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 
 from django import forms
 from django.forms.widgets import Input
