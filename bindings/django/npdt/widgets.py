@@ -6,12 +6,16 @@ dates, specific weekdays, and custom validation callbacks.
 """
 
 import json
-from datetime import datetime, timezone as datetime_timezone
-from zoneinfo import ZoneInfo
+from datetime import datetime
+from datetime import timezone as datetime_timezone
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 
 from django import forms
 from django.forms.widgets import Input
-from django.utils.safestring import mark_safe
 from django.utils import timezone
 
 from .holidays import HolidayProvider, NepalPublicHolidays
@@ -195,11 +199,7 @@ class NepaliDatePickerWidget(Input):
 
     def _get_holiday_names(self):
         """Resolve holiday names for tooltip display."""
-        if (
-            not self.holiday_provider
-            and not self.disable_holidays
-            and not self.show_holidays
-        ):
+        if not self.holiday_provider and not self.disable_holidays and not self.show_holidays:
             return {}
 
         provider = self.holiday_provider
@@ -317,6 +317,7 @@ class NepaliDatePickerWidget(Input):
         if self.mode == "BS":
             try:
                 from npdatetime import NepaliDate
+
                 date = NepaliDate.from_gregorian(local_value.year, local_value.month, local_value.day)
                 date_value = f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
             except Exception:
@@ -340,9 +341,7 @@ class NepaliDatePickerWidget(Input):
 
         if "placeholder" not in attrs:
             if self.mode == "BS":
-                attrs["placeholder"] = (
-                    "मिति (YYYY-MM-DD)" if self.language == "np" else "YYYY-MM-DD"
-                )
+                attrs["placeholder"] = "मिति (YYYY-MM-DD)" if self.language == "np" else "YYYY-MM-DD"
             else:
                 attrs["placeholder"] = "YYYY-MM-DD"
 
@@ -370,9 +369,7 @@ class NepaliDatePickerWidget(Input):
             parts = value.split("-")
             year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
         except (ValueError, IndexError):
-            raise ValidationError(
-                "Invalid date format. Use YYYY-MM-DD.", code="invalid_format"
-            )
+            raise ValidationError("Invalid date format. Use YYYY-MM-DD.", code="invalid_format")
 
         # 1. Explicit disabledDates
         if self.disabled_dates and value in self.disabled_dates:

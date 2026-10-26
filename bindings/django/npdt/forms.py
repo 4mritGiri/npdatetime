@@ -1,12 +1,17 @@
 """Custom form fields for Nepali dates"""
 
 import re
-from datetime import datetime, timezone as datetime_timezone
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import datetime
+from datetime import timezone as datetime_timezone
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+except ImportError:
+    from backports.zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 try:
     from npdatetime import NepaliDate
@@ -68,9 +73,7 @@ class NepaliDateField(forms.CharField):
             return value
 
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", value):
-            raise ValidationError(
-                "Enter a valid date in YYYY-MM-DD format.", code="invalid_format"
-            )
+            raise ValidationError("Enter a valid date in YYYY-MM-DD format.", code="invalid_format")
 
         if NPDATETIME_AVAILABLE:
             try:
@@ -80,9 +83,7 @@ class NepaliDateField(forms.CharField):
                 else:
                     NepaliDate.from_gregorian(year, month, day)
             except Exception as e:
-                raise ValidationError(
-                    f"Invalid {self.mode} date: {e}", code="invalid_date"
-                )
+                raise ValidationError(f"Invalid {self.mode} date: {e}", code="invalid_date")
 
         # Server-side validation for disabled date constraints
         widget = self.widget
@@ -119,10 +120,7 @@ class NepaliDateTimeField(forms.Field):
 
     input_formats = ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S")
 
-    def __init__(
-        self, *args, mode="BS", language="en", timezone_name=None,
-        widget_kwargs=None, **kwargs
-    ):
+    def __init__(self, *args, mode="BS", language="en", timezone_name=None, widget_kwargs=None, **kwargs):
         self.mode = mode.upper()
         if self.mode not in {"AD", "BS"}:
             raise ValueError("mode must be either 'AD' or 'BS'")
@@ -259,9 +257,7 @@ class NepaliDateRangeField(forms.CharField):
                 )
 
         if start_date > end_date:
-            raise ValidationError(
-                "Start date must be before or equal to end date.", code="invalid_range"
-            )
+            raise ValidationError("Start date must be before or equal to end date.", code="invalid_range")
 
         return value
 

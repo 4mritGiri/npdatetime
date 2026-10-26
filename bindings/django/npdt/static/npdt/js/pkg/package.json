@@ -1,0 +1,15 @@
+{
+  "name": "npdatetime-wasm",
+  "type": "module",
+  "version": "0.2.5",
+  "files": [
+    "npdatetime_wasm_bg.wasm",
+    "npdatetime_wasm.js",
+    "npdatetime_wasm.d.ts"
+  ],
+  "main": "npdatetime_wasm.js",
+  "types": "npdatetime_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
