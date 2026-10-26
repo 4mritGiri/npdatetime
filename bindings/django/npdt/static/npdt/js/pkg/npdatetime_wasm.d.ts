@@ -37,6 +37,10 @@ export class NepaliDate {
      */
     addDays(days: number): NepaliDate;
     /**
+     * Format the date in Unicode Devanagari script
+     */
+    formatUnicode(): string;
+    /**
      * Format the date as a string
      *
      * @param {string} format - Format string (strftime-style)
@@ -47,10 +51,6 @@ export class NepaliDate {
      * console.log(date.format("%d %B %Y")); // "19 Bhadra 2077"
      */
     format(format_str: string): string;
-    /**
-     * Format the date in Unicode Devanagari script
-     */
-    formatUnicode(): string;
     /**
      * Create NepaliDate from Gregorian (AD) date
      *
@@ -85,6 +85,10 @@ export class NepaliDate {
      * console.log(date.toString()); // "2077-05-19"
      */
     constructor(year: number, month: number, day: number);
+    /**
+     * Get detailed Tithi information including start and end times in NPT
+     */
+    tithiDetails(): any;
     /**
      * Get Tithi for the date (Astronomical)
      *
@@ -148,6 +152,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly __wbg_bsdate_free: (a: number, b: number) => void;
+    readonly __wbg_nepalidate_free: (a: number, b: number) => void;
     readonly bsdate_day: (a: number) => number;
     readonly bsdate_fromGregorian: (a: number, b: number, c: number, d: number) => void;
     readonly bsdate_month: (a: number) => number;
@@ -158,26 +163,26 @@ export interface InitOutput {
     readonly bsdate_year: (a: number) => number;
     readonly init: () => void;
     readonly nepalidate_addDays: (a: number, b: number, c: number) => void;
+    readonly nepalidate_day: (a: number) => number;
     readonly nepalidate_fiscalQuarter: (a: number) => number;
     readonly nepalidate_fiscalYear: (a: number, b: number) => void;
     readonly nepalidate_format: (a: number, b: number, c: number, d: number) => void;
     readonly nepalidate_formatUnicode: (a: number, b: number) => void;
     readonly nepalidate_fromGregorian: (a: number, b: number, c: number, d: number) => void;
     readonly nepalidate_fromOrdinal: (a: number, b: number) => void;
+    readonly nepalidate_month: (a: number) => number;
     readonly nepalidate_monthCalendar: (a: number, b: number) => void;
     readonly nepalidate_new: (a: number, b: number, c: number, d: number) => void;
     readonly nepalidate_tithi: (a: number, b: number) => void;
+    readonly nepalidate_tithiDetails: (a: number, b: number) => void;
     readonly nepalidate_toGregorian: (a: number, b: number) => void;
     readonly nepalidate_toOrdinal: (a: number) => number;
     readonly nepalidate_toString: (a: number, b: number) => void;
     readonly nepalidate_today: (a: number) => void;
-    readonly __wbg_nepalidate_free: (a: number, b: number) => void;
     readonly nepalidate_year: (a: number) => number;
-    readonly nepalidate_month: (a: number) => number;
-    readonly nepalidate_day: (a: number) => number;
-    readonly __wbindgen_export: (a: number, b: number, c: number) => void;
-    readonly __wbindgen_export2: (a: number, b: number) => number;
-    readonly __wbindgen_export3: (a: number, b: number, c: number, d: number) => number;
+    readonly __wbindgen_export: (a: number, b: number) => number;
+    readonly __wbindgen_export2: (a: number, b: number, c: number, d: number) => number;
+    readonly __wbindgen_export3: (a: number, b: number, c: number) => void;
     readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
     readonly __wbindgen_start: () => void;
 }

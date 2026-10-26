@@ -1,7 +1,7 @@
 {
-  "name": "npdatetime-wasm",
+  "name": "@4mritgiri/npdatetime",
   "type": "module",
-  "version": "0.2.5",
+  "version": "0.2.11",
   "files": [
     "npdatetime_wasm_bg.wasm",
     "npdatetime_wasm.js",

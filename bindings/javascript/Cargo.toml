@@ -1,6 +1,6 @@
 [package]
 name = "npdatetime-wasm"
-version = "0.2.11-beta"
+version = "0.2.11"
 edition = "2021"
 
 [lib]

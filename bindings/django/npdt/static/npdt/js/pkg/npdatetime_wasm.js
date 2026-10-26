@@ -103,7 +103,7 @@ export class BsDate {
             return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred2_0, deferred2_1, 1);
+            wasm.__wbindgen_export3(deferred2_0, deferred2_1, 1);
         }
     }
     /**
@@ -121,7 +121,7 @@ export class BsDate {
                 throw takeObject(r2);
             }
             var v1 = getArrayI32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export(r0, r1 * 4, 4);
+            wasm.__wbindgen_export3(r0, r1 * 4, 4);
             return v1;
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
@@ -143,7 +143,7 @@ export class BsDate {
             return getStringFromWasm0(r0, r1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred1_0, deferred1_1, 1);
+            wasm.__wbindgen_export3(deferred1_0, deferred1_1, 1);
         }
     }
     /**
@@ -232,37 +232,7 @@ export class NepaliDate {
             return getStringFromWasm0(r0, r1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred1_0, deferred1_1, 1);
-        }
-    }
-    /**
-     * Format the date as a string
-     *
-     * @param {string} format - Format string (strftime-style)
-     * @returns {string} Formatted date string
-     *
-     * @example
-     * const date = new NepaliDate(2077, 5, 19);
-     * console.log(date.format("%d %B %Y")); // "19 Bhadra 2077"
-     * @param {string} format_str
-     * @returns {string}
-     */
-    format(format_str) {
-        let deferred2_0;
-        let deferred2_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(format_str, wasm.__wbindgen_export2, wasm.__wbindgen_export3);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.nepalidate_format(retptr, this.__wbg_ptr, ptr0, len0);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred2_0 = r0;
-            deferred2_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred2_0, deferred2_1, 1);
+            wasm.__wbindgen_export3(deferred1_0, deferred1_1, 1);
         }
     }
     /**
@@ -282,7 +252,37 @@ export class NepaliDate {
             return getStringFromWasm0(r0, r1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred1_0, deferred1_1, 1);
+            wasm.__wbindgen_export3(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Format the date as a string
+     *
+     * @param {string} format - Format string (strftime-style)
+     * @returns {string} Formatted date string
+     *
+     * @example
+     * const date = new NepaliDate(2077, 5, 19);
+     * console.log(date.format("%d %B %Y")); // "19 Bhadra 2077"
+     * @param {string} format_str
+     * @returns {string}
+     */
+    format(format_str) {
+        let deferred2_0;
+        let deferred2_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(format_str, wasm.__wbindgen_export, wasm.__wbindgen_export2);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.nepalidate_format(retptr, this.__wbg_ptr, ptr0, len0);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred2_0 = r0;
+            deferred2_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export3(deferred2_0, deferred2_1, 1);
         }
     }
     /**
@@ -337,14 +337,6 @@ export class NepaliDate {
         }
     }
     /**
-     * Get the month (1-12)
-     * @returns {number}
-     */
-    get month() {
-        const ret = wasm.nepalidate_month(this.__wbg_ptr);
-        return ret;
-    }
-    /**
      * Generate a visual month calendar
      * @returns {string}
      */
@@ -361,8 +353,16 @@ export class NepaliDate {
             return getStringFromWasm0(r0, r1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred1_0, deferred1_1, 1);
+            wasm.__wbindgen_export3(deferred1_0, deferred1_1, 1);
         }
+    }
+    /**
+     * Get the month (1-12)
+     * @returns {number}
+     */
+    get month() {
+        const ret = wasm.nepalidate_month(this.__wbg_ptr);
+        return ret;
     }
     /**
      * Create a new Nepali date
@@ -397,6 +397,25 @@ export class NepaliDate {
         }
     }
     /**
+     * Get detailed Tithi information including start and end times in NPT
+     * @returns {any}
+     */
+    tithiDetails() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.nepalidate_tithiDetails(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
      * Get Tithi for the date (Astronomical)
      *
      * @returns {string} Tithi name (e.g., "Shukla Pratipada")
@@ -423,7 +442,7 @@ export class NepaliDate {
             return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred2_0, deferred2_1, 1);
+            wasm.__wbindgen_export3(deferred2_0, deferred2_1, 1);
         }
     }
     /**
@@ -449,7 +468,7 @@ export class NepaliDate {
                 throw takeObject(r2);
             }
             var v1 = getArrayI32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export(r0, r1 * 4, 4);
+            wasm.__wbindgen_export3(r0, r1 * 4, 4);
             return v1;
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
@@ -480,7 +499,7 @@ export class NepaliDate {
             return getStringFromWasm0(r0, r1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export(deferred1_0, deferred1_1, 1);
+            wasm.__wbindgen_export3(deferred1_0, deferred1_1, 1);
         }
     }
     /**
@@ -524,10 +543,17 @@ export function init() {
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg___wbindgen_throw_344f42d3211c4765: function(arg0, arg1) {
+        __wbg_String_8564e559799eccda: function(arg0, arg1) {
+            const ret = String(getObject(arg1));
+            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export, wasm.__wbindgen_export2);
+            const len1 = WASM_VECTOR_LEN;
+            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+        },
+        __wbg___wbindgen_throw_41e9ee4f547fc59a: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         },
-        __wbg_error_a6fa202b58aa1cd3: function(arg0, arg1) {
+        __wbg_error_757e9472f8410341: function(arg0, arg1) {
             let deferred0_0;
             let deferred0_1;
             try {
@@ -535,22 +561,22 @@ function __wbg_get_imports() {
                 deferred0_1 = arg1;
                 console.error(getStringFromWasm0(arg0, arg1));
             } finally {
-                wasm.__wbindgen_export(deferred0_0, deferred0_1, 1);
+                wasm.__wbindgen_export3(deferred0_0, deferred0_1, 1);
             }
         },
-        __wbg_getDate_a1a40c1c5f40fe3b: function(arg0) {
+        __wbg_getDate_1181c785ea4fdd21: function(arg0) {
             const ret = getObject(arg0).getDate();
             return ret;
         },
-        __wbg_getFullYear_6af8b229792ae254: function(arg0) {
+        __wbg_getFullYear_32050b2c56c56cd8: function(arg0) {
             const ret = getObject(arg0).getFullYear();
             return ret;
         },
-        __wbg_getMonth_fffe29d654d5eb69: function(arg0) {
+        __wbg_getMonth_aae5f530fd173536: function(arg0) {
             const ret = getObject(arg0).getMonth();
             return ret;
         },
-        __wbg_new_0_3da9e97f24fc69be: function() {
+        __wbg_new_0_72d020f0c63443d4: function() {
             const ret = new Date();
             return addHeapObject(ret);
         },
@@ -558,16 +584,32 @@ function __wbg_get_imports() {
             const ret = new Error();
             return addHeapObject(ret);
         },
+        __wbg_new_617a8cdb8bb1130e: function() {
+            const ret = new Object();
+            return addHeapObject(ret);
+        },
+        __wbg_set_6be42768c690e380: function(arg0, arg1, arg2) {
+            getObject(arg0)[takeObject(arg1)] = takeObject(arg2);
+        },
         __wbg_stack_3b0d974bbf31e44f: function(arg0, arg1) {
             const ret = getObject(arg1).stack;
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export2, wasm.__wbindgen_export3);
+            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export, wasm.__wbindgen_export2);
             const len1 = WASM_VECTOR_LEN;
             getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
             getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
         },
-        __wbindgen_cast_0000000000000001: function(arg0, arg1) {
+        __wbindgen_generic_0000000000000001: function(arg0) {
+            // Cast intrinsic for `F64 -> Externref`.
+            const ret = arg0;
+            return addHeapObject(ret);
+        },
+        __wbindgen_generic_0000000000000002: function(arg0, arg1) {
             // Cast intrinsic for `Ref(String) -> Externref`.
             const ret = getStringFromWasm0(arg0, arg1);
+            return addHeapObject(ret);
+        },
+        __wbindgen_object_clone_ref: function(arg0) {
+            const ret = getObject(arg0);
             return addHeapObject(ret);
         },
         __wbindgen_object_drop_ref: function(arg0) {
@@ -728,11 +770,15 @@ function __wbg_finalize_init(instance, module) {
 
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
+        if (!module.ok) {
+            throw new Error(`failed to fetch Wasm: ${module.status} ${module.statusText} fetching '${module.url}'`);
+        }
+
         if (typeof WebAssembly.instantiateStreaming === 'function') {
             try {
                 return await WebAssembly.instantiateStreaming(module, imports);
             } catch (e) {
-                const validResponse = module.ok && expectedResponseType(module.type);
+                const validResponse = expectedResponseType(module.type);
 
                 if (validResponse && module.headers.get('Content-Type') !== 'application/wasm') {
                     console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\n", e);

@@ -1,9 +1,1 @@
-# Keep built WASM assets in the Django package so collectstatic can serve them.
-# Source JS pkg/ remains a build artifact under bindings/javascript/.
 *
-!.gitignore
-!npdatetime_wasm.js
-!npdatetime_wasm_bg.wasm
-!npdatetime_wasm.d.ts
-!npdatetime_wasm_bg.wasm.d.ts
-!package.json
